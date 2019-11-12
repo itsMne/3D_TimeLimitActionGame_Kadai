@@ -7,6 +7,7 @@ enum GameObjectTypes
 {
 	GO_PLAYER=0,
 	GO_BULLET,
+	GO_SHADOW,
 	GO_MAX
 };
 class GameObject3D
@@ -20,10 +21,12 @@ protected:
 	XMFLOAT4X4 WorldMatrix;
 	int nType;
 	bool bUse;
-	//’e‚ÉŠÖ‚·‚é
+	//‰e‚ÉŠÖ‚·‚é
+	GameObject3D* p_goParent;
 	int nUseCounterFrame;
 public:
 	GameObject3D();
+	GameObject3D(int nType);
 	GameObject3D(const char* ModelPath, int nType);
 	GameObject3D(Light3D* light, const char* ModelPath, int nType);
 	~GameObject3D();
@@ -42,6 +45,7 @@ public:
 	void SetModelRotation(XMFLOAT3 rot);
 	void RotateAroundY(float y);
 	void SetUse(bool newUse);
+	void SetParent(GameObject3D* pNewParent);
 	bool IsInUse();
 	int GetType();
 };

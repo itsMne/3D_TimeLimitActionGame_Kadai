@@ -6,8 +6,14 @@
 #define ROTATION_SPEED	XM_PI*0.02f			// ‰ñ“]‘¬“x
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
+
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
+	mShadow = nullptr;
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		goBullets[i] = nullptr;
+	}
 	Init();
 }
 
@@ -27,6 +33,11 @@ void Player3D::Init()
 	printf("%f\n", GetModel()->GetPosition().y);
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
+	pDeviceContext = GetDeviceContext();
+	pCurrentWindow = GetMainWindow();
+	mShadow = new GameObject3D("data/model/Shadow.fbx", GO_SHADOW);
+	mShadow->SetRotation({ 0,0,0 });
+	mShadow->SetParent(this);
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = new GameObject3D("data/model/Bullet.fbx", GO_BULLET);
@@ -137,10 +148,19 @@ void Player3D::Update()
 	PrintDebugProc("Ð·Þ  ²ÄÞ³ : \x1c\n");//¨
 	PrintDebugProc("ËÀÞØ ¾Ý¶² : LSHIFT\n");
 	PrintDebugProc("Ð·Þ  ¾Ý¶² : RSHIFT\n");
+	PrintDebugProc("ROT : %f\n", sinf(XM_PI+rotCamera.y));
 	PrintDebugProc("\n");
 
-
 	PlayerBulletsControl();
+	PlayerShadowControl();
+}
+
+void Player3D::PlayerShadowControl()
+{
+	if (!mShadow)
+		return;
+	mShadow->Update();
+	mShadow->SetRotation(Model->GetRotation());
 }
 
 void Player3D::PlayerBulletsControl()
@@ -158,10 +178,12 @@ void Player3D::PlayerBulletsControl()
 				continue;
 			if (goBullets[i]->IsInUse())
 				continue;
+			XMFLOAT3 rotCamera;
+			rotCamera = pMainCamera->GetCameraAngle();
 			goBullets[i]->SetUse(true);
 			XMFLOAT3 ModelRotation = Rotation;
 			goBullets[i]->SetRotation(ModelRotation);
-			goBullets[i]->SetPosition({ Position.x, Position.y+15, Position.z });
+			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y+15, Position.z+ cosf(rotCamera.y)*15 });
 			nShootCooldown = 0;
 			break;
 		}
@@ -176,18 +198,24 @@ void Player3D::PlayerBulletsControl()
 
 void Player3D::Draw()
 {
+	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(1));
 	GameObject3D::Draw();
+	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(2));
+	if(mShadow)
+		mShadow->Draw();
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		if (!goBullets[i])
 			continue;
 		goBullets[i]->Draw();
 	}
+	
 }
 
 void Player3D::End()
 {
 	GameObject3D::End();
+	mShadow->End();
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		if (!goBullets[i])

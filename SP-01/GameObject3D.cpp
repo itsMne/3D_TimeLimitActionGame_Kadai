@@ -8,6 +8,25 @@ GameObject3D::GameObject3D()
 	nType = GO_MAX;
 }
 
+GameObject3D::GameObject3D(int Type)
+{
+	
+	Init();
+	switch (Type)
+	{
+	case GO_SHADOW:
+		Model = new Model3D();
+		Model->InitModel(GetMainLight(), "data/model/Shadow.fbx");
+		Model->SetParent(this);
+		break;
+	default:
+		break;
+	}
+
+	nInitedGameObjects++;
+	nType = Type;
+}
+
 GameObject3D::GameObject3D(const char * ModelPath, int Type)
 {
 	Init();
@@ -43,6 +62,7 @@ void GameObject3D::Init()
 	pMainCamera = GetMainCamera();
 	bUse = true;
 	nUseCounterFrame = 0;
+	p_goParent = nullptr;
 }
 
 void GameObject3D::Update()
@@ -63,6 +83,13 @@ void GameObject3D::Update()
 			bUse = false;
 		}
 		break;
+	case GO_SHADOW:
+		if (!p_goParent)
+			return;
+		XMFLOAT3 ParentPosition = p_goParent->GetLocation();
+		Position.x = ParentPosition.x;
+		Position.z = ParentPosition.z;
+		break;
 	default:
 		break;
 	}
@@ -74,6 +101,8 @@ void GameObject3D::Draw()
 		return;
 	if (Model) 
 		Model->DrawModel();
+	/*if (nType == GO_SHADOW && Model && bUse)
+		printf("hello\n");*/
 }
 
 void GameObject3D::End()
@@ -155,6 +184,11 @@ void GameObject3D::RotateAroundY(float y)
 void GameObject3D::SetUse(bool newUse)
 {
 	bUse = newUse;
+}
+
+void GameObject3D::SetParent(GameObject3D * pNewParent)
+{
+	p_goParent = pNewParent;
 }
 
 bool GameObject3D::IsInUse()

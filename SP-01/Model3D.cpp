@@ -56,6 +56,7 @@ HRESULT Model3D::InitModel(Light3D* SceneLight, const char* ModelPath)
 		return S_OK;
 	}
 	hr = g_pModel->Init(pDevice, pDeviceContext, ModelPath);
+	printf("%s\n", ModelPath);	
 	if (SUCCEEDED(hr)) {
 		g_pModel->SetCamera(pMainCamera->GetCameraPos());
 		if (pLight)

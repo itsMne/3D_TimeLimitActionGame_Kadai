@@ -11,7 +11,7 @@ Light3D* SceneLight = nullptr;
 Player3D* HelloModel = nullptr;
 Field3D* HelloField = nullptr;
 DXWindow3D* MainWindow = nullptr;
-GameObject3D* HelloBullet = nullptr;
+GameObject3D* HelloShadow = nullptr;
 HRESULT InitScene()
 {
 	MainWindow = GetMainWindow();
@@ -20,7 +20,8 @@ HRESULT InitScene()
 	SceneLight = new Light3D(true);
 	HelloModel = new Player3D();
 	HelloField = new Field3D();
-	HelloBullet = new GameObject3D("data/model/Bullet.fbx", GO_BULLET);
+	HelloShadow = new GameObject3D(GO_MAX);
+	HelloShadow->SetParent(HelloModel);
 	HRESULT	hr;
 	g_pDevice = GetDevice();
 	hr = HelloField->InitField(SceneLight, "data/texture/field000.jpg");
@@ -51,7 +52,7 @@ void UpdateScene()
 	// フィールド更新
 	HelloField->UpdateField();
 
-	HelloBullet->Update();
+	HelloShadow->Update();
 }
 
 void DrawScene()
@@ -73,7 +74,7 @@ void DrawScene()
 	// フィールド描画
 	HelloField->DrawField();
 
-	HelloBullet->Draw();
+	HelloShadow->Draw();
 	// Zバッファ無効
 	SetZBuffer(false);
 
@@ -91,7 +92,7 @@ void EndScene()
 	// 光源終了処理
 	SceneLight->End();
 
-	HelloBullet->End();
+	HelloShadow->End();
 	// カメラ終了処理
 	if(SceneCamera)
 		SceneCamera->End();
