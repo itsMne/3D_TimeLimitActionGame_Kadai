@@ -7,6 +7,19 @@
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
 
+enum PLAYER_ANIMATIONS
+{
+	ANIMATION_IDLE=0,//アイドル
+	ANIMATION_WALKING,//動く 
+	ANIMATION_AIMING,//狙う
+	MAX_ANIMATIONS
+};
+int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
+{
+	{5},//IDLE
+	{2},//WALKING
+	{5},//AIMING
+};
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
 	mShadow = nullptr;
@@ -30,6 +43,7 @@ Player3D::~Player3D()
 void Player3D::Init()
 {
 	SetScale(PLAYER_SCALE);
+	nState = PLAYER_IDLE_STATE;
 	printf("%f\n", GetModel()->GetPosition().y);
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
@@ -48,38 +62,72 @@ void Player3D::Init()
 void Player3D::Update()
 {
 	GameObject3D::Update();
-	XMFLOAT3 rotCamera;
+
 	// カメラの向き取得
 	if (!pMainCamera)
 		pMainCamera = GetMainCamera();
-	rotCamera = pMainCamera->GetCameraAngle();
+
 	static int NumTest = 0;
-	/*if (GetKeyTrigger(VK_SPACE))
-		NumTest++;
-	if (NumTest >= Model->GetNumberOfAnimations())
-		NumTest = BULLET_COOLDOWN;*/
-	if (!GetInput(INPUT_FORWARD) && !GetInput(INPUT_BACKWARD) && !GetInput(INPUT_RIGHT) && !GetInput(INPUT_LEFT) && !GetInput(INPUT_AIM))
-		Model->SwitchAnimation(NumTest, 5);
+	switch (nState)
+	{
+	case PLAYER_IDLE_STATE:
+		SetPlayerAnimation(ANIMATION_IDLE);
+		if (GetInput(INPUT_FORWARD) || GetInput(INPUT_BACKWARD) || GetInput(INPUT_RIGHT) || GetInput(INPUT_LEFT) || GetInput(INPUT_AIM))
+			nState = PLAYER_MOVING_STATE;
+		break;
+	case PLAYER_MOVING_STATE:
+		MoveControl();
+		break;
+	default:
+		break;
+	}
+	PrintDebugProc("[ｸﾙﾏ ｲﾁ : (%f, %f, %f)]\n", Position.x, Position.y, Position.z);
+	PrintDebugProc("[ｸﾙﾏ ﾑｷ : (%f)]\n", XMConvertToDegrees(Rotation.y));
+	PrintDebugProc("\n");
+
+	PrintDebugProc("*** ｸﾙﾏ ｿｳｻ ***\n");
+	PrintDebugProc("ﾏｴ   ｲﾄﾞｳ : \x1e\n");//↑
+	PrintDebugProc("ｳｼﾛ  ｲﾄﾞｳ : \x1f\n");//↓
+	PrintDebugProc("ﾋﾀﾞﾘ ｲﾄﾞｳ : \x1d\n");//←
+	PrintDebugProc("ﾐｷﾞ  ｲﾄﾞｳ : \x1c\n");//→
+	PrintDebugProc("ﾋﾀﾞﾘ ｾﾝｶｲ : LSHIFT\n");
+	PrintDebugProc("ﾐｷﾞ  ｾﾝｶｲ : RSHIFT\n");
+	PrintDebugProc("\n");
+
+	PlayerBulletsControl();
+	PlayerShadowControl();
+}
+
+void Player3D::MoveControl()
+{
+
+	XMFLOAT3 rotCamera;
+	rotCamera = pMainCamera->GetCameraAngle();
+	if (!GetInput(INPUT_FORWARD) && !GetInput(INPUT_BACKWARD) && !GetInput(INPUT_RIGHT) && !GetInput(INPUT_LEFT) && !GetInput(INPUT_AIM)) {
+		nState = PLAYER_IDLE_STATE;
+		return;
+	}
+	if (!GetInput(INPUT_AIM))
+		SetPlayerAnimation(ANIMATION_WALKING);
+	else
+		SetPlayerAnimation(ANIMATION_AIMING);
 	if (GetInput(INPUT_LEFT)) {
 		if (GetInput(INPUT_FORWARD)) {
 			// 左前移動
 			Position.x -= sinf(rotCamera.y + XM_PI * 0.75f) * PLAYER_SPEED;
 			Position.z -= cosf(rotCamera.y + XM_PI * 0.75f) * PLAYER_SPEED;
-			Model->SwitchAnimation(1, 2);
 			Model->SetRotation({ 0,-0.942f,0 });
 		}
 		else if (GetInput(INPUT_BACKWARD)) {
 			// 左後移動
 			Position.x -= sinf(rotCamera.y + XM_PI * 0.25f) * PLAYER_SPEED;
 			Position.z -= cosf(rotCamera.y + XM_PI * 0.25f) * PLAYER_SPEED;
-			Model->SwitchAnimation(1, 2);
 			Model->SetRotation({ 0,-2.450f,0 });
 		}
 		else {
 			// 左移動
 			Position.x -= sinf(rotCamera.y + XM_PI * 0.50f) * PLAYER_SPEED;
 			Position.z -= cosf(rotCamera.y + XM_PI * 0.50f) * PLAYER_SPEED;
-			Model->SwitchAnimation(1, 2);
 			Model->SetRotation({ 0,4.696f,0 });
 		}
 	}
@@ -88,21 +136,18 @@ void Player3D::Update()
 			// 右前移動
 			Position.x -= sinf(rotCamera.y - XM_PI * 0.75f) * PLAYER_SPEED;
 			Position.z -= cosf(rotCamera.y - XM_PI * 0.75f) * PLAYER_SPEED;
-			Model->SwitchAnimation(1, 2);
 			Model->SetRotation({ 0,0.942f,0 });
 		}
 		else if (GetInput(INPUT_BACKWARD)) {
 			// 右後移動
 			Position.x -= sinf(rotCamera.y - XM_PI * 0.25f) * PLAYER_SPEED;
 			Position.z -= cosf(rotCamera.y - XM_PI * 0.25f) * PLAYER_SPEED;
-			Model->SwitchAnimation(1, 2);
 			Model->SetRotation({ 0,2.450f,0 });
 		}
 		else {
 			// 右移動
 			Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED;
 			Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED;
-			Model->SwitchAnimation(1, 2);
 			Model->SetRotation({ 0,1.68f,0 });
 		}
 	}
@@ -110,14 +155,12 @@ void Player3D::Update()
 		// 前移動
 		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED;
 		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED;
-		Model->SwitchAnimation(1, 2);
-		Model->SetRotation({0,0,0});
+		Model->SetRotation({ 0,0,0 });
 	}
 	else if (GetInput(INPUT_BACKWARD)) {
 		// 後移動
 		Position.x -= sinf(rotCamera.y) * PLAYER_SPEED;
 		Position.z -= cosf(rotCamera.y) * PLAYER_SPEED;
-		Model->SwitchAnimation(1, 2);
 		Model->SetRotation({ 0,3.314f,0 });
 	}
 
@@ -137,22 +180,11 @@ void Player3D::Update()
 		Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	}
-	PrintDebugProc("[ｸﾙﾏ ｲﾁ : (%f, %f, %f)]\n", Position.x, Position.y, Position.z);
-	PrintDebugProc("[ｸﾙﾏ ﾑｷ : (%f)]\n", XMConvertToDegrees(Rotation.y));
-	PrintDebugProc("\n");
+}
 
-	PrintDebugProc("*** ｸﾙﾏ ｿｳｻ ***\n");
-	PrintDebugProc("ﾏｴ   ｲﾄﾞｳ : \x1e\n");//↑
-	PrintDebugProc("ｳｼﾛ  ｲﾄﾞｳ : \x1f\n");//↓
-	PrintDebugProc("ﾋﾀﾞﾘ ｲﾄﾞｳ : \x1d\n");//←
-	PrintDebugProc("ﾐｷﾞ  ｲﾄﾞｳ : \x1c\n");//→
-	PrintDebugProc("ﾋﾀﾞﾘ ｾﾝｶｲ : LSHIFT\n");
-	PrintDebugProc("ﾐｷﾞ  ｾﾝｶｲ : RSHIFT\n");
-	PrintDebugProc("ROT : %f\n", sinf(XM_PI+rotCamera.y));
-	PrintDebugProc("\n");
-
-	PlayerBulletsControl();
-	PlayerShadowControl();
+void Player3D::SetPlayerAnimation(int Animation)
+{
+	Model->SwitchAnimation(Animation, nAnimationSpeeds[Animation]);
 }
 
 void Player3D::PlayerShadowControl()

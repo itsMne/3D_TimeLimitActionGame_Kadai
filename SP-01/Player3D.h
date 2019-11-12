@@ -12,8 +12,11 @@ class Player3D :
 	public GameObject3D
 {
 private:
-	GameObject3D* goBullets[MAX_BULLETS];
+	int nState;
+	//‰e‚ÉŠÖ‚·‚é
 	GameObject3D* mShadow;
+	//’e‚ÉŠÖ‚·‚é
+	GameObject3D* goBullets[MAX_BULLETS];
 	int nShootCooldown;
 	//ƒŒƒ“ƒ_ƒŠƒ“ƒO‚Ìˆ×‚É
 	ID3D11DeviceContext* pDeviceContext;
@@ -25,6 +28,8 @@ public:
 
 	void Init();
 	void Update();
+	void MoveControl();
+	void SetPlayerAnimation(int Animation);
 	void PlayerShadowControl();
 	void PlayerBulletsControl();
 	void Draw();

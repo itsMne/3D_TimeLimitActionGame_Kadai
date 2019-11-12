@@ -6,6 +6,7 @@ int nInitedGameObjects = 0;
 GameObject3D::GameObject3D()
 {
 	nType = GO_MAX;
+	Model = nullptr;
 }
 
 GameObject3D::GameObject3D(int Type)
@@ -63,6 +64,7 @@ void GameObject3D::Init()
 	bUse = true;
 	nUseCounterFrame = 0;
 	p_goParent = nullptr;
+	Model = nullptr;
 }
 
 void GameObject3D::Update()
@@ -101,8 +103,6 @@ void GameObject3D::Draw()
 		return;
 	if (Model) 
 		Model->DrawModel();
-	/*if (nType == GO_SHADOW && Model && bUse)
-		printf("hello\n");*/
 }
 
 void GameObject3D::End()
@@ -170,7 +170,8 @@ void GameObject3D::SetPosition(XMFLOAT3 newPos)
 
 void GameObject3D::SetModelRotation(XMFLOAT3 rot)
 {
-	Model->SetRotation(rot);
+	if(Model)
+		Model->SetRotation(rot);
 }
 
 void GameObject3D::RotateAroundY(float y)

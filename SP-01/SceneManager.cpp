@@ -27,7 +27,6 @@ HRESULT InitScene()
 	hr = HelloField->InitField(SceneLight, "data/texture/field000.jpg");
 	hr = InitDebugProc();
 	SceneCamera->SetFocalPointGO(HelloModel);
-
 	return hr;
 }
 
