@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "debugproc.h"
-#include "polygon.h"
+#include "Polygon2D.h"
 #include "Texture.h"
 
 //*****************************************************************************
@@ -30,10 +30,9 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static ID3D11ShaderResourceView*	g_pTexture;					// テクスチャへのポインタ
 static char							g_szDebug[8192] = { '\0' };	// デバッグ情報
 static bool							g_bHiragana = false;		// 平仮名フラグ
-
+Polygon2D* DebugProcPolygon = nullptr;
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -42,9 +41,8 @@ HRESULT InitDebugProc(void)
 	ID3D11Device* pDevice = GetDevice();
 	HRESULT hr = S_OK;
 
-	// テクスチャの読み込み
-	hr = CreateTextureFromFile(pDevice, TEXTURE_FILENAME, &g_pTexture);
-
+	if (!DebugProcPolygon)
+		DebugProcPolygon = new Polygon2D("data/TEXTURE/PressStart2Ph.tga");
 	return hr;
 }
 
@@ -54,7 +52,8 @@ HRESULT InitDebugProc(void)
 void UninitDebugProc(void)
 {
 	// テクスチャ解法
-	SAFE_RELEASE(g_pTexture);
+	DebugProcPolygon->UninitPolygon();
+	delete(DebugProcPolygon);
 }
 
 //=============================================================================
@@ -70,33 +69,34 @@ void UpdateDebugProc(void)
 //=============================================================================
 void DrawDebugProc(void)
 {
+	DebugProcPolygon->SetPolygonColor(0.75f, 0.5f, 1.0f);
 	ID3D11DeviceContext* pDeviceContext = GetDeviceContext();
 	XMFLOAT2 vPos(SCREEN_WIDTH * -0.5f + FONT_WIDTH * 0.5f,
 		SCREEN_HEIGHT * 0.5f - FONT_HEIGHT * 0.5f);
-	SetPolygonTexture(g_pTexture);
-	SetPolygonFrameSize(8.0f / 128.0f, 8.0f / 128.0f);
-	SetPolygonSize(FONT_WIDTH, FONT_HEIGHT);
+	
+	DebugProcPolygon->SetPolygonFrameSize(8.0f / 128.0f, 8.0f / 128.0f);
+	DebugProcPolygon->SetPolygonSize(FONT_WIDTH, FONT_HEIGHT);
 	for (char* pChr = &g_szDebug[0]; *pChr; ++pChr) {
 		if (*pChr == '\n') {
 			vPos.x = SCREEN_WIDTH * -0.5f + FONT_WIDTH * 0.5f;
 			vPos.y -= FONT_HEIGHT;
 			continue;
 		}
-		SetPolygonPos(vPos.x, vPos.y);
+		DebugProcPolygon->SetPolygonPos(vPos.x, vPos.y);
 		int nChr = (BYTE)*pChr;
 		if (g_bHiragana &&
 			(nChr >= 0xa6 && nChr <= 0xaf || nChr >= 0xb1 && nChr <= 0xdd))
 			nChr ^= 0x20;
-		SetPolygonUV((nChr & 15) / 16.0f, (nChr >> 4) / 16.0f);
-		UpdatePolygon();
-		DrawPolygon(pDeviceContext);
+		DebugProcPolygon->SetPolygonUV((nChr & 15) / 16.0f, (nChr >> 4) / 16.0f);
+		DebugProcPolygon->UpdatePolygon();
+		DebugProcPolygon->DrawPolygon(pDeviceContext);
 		vPos.x += FONT_WIDTH;
 	}
 	// テクスチャ設定を元に戻す
-	SetPolygonColor(1.0f, 1.0f, 1.0f);
-	SetPolygonAlpha(1.0f);
-	SetPolygonUV(0.0f, 0.0f);
-	SetPolygonFrameSize(1.0f, 1.0f);
+	DebugProcPolygon->SetPolygonColor(1.0f, 1.0f, 1.0f);
+	DebugProcPolygon->SetPolygonAlpha(1.0f);
+	DebugProcPolygon->SetPolygonUV(0.0f, 0.0f);
+	DebugProcPolygon->SetPolygonFrameSize(1.0f, 1.0f);
 }
 
 //=============================================================================

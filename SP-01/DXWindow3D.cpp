@@ -1,18 +1,25 @@
 #include "DXWindow3D.h"
+#include "SceneManager.h"
+#include "InputManager.h"
 #include <io.h>
 #include <fcntl.h>
-
+#include <stdio.h>
 #pragma comment(lib, "winmm")
 #pragma comment(lib, "imm32")
 #pragma comment(lib, "d3d11")
 #define CLASS_NAME		_T("AppClass")		// ウインドウのクラス名
 #define WINDOW_NAME		_T("カメラ処理")	// ウインドウのキャプション名
-#define PATH_FBX_FNAME	"data/model/LowPolyV8.fbx"	// FBX相対パス
+
+DXWindow3D* pMainWindow = nullptr;
 
 
-
-DXWindow3D::DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+DXWindow3D::DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow, bool bIsMainWindow)
 {
+	fR = 0;
+	fG = 0;
+	fB = 0;
+	if (bIsMainWindow)
+		pMainWindow = this;
 	ActivateConsole();
 	UNREFERENCED_PARAMETER(hPrevInstance);	// 無くても良いけど、警告が出る（未使用宣言）
 	UNREFERENCED_PARAMETER(lpCmdLine);		// 無くても良いけど、警告が出る（未使用宣言）
@@ -226,57 +233,25 @@ HRESULT DXWindow3D::Init(HWND hWnd, BOOL bWindow)
 
 void DXWindow3D::InitDXWindow()
 {
-	// ポリゴン表示初期化
-	hr = InitPolygon(g_pDevice);
 
 
-	// デバッグ文字列表示初期化
-	hr = InitDebugProc();
-
-
-	// カメラの初期化
-	hr = InitCamera();
-
-
-	// 光源の初期化
-	hr = InitLight();
-
-
-	// モデル表示初期化
-	hr = InitModel();
-
+	hr = InitScene();
 
 	// 入力処理初期化
-	hr = InitInput();
+	InitInputManager();
 
 
-	// フィールド初期化
-	hr = InitField();
+
 
 }
 
 void DXWindow3D::Uninit(void)
 {
-	// フィールド終了処理
-	UninitField();
-
+	EndScene();
 	// 入力処理終了処理
-	UninitInput();
+	EndInputManager();
 
-	// モデル表示終了処理
-	UninitModel();
 
-	// 光源終了処理
-	UninitLight();
-
-	// カメラ終了処理
-	UninitCamera();
-
-	// デバッグ文字列表示終了処理
-	UninitDebugProc();
-
-	// ポリゴン表示終了処理
-	UninitPolygon();
 
 	// 深度ステンシルステート解放
 	SAFE_RELEASE(g_pDSS);
@@ -346,60 +321,21 @@ bool DXWindow3D::UpdateDXWindow()
 void DXWindow3D::Update(void)
 {
 	// 入力処理更新
-	UpdateInput();	// 必ずUpdate関数の先頭で実行.
+	UpdateInputManager();	// 必ずUpdate関数の先頭で実行.
 
-	// デバッグ文字列表示更新
-	UpdateDebugProc();
-
-	// デバッグ文字列設定
-	StartDebugProc();
-	PrintDebugProc("FPS:%d\n\n", g_nCountFPS);
-
-	// ポリゴン表示更新
-	UpdatePolygon();
-
-	// 光源更新
-	UpdateLight();
-
-	// カメラ更新
-	UpdateCamera();
-
-	// モデル更新
-	UpdateModel();
-
-	// フィールド更新
-	UpdateField();
+	UpdateScene();
 }
 
 void DXWindow3D::Draw(void)
 {
 	// バックバッファ＆Ｚバッファのクリア
-	float ClearColor[4] = { 0.117647f, 0.254902f, 0.352941f, 1.0f };
+	float ClearColor[4] = { fR, fG, fB, 1.0f };
 	g_pDeviceContext->ClearRenderTargetView(g_pRenderTargetView, ClearColor);
 	g_pDeviceContext->ClearDepthStencilView(g_pDepthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Zバッファ有効
-	SetZBuffer(true);
-
-	// 前面カリング (FBXは表裏が反転するため)
-	g_pDeviceContext->RSSetState(g_pRs[1]);
-
-	// モデル描画
-	DrawModel();
-
-	// 背面カリング (通常は表面のみ描画)
-	g_pDeviceContext->RSSetState(g_pRs[2]);
-
-	// フィールド描画
-	DrawField();
-
-	// Zバッファ無効
-	SetZBuffer(false);
-
-	// デバッグ文字列表示
-	SetPolygonColor(1.0f, 1.0f, 1.0f);
-	DrawDebugProc();
+	DrawScene();
 
 	// バックバッファとフロントバッファの入れ替え
 	g_pSwapChain->Present(g_uSyncInterval, 0);
@@ -497,6 +433,25 @@ LRESULT DXWindow3D::DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+void DXWindow3D::SetWindowColor(float R, float G, float B)
+{
+	fR = R;
+	fG = G;
+	fB = B;
+}
+
+void DXWindow3D::SetWindowColor255(int R, int G, int B)
+{
+	fR = R/255.0f;
+	fG = G/255.0f;
+	fB = B/255.0f;
+}
+
+XMFLOAT3 DXWindow3D::GetWindowColor()
+{
+	return { fR, fG, fB };
+}
+
 void DXWindow3D::ActivateConsole()
 {
 	AllocConsole();
@@ -508,4 +463,26 @@ void DXWindow3D::ActivateConsole()
 	fp = _fdopen(hConsole, "w");
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 	printf("こんにちは！コンソールはONです！\n");
+}
+
+int DXWindow3D::GetFPS()
+{
+	return g_nCountFPS;
+}
+
+ID3D11RasterizerState * DXWindow3D::GetRasterizerState(int num)
+{
+	return g_pRs[num];
+}
+
+DXWindow3D * GetMainWindow()
+{
+	return pMainWindow;
+}
+
+int GetMainWindowFPS()
+{
+	if (!pMainWindow)
+		return 0;
+	return pMainWindow->GetFPS();
 }

@@ -1,22 +1,6 @@
 #pragma once
-#include <windows.h>
-#include <tchar.h>
-#include <mmsystem.h>
-#include <d3d11.h>
-#include <DirectXMath.h>
-#include "model.h"
-#include "input.h"
-#include "camera.h"
-#include "light.h"
-#include "polygon.h"
-#include "debugproc.h"
-#include "field.h"
 
-#include <windows.h>
-#include <tchar.h>
-#include <mmsystem.h>
-#include <d3d11.h>
-#include <DirectXMath.h>
+#include "UniversalStructures.h"
 class DXWindow3D
 {
 private:
@@ -33,15 +17,15 @@ private:
 	ID3D11RasterizerState*		g_pRs[3];				// ラスタライザ ステート
 	ID3D11BlendState*			g_pBlendState[2];		// ブレンド ステート
 	ID3D11DepthStencilState*	g_pDSS;					// Zバッファ更新しない
-	MSG msg;
-	CFbxModel*				g_pModel;				// メッシュ
+	MSG							msg;
 	int							g_nCountFPS;			// FPSカウンタ
-	DWORD dwExecLastTime;
-	DWORD dwFPSLastTime;
-	DWORD dwCurrentTime;
-	DWORD dwFrameCount;
+	float						fR, fG, fB;				//ウインドウズの色
+	DWORD						dwExecLastTime;			//FPSのタイマー（実行の最後カウンター）
+	DWORD						dwFPSLastTime;			//FPSのタイマー（FPS変数の最後カウンター）
+	DWORD						dwCurrentTime;
+	DWORD						dwFrameCount;
 public:
-	DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow);
+	DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow, bool bIsMainWindow);
 	~DXWindow3D();
 	HRESULT CreateBackBuffer(void);
 	HRESULT Init(HWND hWnd, BOOL bWindow);
@@ -60,6 +44,13 @@ public:
 	void ReleaseBackBuffer();
 	static int DX_OnCreate(HWND hWnd, LPCREATESTRUCT lpcs);
 	static LRESULT CALLBACK DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void SetWindowColor(float R, float G, float B);
+	void SetWindowColor255(int R, int G, int B);
+	XMFLOAT3 GetWindowColor();
 	void ActivateConsole();
+	int GetFPS();
+	ID3D11RasterizerState* GetRasterizerState(int num);
 };
 
+DXWindow3D* GetMainWindow();
+int GetMainWindowFPS();

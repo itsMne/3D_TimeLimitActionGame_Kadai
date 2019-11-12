@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="FbxModelPixel.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+    <FxCompile Include="FbxModelVertex.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel2D.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+    <FxCompile Include="Vertex.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+    <FxCompile Include="Vertex2D.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="debugproc.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="DXWindow3D.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="FbxModel.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Model3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Polygon2D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Light3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Field3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Player3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="UniversalStructures.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="debugproc.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="DXWindow3D.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxModel.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="Polygon2D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="Model3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="Light3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="Field3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject3D.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="Player3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CPPファイル">
+      <UniqueIdentifier>{a42c285e-9e22-407a-8359-f5549ec22acc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hファイル">
+      <UniqueIdentifier>{3ea32399-3381-4823-8374-372c7215888f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPPファイル\エンジンCPP">
+      <UniqueIdentifier>{cfdc4553-646d-4c35-bb5d-43802d98a2e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hファイル\エンジンH">
+      <UniqueIdentifier>{bd7d39c5-7256-4c64-82be-d6ffe4f00811}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPPファイル\ゲームCPP">
+      <UniqueIdentifier>{b1e32e9d-d274-4970-ba77-54a49a6319f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hファイル\ゲームH">
+      <UniqueIdentifier>{e5b2ebc5-617e-4b63-b948-625599451921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{a7b81ba3-e3e5-4de9-9468-012455ab55ce}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

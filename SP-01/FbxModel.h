@@ -151,7 +151,6 @@ private:
 	// ボーン
 	int m_nNumSkin;
 	TSkinInfo* m_pBoneTable;
-
 public:
 	// メソッド
 	HRESULT CreateFromFBX(FbxMesh* pFbxMesh);
@@ -183,7 +182,7 @@ public:
 	int GetInitialAnimFrame();
 	int GetCurrentAnimation();
 	void SetAnimStack(int nAnimStack);
-
+	int GetMaxNumberOfAnimations();
 private:
 	CFbxMesh* m_pRootMesh;
 	// 外部のデバイス等情報
@@ -206,7 +205,7 @@ private:
 	DirectX::XMFLOAT4X4 m_mFinalWorld;//最終的なワールド行列（この姿勢でレンダリングする）
 	CFbxLight m_light;
 	DirectX::XMFLOAT3 m_vCamera;
-
+	int nAnimationNumber;
 private:
 	// アニメーションフレーム
 	int m_nAnimFrame;

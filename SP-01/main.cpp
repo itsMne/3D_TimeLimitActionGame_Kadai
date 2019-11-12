@@ -10,8 +10,7 @@ DXWindow3D* pDXWindow = nullptr;
 //=============================================================================
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
-
-	pDXWindow = new DXWindow3D(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	pDXWindow = new DXWindow3D(hInstance, hPrevInstance, lpCmdLine, nCmdShow, true);
 	pDXWindow->InitDXWindow();
 	while(pDXWindow->UpdateDXWindow());
 	delete(pDXWindow);

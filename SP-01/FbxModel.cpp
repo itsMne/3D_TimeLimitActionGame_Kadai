@@ -830,7 +830,7 @@ HRESULT CFbxModel::InitFBX(LPCSTR szFileName)
 	// アニメーション情報
 	m_pScene->FillAnimStackNameArray(m_strAnimStackName);
 	if (m_strAnimStackName.GetCount() > 0) {
-		printf("Animations: %d", m_strAnimStackName.GetCount());
+		nAnimationNumber = m_strAnimStackName.GetCount();
 		SetAnimStack(0);
 	}
 
@@ -994,6 +994,11 @@ void CFbxModel::SetAnimStack(int nAnimStack)
 	FbxTakeInfo *takeInfo = m_pScene->GetTakeInfo(*m_strAnimStackName[m_nAnimStack]);
 	m_tStart = takeInfo->mLocalTimeSpan.GetStart();
 	m_tStop = takeInfo->mLocalTimeSpan.GetStop();
+}
+
+int CFbxModel::GetMaxNumberOfAnimations()
+{
+	return nAnimationNumber;
 }
 
 //---------------------------------------------------------------------------------------
