@@ -43,7 +43,9 @@ public:
 	XMFLOAT4X4* GetModelWorld();
 	void SetPosition(XMFLOAT3 newPos);
 	void SetModelRotation(XMFLOAT3 rot);
+	void RotateAroundX(float x);
 	void RotateAroundY(float y);
+	void RotateAroundZ(float z);
 	void SetUse(bool newUse);
 	void SetParent(GameObject3D* pNewParent);
 	bool IsInUse();

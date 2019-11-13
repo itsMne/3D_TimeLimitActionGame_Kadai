@@ -23,6 +23,7 @@ int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
 	mShadow = nullptr;
+	bSwitcheToAimingState = false;
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = nullptr;
@@ -81,6 +82,9 @@ void Player3D::Update()
 	default:
 		break;
 	}
+
+
+
 	PrintDebugProc("[ｸﾙﾏ ｲﾁ : (%f, %f, %f)]\n", Position.x, Position.y, Position.z);
 	PrintDebugProc("[ｸﾙﾏ ﾑｷ : (%f)]\n", XMConvertToDegrees(Rotation.y));
 	PrintDebugProc("\n");
@@ -94,8 +98,29 @@ void Player3D::Update()
 	PrintDebugProc("ﾐｷﾞ  ｾﾝｶｲ : RSHIFT\n");
 	PrintDebugProc("\n");
 
+	if(!GetInput(INPUT_AIM))
+		Model->SetRotationX(-pMainCamera->GetCameraAngle().x);
+	if (bSwitcheToAimingState)
+	{
+		bSwitcheToAimingState = GetInput(INPUT_AIM);
+		if (!bSwitcheToAimingState)
+			Rotation.x = 0;
+	}
+	PlayerCameraControl();
 	PlayerBulletsControl();
 	PlayerShadowControl();
+}
+
+void Player3D::PlayerCameraControl()
+{
+	if (GetAxis(CAMERA_AXIS_HORIZONTAL) != 0) {
+		RotateAroundY(-ROTATION_SPEED * GetAxis(CAMERA_AXIS_HORIZONTAL));
+		Model->RotateAroundY(ROTATION_SPEED*GetAxis(CAMERA_AXIS_HORIZONTAL));
+	}
+	if (GetAxis(CAMERA_AXIS_VERTICAL) != 0) {
+		RotateAroundX(-ROTATION_SPEED * GetAxis(CAMERA_AXIS_VERTICAL));
+		Model->RotateAroundX(ROTATION_SPEED*GetAxis(CAMERA_AXIS_VERTICAL));
+	}
 }
 
 void Player3D::MoveControl()
@@ -164,17 +189,6 @@ void Player3D::MoveControl()
 		Model->SetRotation({ 0,3.314f,0 });
 	}
 
-	if (GetKeyPress(VK_LSHIFT)) {
-		// 左回転
-		RotateAroundY(-ROTATION_SPEED);
-		Model->RotateAroundY(ROTATION_SPEED);
-	}
-	if (GetKeyPress(VK_RSHIFT)) {
-		// 右回転
-		RotateAroundY(ROTATION_SPEED);
-		Model->RotateAroundY(-ROTATION_SPEED);
-	}
-
 	if (GetKeyPress(VK_RETURN)) {
 		// リセット
 		Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -192,7 +206,8 @@ void Player3D::PlayerShadowControl()
 	if (!mShadow)
 		return;
 	mShadow->Update();
-	mShadow->SetRotation(Model->GetRotation());
+	XMFLOAT3 ModelRot = Model->GetRotation();
+	mShadow->SetRotation({ 0, ModelRot.y, 0 });
 }
 
 void Player3D::PlayerBulletsControl()
@@ -201,6 +216,7 @@ void Player3D::PlayerBulletsControl()
 	{
 		GetModel()->SetRotation({0,0,0});
 		Model->SwitchAnimation(2, 5);
+		bSwitcheToAimingState = true;
 		
 	}
 	if (GetInput(INPUT_SHOOT) && GetInput(INPUT_AIM) && ++nShootCooldown>= BULLET_COOLDOWN) {
@@ -213,9 +229,11 @@ void Player3D::PlayerBulletsControl()
 			XMFLOAT3 rotCamera;
 			rotCamera = pMainCamera->GetCameraAngle();
 			goBullets[i]->SetUse(true);
-			XMFLOAT3 ModelRotation = Rotation;
-			goBullets[i]->SetRotation(ModelRotation);
-			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y+15, Position.z+ cosf(rotCamera.y)*15 });
+			goBullets[i]->SetRotation(Rotation);
+			//goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y+15, Position.z+ cosf(rotCamera.y)*15 });
+			float fYOffset = 15*(sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x))+1);
+			printf("%f\n", fYOffset);
+			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y + fYOffset, Position.z+ cosf(rotCamera.y)*15 });
 			nShootCooldown = 0;
 			break;
 		}

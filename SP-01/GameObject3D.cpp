@@ -78,12 +78,14 @@ void GameObject3D::Update()
 	case GO_BULLET:
 		Position.x -= sinf(XM_PI + Rotation.y) * BULLET_SPEED;
 		Position.z -= cosf(XM_PI + Rotation.y) * BULLET_SPEED;
+		Position.y += sinf(XM_PI + Rotation.x) * BULLET_SPEED;
 		nUseCounterFrame++;
 		if (nUseCounterFrame > 200)
 		{
 			nUseCounterFrame = 0;
 			bUse = false;
 		}
+		Model->SetRotation({ Rotation.x, 0, 0 });
 		break;
 	case GO_SHADOW:
 		if (!p_goParent)
@@ -174,11 +176,27 @@ void GameObject3D::SetModelRotation(XMFLOAT3 rot)
 		Model->SetRotation(rot);
 }
 
+void GameObject3D::RotateAroundX(float x)
+{
+	Rotation.x -= x;
+	if (Rotation.x < -XM_PI) {
+		Rotation.x += XM_2PI;
+	}
+}
+
 void GameObject3D::RotateAroundY(float y)
 {
 	Rotation.y -= y;
 	if (Rotation.y < -XM_PI) {
 		Rotation.y += XM_2PI;
+	}
+}
+
+void GameObject3D::RotateAroundZ(float z)
+{
+	Rotation.z -= z;
+	if (Rotation.z < -XM_PI) {
+		Rotation.z += XM_2PI;
 	}
 }
 

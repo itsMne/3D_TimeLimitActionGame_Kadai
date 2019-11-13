@@ -4,6 +4,7 @@
 #include "Camera3D.h"
 #include "Light3D.h"
 #include "Field3D.h"
+#include "UIObject2D.h"
 #include "Player3D.h"
 ID3D11Device* g_pDevice = nullptr;
 Camera3D* SceneCamera = nullptr;
@@ -12,6 +13,7 @@ Player3D* HelloModel = nullptr;
 Field3D* HelloField = nullptr;
 DXWindow3D* MainWindow = nullptr;
 GameObject3D* HelloShadow = nullptr;
+UIObject2D* Hello2D = nullptr;
 HRESULT InitScene()
 {
 	MainWindow = GetMainWindow();
@@ -27,6 +29,8 @@ HRESULT InitScene()
 	hr = HelloField->InitField(SceneLight, "data/texture/field000.jpg");
 	hr = InitDebugProc();
 	SceneCamera->SetFocalPointGO(HelloModel);
+	Hello2D = new UIObject2D(UI_HEART);
+
 	return hr;
 }
 
@@ -52,6 +56,8 @@ void UpdateScene()
 	HelloField->UpdateField();
 
 	HelloShadow->Update();
+
+	Hello2D->Update();
 }
 
 void DrawScene()
@@ -79,6 +85,9 @@ void DrawScene()
 
 	// デバッグ文字列表示
 	DrawDebugProc();
+
+
+	Hello2D->Draw();
 }
 
 void EndScene()
@@ -98,4 +107,6 @@ void EndScene()
 
 	// デバッグ文字列表示終了処理
 	UninitDebugProc();
+	SAFE_DELETE(Hello2D);
+	Hello2D->End();
 }

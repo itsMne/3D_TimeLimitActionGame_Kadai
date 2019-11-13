@@ -37,6 +37,10 @@ typedef struct {
 	XMFLOAT2 tex;		// テクスチャ座標
 } VERTEX_2D;
 
+typedef struct UV 
+{
+	float U, V;
+};
 // 頂点フォーマット( 頂点座標[3D] / 法線ベクトル / 反射光 / テクスチャ座標 )
 typedef struct {
 	XMFLOAT3 vtx;		// 頂点座標

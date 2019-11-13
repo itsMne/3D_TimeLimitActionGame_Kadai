@@ -81,10 +81,10 @@ void Camera3D::Update()
 		if (FocusPoint->GetType() == GO_PLAYER && GetInput(INPUT_AIM))
 		{
 			fAcceleration++;
-			if (vEye.z < -30)
+			if (vEye.z < -40)
 				vEye.z += fAcceleration;
-			if (vEye.z > -30) 
-				vEye.z = -30;
+			if (vEye.z > -40) 
+				vEye.z = -40;
 			if (vEye.x < 10)
 				vEye.x += fAcceleration;
 			if (vEye.x > 10) 

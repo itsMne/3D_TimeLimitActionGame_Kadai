@@ -69,7 +69,7 @@ void UpdateDebugProc(void)
 //=============================================================================
 void DrawDebugProc(void)
 {
-	DebugProcPolygon->SetPolygonColor(0.75f, 0.5f, 1.0f);
+	DebugProcPolygon->SetColor(0.75f, 0.5f, 1.0f);
 	ID3D11DeviceContext* pDeviceContext = GetDeviceContext();
 	XMFLOAT2 vPos(SCREEN_WIDTH * -0.5f + FONT_WIDTH * 0.5f,
 		SCREEN_HEIGHT * 0.5f - FONT_HEIGHT * 0.5f);
@@ -93,7 +93,7 @@ void DrawDebugProc(void)
 		vPos.x += FONT_WIDTH;
 	}
 	// テクスチャ設定を元に戻す
-	DebugProcPolygon->SetPolygonColor(1.0f, 1.0f, 1.0f);
+	DebugProcPolygon->SetColor(1.0f, 1.0f, 1.0f);
 	DebugProcPolygon->SetPolygonAlpha(1.0f);
 	DebugProcPolygon->SetPolygonUV(0.0f, 0.0f);
 	DebugProcPolygon->SetPolygonFrameSize(1.0f, 1.0f);

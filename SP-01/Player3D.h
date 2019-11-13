@@ -13,6 +13,7 @@ class Player3D :
 {
 private:
 	int nState;
+	bool bSwitcheToAimingState;
 	//‰e‚ÉŠÖ‚·‚é
 	GameObject3D* mShadow;
 	//’e‚ÉŠÖ‚·‚é
@@ -28,6 +29,7 @@ public:
 
 	void Init();
 	void Update();
+	void PlayerCameraControl();
 	void MoveControl();
 	void SetPlayerAnimation(int Animation);
 	void PlayerShadowControl();

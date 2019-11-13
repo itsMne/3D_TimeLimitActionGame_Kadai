@@ -11,8 +11,15 @@ enum EINPUTS
 	INPUT_AIM,
 	MAX_INPUTS
 };
+enum EAXIS
+{
+	CAMERA_AXIS_HORIZONTAL,
+	CAMERA_AXIS_VERTICAL,
+	MAX_AXIS
+};
 void InitInputManager();
 void UpdateInputManager();
 void EndInputManager();
+float GetAxis(int nAxis);
 bool GetInput(int nInput);
 #endif

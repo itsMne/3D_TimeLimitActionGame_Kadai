@@ -23,17 +23,29 @@ struct SHADER_GLOBAL {
 
 Polygon2D::Polygon2D()
 {
+	g_pSamplerState = nullptr;
+	g_pVertexBuffer = nullptr;
+	g_pConstantBuffer = nullptr;
+	g_pPixelShader = nullptr;
+	g_pInputLayout = nullptr;
+	g_pVertexShader = nullptr;
 	InitPolygon(GetDevice());
 	gpTexture = nullptr;
-	SetPolygonTexture(gpTexture);
+	SetTexture(gpTexture);
 	InitedPolygons++;
 }
 
 Polygon2D::Polygon2D(const char * TexturePath)
 {
+	g_pSamplerState = nullptr;
+	g_pVertexBuffer = nullptr;
+	g_pConstantBuffer = nullptr;
+	g_pPixelShader = nullptr;
+	g_pInputLayout = nullptr;
+	g_pVertexShader = nullptr;
 	InitPolygon(GetDevice());
 	CreateTextureFromFile(GetDevice(), TexturePath, &gpTexture);
-	SetPolygonTexture(gpTexture);
+	SetTexture(gpTexture);
 	InitedPolygons++;
 }
 
@@ -93,14 +105,14 @@ HRESULT Polygon2D::InitPolygon(ID3D11Device* pDevice)
 	XMStoreFloat4x4(&g_mTex, XMMatrixIdentity());
 	g_mTex._44 = 0.0f;
 
-	g_posPolygon = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	g_rotPolygon = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	g_sizPolygon = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	g_colPolygon = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	g_bInvalidate = false;
 
-	g_posTexFrame = XMFLOAT2(0.0f, 0.0f);
-	g_sizTexFrame = XMFLOAT2(1.0f, 1.0f);
+	x2UV = XMFLOAT2(0.0f, 0.0f);
+	x2Frame = XMFLOAT2(1.0f, 1.0f);
 
 	// 頂点情報の作成
 	hr = MakeVertexPolygon(pDevice);
@@ -146,15 +158,15 @@ void Polygon2D::DrawPolygon(ID3D11DeviceContext* pDeviceContext)
 	mWorld *= XMMatrixRotationRollPitchYaw(XMConvertToRadians(g_rotPolygon.x),
 		XMConvertToRadians(g_rotPolygon.y), XMConvertToRadians(g_rotPolygon.z));
 	// 移動
-	mWorld *= XMMatrixTranslation(g_posPolygon.x, g_posPolygon.y, g_posPolygon.z);
+	mWorld *= XMMatrixTranslation(Position.x, Position.y, Position.z);
 	// ワールド マトリックスに設定
 	XMStoreFloat4x4(&g_mWorld, mWorld);
 
 	if (g_pTexture) {
 		// 拡縮
-		mWorld = XMMatrixScaling(g_sizTexFrame.x, g_sizTexFrame.y, 1.0f);
+		mWorld = XMMatrixScaling(x2Frame.x, x2Frame.y, 1.0f);
 		// 移動
-		mWorld *= XMMatrixTranslation(g_posTexFrame.x, g_posTexFrame.y, 0.0f);
+		mWorld *= XMMatrixTranslation(x2UV.x, x2UV.y, 0.0f);
 		// テクスチャ マトリックスに設定
 		XMStoreFloat4x4(&g_mTex, mWorld);
 	}
@@ -265,7 +277,7 @@ void Polygon2D::SetVertexPolygon(void)
 //=============================================================================
 // テクスチャの設定
 //=============================================================================
-void Polygon2D::SetPolygonTexture(ID3D11ShaderResourceView* pTexture)
+void Polygon2D::SetTexture(ID3D11ShaderResourceView* pTexture)
 {
 	g_pTexture = pTexture;
 	g_mTex._44 = (g_pTexture) ? 1.0f : 0.0f;
@@ -276,8 +288,8 @@ void Polygon2D::SetPolygonTexture(ID3D11ShaderResourceView* pTexture)
 //=============================================================================
 void Polygon2D::SetPolygonPos(float fX, float fY)
 {
-	g_posPolygon.x = fX;
-	g_posPolygon.y = fY;
+	Position.x = fX;
+	Position.y = fY;
 }
 
 //=============================================================================
@@ -302,8 +314,8 @@ void Polygon2D::SetPolygonAngle(float fAngle)
 //=============================================================================
 void Polygon2D::SetPolygonUV(float fU, float fV)
 {
-	g_posTexFrame.x = fU;
-	g_posTexFrame.y = fV;
+	x2UV.x = fU;
+	x2UV.y = fV;
 }
 
 //=============================================================================
@@ -311,14 +323,14 @@ void Polygon2D::SetPolygonUV(float fU, float fV)
 //=============================================================================
 void Polygon2D::SetPolygonFrameSize(float fWidth, float fHeight)
 {
-	g_sizTexFrame.x = fWidth;
-	g_sizTexFrame.y = fHeight;
+	x2Frame.x = fWidth;
+	x2Frame.y = fHeight;
 }
 
 //=============================================================================
 // 頂点カラーの設定
 //=============================================================================
-void Polygon2D::SetPolygonColor(float fRed, float fGreen, float fBlue)
+void Polygon2D::SetColor(float fRed, float fGreen, float fBlue)
 {
 	if (fRed != g_colPolygon.x || fGreen != g_colPolygon.y || fBlue != g_colPolygon.z) {
 		g_colPolygon.x = fRed;

@@ -38,5 +38,6 @@ public:
 	void RotateAroundY(float y);
 	void TranslateModel(XMFLOAT3 translation);
 	void SetRotation(XMFLOAT3 rot);
+	void SetRotationX(float rotx);
 };
 #endif

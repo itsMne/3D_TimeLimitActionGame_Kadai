@@ -222,3 +222,8 @@ void Model3D::SetRotation(XMFLOAT3 rot)
 {
 	g_rotModel=rot;
 }
+
+void Model3D::SetRotationX(float rotx)
+{
+	g_rotModel.x = rotx;
+}
