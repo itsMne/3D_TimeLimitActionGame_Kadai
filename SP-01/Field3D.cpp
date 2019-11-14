@@ -55,6 +55,7 @@ static HRESULT MakeVertexField(ID3D11Device* pDevice);
 Field3D::Field3D()
 {
 	pSceneLight = nullptr;
+	nTextureSubDivisions = 1;
 }
 
 
@@ -132,7 +133,6 @@ HRESULT Field3D::InitField(Light3D* SceneLight, const char* TexturePath)
 
 	// 頂点情報の作成
 	hr = MakeVertexField(pDevice);
-
 	return hr;
 }
 
@@ -272,10 +272,10 @@ HRESULT Field3D::MakeVertexField(ID3D11Device* pDevice)
 	g_vertexWk[3].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// テクスチャ座標の設定
-	g_vertexWk[0].tex = XMFLOAT2(0.0f, 0.0f);
-	g_vertexWk[1].tex = XMFLOAT2(1.0f, 0.0f);
-	g_vertexWk[2].tex = XMFLOAT2(0.0f, 1.0f);
-	g_vertexWk[3].tex = XMFLOAT2(1.0f, 1.0f);
+	g_vertexWk[0].tex = XMFLOAT2(0.0f*nTextureSubDivisions, 0.0f*nTextureSubDivisions);
+	g_vertexWk[1].tex = XMFLOAT2(1.0f*nTextureSubDivisions, 0.0f*nTextureSubDivisions);
+	g_vertexWk[2].tex = XMFLOAT2(0.0f*nTextureSubDivisions, 1.0f*nTextureSubDivisions);
+	g_vertexWk[3].tex = XMFLOAT2(1.0f*nTextureSubDivisions, 1.0f*nTextureSubDivisions);
 
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
@@ -302,4 +302,9 @@ void Field3D::SetPosition(XMFLOAT3 newPos)
 void Field3D::SetRotation(XMFLOAT3 newRot)
 {
 	g_rotField = newRot;
+}
+
+void Field3D::SetTextureSubdivisions(int newSubs)
+{
+	nTextureSubDivisions = newSubs;
 }

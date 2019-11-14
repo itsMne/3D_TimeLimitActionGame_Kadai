@@ -27,7 +27,7 @@ private:
 	float						g_fPower;	// スペキュラ強度
 	XMFLOAT4						g_Ke;		// エミッシブ
 	Light3D*					pSceneLight;
-	
+	int							nTextureSubDivisions;
 public:
 	Field3D();
 	~Field3D();
@@ -39,5 +39,6 @@ public:
 	HRESULT MakeVertexField(ID3D11Device* pDevice);
 	void SetPosition(XMFLOAT3 newPos);
 	void SetRotation(XMFLOAT3 newRot);
+	void SetTextureSubdivisions(int newSubs);
 };
 

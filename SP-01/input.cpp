@@ -5,6 +5,7 @@
 //
 //=============================================================================
 #include "input.h"
+#include <stdio.h>
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -152,8 +153,8 @@ HRESULT UpdateKeyboard(void)
 //=============================================================================
 HRESULT InitJoystick()
 {
-	GetJoyCount();
-
+	int JoyCountNum = GetJoyCount();
+	printf("JOYPADS: %d\n", JoyCountNum);
 	return S_OK;
 }
 

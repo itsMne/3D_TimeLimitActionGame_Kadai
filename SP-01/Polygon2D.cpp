@@ -106,7 +106,7 @@ HRESULT Polygon2D::InitPolygon(ID3D11Device* pDevice)
 	g_mTex._44 = 0.0f;
 
 	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	g_rotPolygon = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	g_sizPolygon = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	g_colPolygon = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	g_bInvalidate = false;
@@ -155,8 +155,8 @@ void Polygon2D::DrawPolygon(ID3D11DeviceContext* pDeviceContext)
 	// 拡縮
 	XMMATRIX mWorld = XMMatrixScaling(g_sizPolygon.x, g_sizPolygon.y, g_sizPolygon.z);
 	// 回転
-	mWorld *= XMMatrixRotationRollPitchYaw(XMConvertToRadians(g_rotPolygon.x),
-		XMConvertToRadians(g_rotPolygon.y), XMConvertToRadians(g_rotPolygon.z));
+	mWorld *= XMMatrixRotationRollPitchYaw(XMConvertToRadians(Rotation.x),
+		XMConvertToRadians(Rotation.y), XMConvertToRadians(Rotation.z));
 	// 移動
 	mWorld *= XMMatrixTranslation(Position.x, Position.y, Position.z);
 	// ワールド マトリックスに設定
@@ -306,7 +306,7 @@ void Polygon2D::SetPolygonSize(float fScaleX, float fScaleY)
 //=============================================================================
 void Polygon2D::SetPolygonAngle(float fAngle)
 {
-	g_rotPolygon.z = fAngle;
+	Rotation.z = fAngle;
 }
 
 //=============================================================================

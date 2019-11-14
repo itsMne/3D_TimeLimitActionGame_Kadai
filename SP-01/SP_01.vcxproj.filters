@@ -72,6 +72,7 @@
     <ClCompile Include="UIObject2D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
+    <ClCompile Include="C_XInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -126,6 +127,7 @@
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
     <ClInclude Include="UIObject2D.h" />
+    <ClInclude Include="C_XInput.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

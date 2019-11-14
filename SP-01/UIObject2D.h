@@ -4,6 +4,7 @@
 enum UI_TYPE
 {
 	UI_HEART,
+	UI_AIM,
 	UI_TYPE_MAX
 };
 class UIObject2D :
@@ -27,7 +28,7 @@ public:
 	void Update();
 	void RegularUVAnimation();
 	void Draw();
-	void UIHeartControl();
+	void UIHeartDrawControl();
 	void End();
 };
 

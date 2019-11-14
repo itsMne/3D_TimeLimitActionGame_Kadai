@@ -42,6 +42,7 @@ public:
 	void End();
 	int GetCurrentHealth();
 	int GetMaxHealth();
+	bool IsPlayerAiming();
 };
 
 Player3D*  GetMainPlayer3D();

@@ -1,5 +1,5 @@
 #include "GameObject3D.h"
-#define BULLET_SPEED 5
+#define BULLET_SPEED 30
 
 int nInitedGameObjects = 0;
 

@@ -20,6 +20,7 @@
 #define VALUE_ROTATE_CAMERA	(XM_PI*0.01f)	
 #define REGULAR_OBJECT_DISTANCE {0, 25, -122}
 #define AIM_OBJECT_DISTANCE {20, 35, -40}
+#define AIM_OBJECT_DISTANCE {10, 35, -40}
 Camera3D* MainCamera = nullptr;
 bool bFocalPointIsGameObject = false;
 Camera3D::Camera3D(): FocalPoint(nullptr)

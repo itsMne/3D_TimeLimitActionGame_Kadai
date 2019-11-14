@@ -1,6 +1,7 @@
 #include "UIObject2D.h"
 #include "Texture.h"
 #define HEART_SIZE	75
+#define AIM_SIZE	125
 #define HEART_TATE true
 UIObject2D::UIObject2D()
 {
@@ -24,6 +25,14 @@ UIObject2D::UIObject2D(int nUI_Type)
 		SetPolygonSize(HEART_SIZE, HEART_SIZE);
 		nAnimationSpeed = 5;
 		SetTexture(gpTexture);
+		break;
+	case UI_AIM:
+		CreateTextureFromFile(GetDevice(), "data/texture/AimUI.tga", &gpTexture);
+		Position.x = 0;
+		Position.y = 0;
+		SetPolygonSize(AIM_SIZE, AIM_SIZE);
+		SetTexture(gpTexture);
+		break;
 	default:
 		break;
 	}
@@ -56,12 +65,15 @@ void UIObject2D::Update()
 			pPlayer = GetMainPlayer3D();
 		nCurrent_hearts = pPlayer->GetCurrentHealth();
 		nMax_Hearts = pPlayer->GetMaxHealth();
-
+		RegularUVAnimation();
+		break;
+	case UI_AIM:
+		Rotation.z++;
 		break;
 	default:
 		break;
 	}
-	RegularUVAnimation();
+	
 }
 
 void UIObject2D::RegularUVAnimation()
@@ -84,7 +96,14 @@ void UIObject2D::Draw()
 	switch (nType)
 	{
 	case UI_HEART:
-		UIHeartControl();
+		UIHeartDrawControl();
+		break;
+	case UI_AIM:
+		if (!pPlayer) 
+			pPlayer = GetMainPlayer3D();
+		else
+			if(pPlayer->IsPlayerAiming())
+				DrawPolygon(GetDeviceContext());
 		break;
 	default:
 		DrawPolygon(GetDeviceContext());
@@ -93,7 +112,7 @@ void UIObject2D::Draw()
 	
 }
 
-void UIObject2D::UIHeartControl()
+void UIObject2D::UIHeartDrawControl()
 {
 	int nHeartsToShow = 1;
 	if (nHeartsToShow > nMax_Hearts)

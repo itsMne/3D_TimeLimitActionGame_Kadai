@@ -121,8 +121,8 @@ void Player3D::PlayerCameraControl()
 		Model->RotateAroundY(ROTATION_SPEED*GetAxis(CAMERA_AXIS_HORIZONTAL));
 	}
 	if (GetAxis(CAMERA_AXIS_VERTICAL) != 0) {
-		RotateAroundX(-ROTATION_SPEED * GetAxis(CAMERA_AXIS_VERTICAL));
-		Model->RotateAroundX(ROTATION_SPEED*GetAxis(CAMERA_AXIS_VERTICAL));
+		RotateAroundX(ROTATION_SPEED * GetAxis(CAMERA_AXIS_VERTICAL));
+		Model->RotateAroundX(-ROTATION_SPEED*GetAxis(CAMERA_AXIS_VERTICAL));
 	}
 }
 
@@ -233,9 +233,7 @@ void Player3D::PlayerBulletsControl()
 			rotCamera = pMainCamera->GetCameraAngle();
 			goBullets[i]->SetUse(true);
 			goBullets[i]->SetRotation(Rotation);
-			//goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y+15, Position.z+ cosf(rotCamera.y)*15 });
 			float fYOffset = 14*(sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x))+1);
-			printf("%f\n", fYOffset);
 			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y + fYOffset, Position.z+ cosf(rotCamera.y)*15 });
 			nShootCooldown = 0;
 			break;
@@ -275,7 +273,6 @@ void Player3D::End()
 			continue;
 		delete(goBullets[i]);
 		goBullets[i] = nullptr;
-
 	}
 }
 
@@ -287,6 +284,11 @@ int Player3D::GetCurrentHealth()
 int Player3D::GetMaxHealth()
 {
 	return nMaxHealth;
+}
+
+bool Player3D::IsPlayerAiming()
+{
+	return bSwitcheToAimingState;
 }
 
 Player3D * GetMainPlayer3D()

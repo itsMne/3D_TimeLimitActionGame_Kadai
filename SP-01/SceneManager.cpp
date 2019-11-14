@@ -27,9 +27,10 @@ HRESULT InitScene()
 	HRESULT	hr;
 	g_pDevice = GetDevice();
 	hr = HelloField->InitField(SceneLight, "data/texture/field000.jpg");
+	HelloField->SetTextureSubdivisions(3);
 	hr = InitDebugProc();
 	SceneCamera->SetFocalPointGO(HelloModel);
-	Hello2D = new UIObject2D(UI_HEART);
+	Hello2D = new UIObject2D(UI_AIM);
 
 	return hr;
 }
@@ -85,7 +86,6 @@ void DrawScene()
 
 	// デバッグ文字列表示
 	DrawDebugProc();
-
 
 	Hello2D->Draw();
 }

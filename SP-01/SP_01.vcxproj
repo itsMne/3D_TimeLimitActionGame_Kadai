@@ -176,6 +176,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UIObject2D.cpp" />
+    <ClCompile Include="C_XInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera3D.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="UIObject2D.h" />
     <ClInclude Include="UniversalStructures.h" />
+    <ClInclude Include="C_XInput.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FbxModelPixel.hlsl">

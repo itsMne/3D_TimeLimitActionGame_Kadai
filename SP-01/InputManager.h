@@ -22,4 +22,5 @@ void UpdateInputManager();
 void EndInputManager();
 float GetAxis(int nAxis);
 bool GetInput(int nInput);
+void VibrateXinput(float vivbrationL, float VibrationR);
 #endif

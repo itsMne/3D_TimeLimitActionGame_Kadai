@@ -1,5 +1,4 @@
 #include "Model3D.h"
-
 #include "main.h"
 #include "FbxModel.h"
 #include "input.h"
@@ -7,7 +6,7 @@
 #include "GameObject3D.h"
 #include "UniversalStructures.h"
 #include "debugproc.h"
-
+#define DEBUG_SHOW_INITED_MODEL_PATH false
 //*****************************************************************************
 // ƒ}ƒNƒ’è‹`
 //*****************************************************************************
@@ -56,7 +55,9 @@ HRESULT Model3D::InitModel(Light3D* SceneLight, const char* ModelPath)
 		return S_OK;
 	}
 	hr = g_pModel->Init(pDevice, pDeviceContext, ModelPath);
+#if DEBUG_SHOW_INITED_MODEL_PATH
 	printf("%s\n", ModelPath);	
+#endif
 	if (SUCCEEDED(hr)) {
 		g_pModel->SetCamera(pMainCamera->GetCameraPos());
 		if (pLight)
