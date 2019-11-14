@@ -76,7 +76,8 @@ void Player3D::Update()
 	{
 	case PLAYER_IDLE_STATE:
 		SetPlayerAnimation(ANIMATION_IDLE);
-		if (GetInput(INPUT_FORWARD) || GetInput(INPUT_BACKWARD) || GetInput(INPUT_RIGHT) || GetInput(INPUT_LEFT) || GetInput(INPUT_AIM))
+		if (GetInput(INPUT_FORWARD) || GetInput(INPUT_BACKWARD) || GetInput(INPUT_RIGHT) || GetInput(INPUT_LEFT) || GetInput(INPUT_AIM) 
+			|| GetAxis(MOVEMENT_AXIS_VERTICAL) != 0 || GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0)
 			nState = PLAYER_MOVING_STATE;
 		break;
 	case PLAYER_MOVING_STATE:
@@ -131,7 +132,8 @@ void Player3D::MoveControl()
 
 	XMFLOAT3 rotCamera;
 	rotCamera = pMainCamera->GetCameraAngle();
-	if (!GetInput(INPUT_FORWARD) && !GetInput(INPUT_BACKWARD) && !GetInput(INPUT_RIGHT) && !GetInput(INPUT_LEFT) && !GetInput(INPUT_AIM)) {
+	if (!GetInput(INPUT_FORWARD) && !GetInput(INPUT_BACKWARD) && !GetInput(INPUT_RIGHT) && !GetInput(INPUT_LEFT) && !GetInput(INPUT_AIM)
+		&& GetAxis(MOVEMENT_AXIS_VERTICAL) == 0 && GetAxis(MOVEMENT_AXIS_HORIZONTAL) == 0) {
 		nState = PLAYER_IDLE_STATE;
 		return;
 	}
@@ -139,59 +141,23 @@ void Player3D::MoveControl()
 		SetPlayerAnimation(ANIMATION_WALKING);
 	else
 		SetPlayerAnimation(ANIMATION_AIMING);
-	if (GetInput(INPUT_LEFT)) {
-		if (GetInput(INPUT_FORWARD)) {
-			// 左前移動
-			Position.x -= sinf(rotCamera.y + XM_PI * 0.75f) * PLAYER_SPEED;
-			Position.z -= cosf(rotCamera.y + XM_PI * 0.75f) * PLAYER_SPEED;
-			Model->SetRotation({ 0,-0.942f,0 });
-		}
-		else if (GetInput(INPUT_BACKWARD)) {
-			// 左後移動
-			Position.x -= sinf(rotCamera.y + XM_PI * 0.25f) * PLAYER_SPEED;
-			Position.z -= cosf(rotCamera.y + XM_PI * 0.25f) * PLAYER_SPEED;
-			Model->SetRotation({ 0,-2.450f,0 });
-		}
-		else {
-			// 左移動
-			Position.x -= sinf(rotCamera.y + XM_PI * 0.50f) * PLAYER_SPEED;
-			Position.z -= cosf(rotCamera.y + XM_PI * 0.50f) * PLAYER_SPEED;
-			Model->SetRotation({ 0,4.696f,0 });
-		}
-	}
-	else if (GetInput(INPUT_RIGHT)) {
-		if (GetInput(INPUT_FORWARD)) {
-			// 右前移動
-			Position.x -= sinf(rotCamera.y - XM_PI * 0.75f) * PLAYER_SPEED;
-			Position.z -= cosf(rotCamera.y - XM_PI * 0.75f) * PLAYER_SPEED;
-			Model->SetRotation({ 0,0.942f,0 });
-		}
-		else if (GetInput(INPUT_BACKWARD)) {
-			// 右後移動
-			Position.x -= sinf(rotCamera.y - XM_PI * 0.25f) * PLAYER_SPEED;
-			Position.z -= cosf(rotCamera.y - XM_PI * 0.25f) * PLAYER_SPEED;
-			Model->SetRotation({ 0,2.450f,0 });
-		}
-		else {
-			// 右移動
-			Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED;
-			Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED;
-			Model->SetRotation({ 0,1.68f,0 });
-		}
-	}
-	else if (GetInput(INPUT_FORWARD)) {
-		// 前移動
-		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED;
-		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED;
-		Model->SetRotation({ 0,0,0 });
-	}
-	else if (GetInput(INPUT_BACKWARD)) {
-		// 後移動
-		Position.x -= sinf(rotCamera.y) * PLAYER_SPEED;
-		Position.z -= cosf(rotCamera.y) * PLAYER_SPEED;
-		Model->SetRotation({ 0,3.314f,0 });
-	}
 
+	//スティック：
+	//atan2(GetAxis(MOVEMENT_AXIS_VERTICAL), GetAxis(MOVEMENT_AXIS_HORIZONTAL))
+	float ModelOffset = -(atan2(GetAxis(MOVEMENT_AXIS_VERTICAL), GetAxis(MOVEMENT_AXIS_HORIZONTAL)) - 1.570796f);
+	printf("%f\n", ModelOffset);
+	if (GetAxis(MOVEMENT_AXIS_VERTICAL) != 0) {
+		
+		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED*GetAxis(MOVEMENT_AXIS_VERTICAL);
+		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED*GetAxis(MOVEMENT_AXIS_VERTICAL);
+	}
+	if (GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0) {
+
+		Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * GetAxis(MOVEMENT_AXIS_HORIZONTAL);
+		Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * GetAxis(MOVEMENT_AXIS_HORIZONTAL);
+	}
+	if(GetAxis(MOVEMENT_AXIS_VERTICAL) != 0 || GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0) 
+		Model->SetRotation({ 0,ModelOffset,0 });
 	if (GetKeyPress(VK_RETURN)) {
 		// リセット
 		Position = XMFLOAT3(0.0f, 0.0f, 0.0f);

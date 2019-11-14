@@ -28,14 +28,38 @@ void UpdateInputManager()
 	
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
+
 	bInputs[INPUT_SHOOT] =  GetMouseButton(MOUSEBUTTON_L) ||
 		(bXinputConnected && Player1->GetState().Gamepad.bLeftTrigger > 0);
 	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || 
 							(bXinputConnected && Player1->GetState().Gamepad.bRightTrigger>0);
-	//printf("%f\n", (float)Player1->GetState().Gamepad.sThumbRX /32876.7 + 0.01f);
 	bool bUsingKeyBoard = false;
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);
 		
+	if (GetKeyPress(VK_W))
+	{
+		bUsingKeyBoard = true;
+		fAxis[MOVEMENT_AXIS_VERTICAL] = 1;
+	}
+
+	if (GetKeyPress(VK_S))
+	{
+		bUsingKeyBoard = true;
+		fAxis[MOVEMENT_AXIS_VERTICAL] = -1;
+	}
+
+	if (GetKeyPress(VK_D))
+	{
+		bUsingKeyBoard = true;
+		fAxis[MOVEMENT_AXIS_HORIZONTAL] = 1;
+	}
+
+	if (GetKeyPress(VK_A))
+	{
+		bUsingKeyBoard = true;
+		fAxis[MOVEMENT_AXIS_HORIZONTAL] = -1;
+	}
+
 	if (GetKeyPress(VK_LEFT)) 
 	{
 		bUsingKeyBoard = true;
@@ -57,10 +81,14 @@ void UpdateInputManager()
 		fAxis[CAMERA_AXIS_VERTICAL] = -1;
 	}
 	if (!bUsingKeyBoard && bXinputConnected) {
-		fAxis[CAMERA_AXIS_HORIZONTAL] = (float)Player1->GetState().Gamepad.sThumbRX / 32876.7f + 0.023543f;// +0.0113543f;
-		fAxis[CAMERA_AXIS_VERTICAL] = (float)Player1->GetState().Gamepad.sThumbRY / 32876.7f - 0.017848f+ 0.010000;
+		fAxis[CAMERA_AXIS_HORIZONTAL] = (float)Player1->GetState().Gamepad.sThumbRX / 32876.7f + 0.023543f;
+		fAxis[CAMERA_AXIS_VERTICAL] = (float)Player1->GetState().Gamepad.sThumbRY / 32876.7f - 0.017848f + 0.010000;
+		fAxis[MOVEMENT_AXIS_HORIZONTAL] = (float)Player1->GetState().Gamepad.sThumbLX / 32767;
+		fAxis[MOVEMENT_AXIS_VERTICAL] = (float)Player1->GetState().Gamepad.sThumbLY / 32767;
 	}
 	
+
+	//printf("%f\n", fAxis[MOVEMENT_AXIS_VERTICAL]);
 }
 
 void EndInputManager()
