@@ -41,13 +41,31 @@ void UIObject2D::Init()
 	nAnimationTimer = 0;
 	nAnimationSpeed = 0;
 	bHeartActive = true;
-	pnCurrent_hearts = 1;
-	pnMax_Hearts = 1;
+	nCurrent_hearts = 1;
+	nMax_Hearts = 1;
+	pPlayer = nullptr;
 }
 
 void UIObject2D::Update()
 {
 	UpdatePolygon();
+	switch (nType)
+	{
+	case UI_HEART:
+		if (!pPlayer)
+			pPlayer = GetMainPlayer3D();
+		nCurrent_hearts = pPlayer->GetCurrentHealth();
+		nMax_Hearts = pPlayer->GetMaxHealth();
+
+		break;
+	default:
+		break;
+	}
+	RegularUVAnimation();
+}
+
+void UIObject2D::RegularUVAnimation()
+{
 	if (++nAnimationTimer > nAnimationSpeed) {
 		nAnimationTimer = 0;
 		uv.U++;
@@ -78,12 +96,12 @@ void UIObject2D::Draw()
 void UIObject2D::UIHeartControl()
 {
 	int nHeartsToShow = 1;
-	if (nHeartsToShow > pnMax_Hearts)
+	if (nHeartsToShow > nMax_Hearts)
 		return;
 	XMFLOAT3 ogHeartPos = Position;
-	for (int i = 0; i < pnMax_Hearts; i++, nHeartsToShow++)
+	for (int i = 0; i < nMax_Hearts; i++, nHeartsToShow++)
 	{
-		bHeartActive = nHeartsToShow <= pnCurrent_hearts;
+		bHeartActive = nHeartsToShow <= nCurrent_hearts;
 		if (bHeartActive)
 		{
 			SetPolygonSize(HEART_SIZE, HEART_SIZE);

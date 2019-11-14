@@ -19,7 +19,7 @@
 #define VALUE_MOVE_CAMERA	(2.0f)	
 #define VALUE_ROTATE_CAMERA	(XM_PI*0.01f)	
 #define REGULAR_OBJECT_DISTANCE {0, 25, -122}
-#define AIM_OBJECT_DISTANCE {-30, 25, -122}
+#define AIM_OBJECT_DISTANCE {20, 35, -40}
 Camera3D* MainCamera = nullptr;
 bool bFocalPointIsGameObject = false;
 Camera3D::Camera3D(): FocalPoint(nullptr)
@@ -80,20 +80,21 @@ void Camera3D::Update()
 		const XMFLOAT3 vLookAt = XMFLOAT3(vEye.x, vEye.y, 0);//’Ž‹“_
 		if (FocusPoint->GetType() == GO_PLAYER && GetInput(INPUT_AIM))
 		{
+			XMFLOAT3 v_NEye = AIM_OBJECT_DISTANCE;
 			fAcceleration++;
-			if (vEye.z < -40)
+			if (vEye.z < v_NEye.z)
 				vEye.z += fAcceleration;
-			if (vEye.z > -40) 
-				vEye.z = -40;
-			if (vEye.x < 10)
+			if (vEye.z > v_NEye.z) 
+				vEye.z = v_NEye.z;
+			if (vEye.x < v_NEye.x)
 				vEye.x += fAcceleration;
-			if (vEye.x > 10) 
-				vEye.x = 10;
-			if (vEye.y < 35)
+			if (vEye.x > v_NEye.x) 
+				vEye.x = v_NEye.x;
+			if (vEye.y < v_NEye.y)
 				vEye.y += fAcceleration;
-			if (vEye.y > 35)
-				vEye.y = 35;
-			if (vEye.y == 35 && vEye.z == -30 && vEye.x == 10)
+			if (vEye.y > v_NEye.y)
+				vEye.y = v_NEye.y;
+			if (vEye.y == v_NEye.y && vEye.z == v_NEye.z && vEye.x == v_NEye.x)
 				fAcceleration = 0;
 		}
 		else if (FocusPoint->GetType() == GO_PLAYER && !GetInput(INPUT_AIM)) {

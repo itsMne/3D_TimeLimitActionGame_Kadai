@@ -1,4 +1,5 @@
-#pragma once
+#ifndef	PLAYER3D_H
+#define PLAYER3D_H
 #include "GameObject3D.h"
 #define MAX_BULLETS 40
 enum EPLAYER_STATE
@@ -14,6 +15,9 @@ class Player3D :
 private:
 	int nState;
 	bool bSwitcheToAimingState;
+	//‰ñ•œ‚ÉŠÖ‚·‚é
+	int nCurrentHealth;
+	int nMaxHealth;
 	//‰e‚ÉŠÖ‚·‚é
 	GameObject3D* mShadow;
 	//’e‚ÉŠÖ‚·‚é
@@ -36,5 +40,9 @@ public:
 	void PlayerBulletsControl();
 	void Draw();
 	void End();
+	int GetCurrentHealth();
+	int GetMaxHealth();
 };
 
+Player3D*  GetMainPlayer3D();
+#endif

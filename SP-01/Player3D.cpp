@@ -6,7 +6,8 @@
 #define ROTATION_SPEED	XM_PI*0.02f			// 回転速度
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
-
+#define INITIAL_HEALTH 3
+Player3D* pMainPlayer3D = nullptr;
 enum PLAYER_ANIMATIONS
 {
 	ANIMATION_IDLE=0,//アイドル
@@ -44,7 +45,9 @@ Player3D::~Player3D()
 void Player3D::Init()
 {
 	SetScale(PLAYER_SCALE);
+	pMainPlayer3D = this;
 	nState = PLAYER_IDLE_STATE;
+	nMaxHealth = nCurrentHealth = INITIAL_HEALTH;
 	printf("%f\n", GetModel()->GetPosition().y);
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
@@ -231,7 +234,7 @@ void Player3D::PlayerBulletsControl()
 			goBullets[i]->SetUse(true);
 			goBullets[i]->SetRotation(Rotation);
 			//goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y+15, Position.z+ cosf(rotCamera.y)*15 });
-			float fYOffset = 15*(sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x))+1);
+			float fYOffset = 14*(sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x))+1);
 			printf("%f\n", fYOffset);
 			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y + fYOffset, Position.z+ cosf(rotCamera.y)*15 });
 			nShootCooldown = 0;
@@ -274,4 +277,19 @@ void Player3D::End()
 		goBullets[i] = nullptr;
 
 	}
+}
+
+int Player3D::GetCurrentHealth()
+{
+	return nCurrentHealth;
+}
+
+int Player3D::GetMaxHealth()
+{
+	return nMaxHealth;
+}
+
+Player3D * GetMainPlayer3D()
+{
+	return pMainPlayer3D;
 }
