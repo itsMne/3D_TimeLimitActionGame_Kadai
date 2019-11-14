@@ -13,13 +13,49 @@ enum PLAYER_ANIMATIONS
 	ANIMATION_IDLE=0,//アイドル
 	ANIMATION_WALKING,//動く 
 	ANIMATION_AIMING,//狙う
+	BASIC_CHAIN_A,
+	BASIC_CHAIN_B,
+	BASIC_CHAIN_C,
+	BASIC_CHAIN_D,
+	BASIC_CHAIN_E,
+	SLIDE,
+	SLIDEKICK,
+	AIRCOMBOA,
+	AIRCOMBOB,
+	AIRCOMBOC,
+	AIRCOMBOD,
+	AIRCOMBOE,
+	JUMP,
+	AIR_IDLE,
+	ROULETTE,
+	STAB_BLOCK,
+	AIR_STAB_BLOCK,
+	SLOWWALK,
 	MAX_ANIMATIONS
 };
 int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
 	{5},//IDLE
-	{2},//WALKING
+	{1},//WALKING
 	{5},//AIMING
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{0},
+	{6},//SLOWWALK
 };
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
@@ -131,33 +167,41 @@ void Player3D::MoveControl()
 {
 
 	XMFLOAT3 rotCamera;
+	float fHorizontalAxis = GetAxis(MOVEMENT_AXIS_HORIZONTAL);
+	float fVerticalAxis = GetAxis(MOVEMENT_AXIS_VERTICAL);
 	rotCamera = pMainCamera->GetCameraAngle();
 	if (!GetInput(INPUT_FORWARD) && !GetInput(INPUT_BACKWARD) && !GetInput(INPUT_RIGHT) && !GetInput(INPUT_LEFT) && !GetInput(INPUT_AIM)
-		&& GetAxis(MOVEMENT_AXIS_VERTICAL) == 0 && GetAxis(MOVEMENT_AXIS_HORIZONTAL) == 0) {
+		&& fVerticalAxis == 0 && fHorizontalAxis == 0) {
 		nState = PLAYER_IDLE_STATE;
 		return;
 	}
-	if (!GetInput(INPUT_AIM))
-		SetPlayerAnimation(ANIMATION_WALKING);
-	else
-		SetPlayerAnimation(ANIMATION_AIMING);
-
 	//スティック：
-	//atan2(GetAxis(MOVEMENT_AXIS_VERTICAL), GetAxis(MOVEMENT_AXIS_HORIZONTAL))
-	float ModelOffset = -(atan2(GetAxis(MOVEMENT_AXIS_VERTICAL), GetAxis(MOVEMENT_AXIS_HORIZONTAL)) - 1.570796f);
-	printf("%f\n", ModelOffset);
-	if (GetAxis(MOVEMENT_AXIS_VERTICAL) != 0) {
-		
-		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED*GetAxis(MOVEMENT_AXIS_VERTICAL);
-		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED*GetAxis(MOVEMENT_AXIS_VERTICAL);
-	}
-	if (GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0) {
 
-		Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * GetAxis(MOVEMENT_AXIS_HORIZONTAL);
-		Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * GetAxis(MOVEMENT_AXIS_HORIZONTAL);
+	float nModelRotetion = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
+	//printf("%f\n", nModelRotetion);
+	if (fVerticalAxis != 0) {
+		
+		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis;
+		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis;
 	}
-	if(GetAxis(MOVEMENT_AXIS_VERTICAL) != 0 || GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0) 
-		Model->SetRotation({ 0,ModelOffset,0 });
+	if (fHorizontalAxis != 0) {
+
+		Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * fHorizontalAxis;
+		Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * fHorizontalAxis;
+	}
+	if (fVerticalAxis != 0 || fHorizontalAxis != 0)
+	{
+		Model->SetRotation({ 0,nModelRotetion,0 });
+		if (!GetInput(INPUT_AIM)) {
+			if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
+				fVerticalAxis > -0.2f && fHorizontalAxis > -0.2f)
+				SetPlayerAnimation(SLOWWALK);
+			else
+				SetPlayerAnimation(ANIMATION_WALKING);
+		}
+	}
+	if (GetInput(INPUT_AIM))
+		SetPlayerAnimation(ANIMATION_AIMING);
 	if (GetKeyPress(VK_RETURN)) {
 		// リセット
 		Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -168,6 +212,11 @@ void Player3D::MoveControl()
 void Player3D::SetPlayerAnimation(int Animation)
 {
 	Model->SwitchAnimation(Animation, nAnimationSpeeds[Animation]);
+}
+
+void Player3D::SetPlayerAnimation(int Animation, int Slowness)
+{
+	Model->SwitchAnimation(Animation, Slowness);
 }
 
 void Player3D::PlayerShadowControl()

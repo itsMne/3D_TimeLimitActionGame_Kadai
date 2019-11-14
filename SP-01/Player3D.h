@@ -36,6 +36,7 @@ public:
 	void PlayerCameraControl();
 	void MoveControl();
 	void SetPlayerAnimation(int Animation);
+	void SetPlayerAnimation(int Animation, int Slowness);
 	void PlayerShadowControl();
 	void PlayerBulletsControl();
 	void Draw();

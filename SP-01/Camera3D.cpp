@@ -78,7 +78,7 @@ void Camera3D::Update()
 	{
 		GameObject3D* FocusPoint = ((GameObject3D*)FocalPoint);
 		//Model3D* FocusPoint = ((GameObject3D*)FocalPoint)->GetModel();
-		const XMFLOAT3 vLookAt = XMFLOAT3(vEye.x, vEye.y, 0);//’Ž‹“_
+		XMFLOAT3 vLookAt = XMFLOAT3(vEye.x, vEye.y, 0);//’Ž‹“_
 		if (FocusPoint->GetType() == GO_PLAYER && GetInput(INPUT_AIM))
 		{
 			XMFLOAT3 v_NEye = AIM_OBJECT_DISTANCE;
@@ -116,6 +116,7 @@ void Camera3D::Update()
 				vEye.y =  v_NEye.y;
 			if (vEye.y == v_NEye.y && vEye.z == v_NEye.z && vEye.x == v_NEye.x)
 				fAcceleration = 0;
+			
 		}
 		XMMATRIX mtxWorld = XMLoadFloat4x4(FocusPoint->GetModelWorld());
 
@@ -124,6 +125,7 @@ void Camera3D::Update()
 
 		//’Ž‹“_
 		XMStoreFloat3(&g_posCameraR, XMVector3TransformCoord(XMLoadFloat3(&vLookAt), mtxWorld));
+
 		g_rotCamera = FocusPoint->GetRotation();
 	}
 

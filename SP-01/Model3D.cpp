@@ -86,8 +86,11 @@ void Model3D::UpdateModel(void)
 
 void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness)
 {
-	if (g_pModel->GetCurrentAnimation() == nNewAnimNum)
+	if (g_pModel->GetCurrentAnimation() == nNewAnimNum) {
+		if(nAnimationFrameSpeed != FrameSlowness)
+			nAnimationFrameSpeed = FrameSlowness;
 		return;
+	}
 	nAnimationFrameSpeed = FrameSlowness;
 	g_pModel->SetAnimStack(nNewAnimNum);
 	nFrame = g_pModel->GetInitialAnimFrame();
