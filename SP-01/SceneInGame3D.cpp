@@ -36,7 +36,7 @@ void SceneInGame3D::Init()
 {
 }
 
-void SceneInGame3D::Update()
+eSceneType SceneInGame3D::Update()
 {
 	Scene3D::Update();
 	// デバッグ文字列表示更新
@@ -45,8 +45,6 @@ void SceneInGame3D::Update()
 	// デバッグ文字列設定
 	StartDebugProc();
 	PrintDebugProc("FPS:%d\n\n", GetMainWindowFPS());
-
-	
 
 	// モデル更新
 	pPlayer->Update();
@@ -57,6 +55,8 @@ void SceneInGame3D::Update()
 	//HelloShadow->Update();
 
 	pUI->Update();
+
+	return SCENE_IN_GAME;
 }
 
 void SceneInGame3D::Draw()

@@ -1,16 +1,11 @@
 #include "SceneTitleScreen3D.h"
 
 
-
 SceneTitleScreen3D::SceneTitleScreen3D() :Scene3D(true)
 {
-	pLogo = new GameObject3D(GO_TITLE_LOGO);
-	pSceneCamera->SetFocalPointGO(pLogo);
 	MainWindow->SetWindowColor(1, 1, 1);
-	pLogo->GetModel()->SetPosition({ 0,25,0 });
-	pLogo->GetModel()->SetRotation({0,-XM_PI/2, 0});
-	pLogo->GetModel()->SetScale(2);
 	pSceneLight->GetLight();
+	Logo = new UIObject2D(UI_LOGO);
 }
 
 
@@ -23,18 +18,22 @@ void SceneTitleScreen3D::Init()
 {
 }
 
-void SceneTitleScreen3D::Update()
+eSceneType SceneTitleScreen3D::Update()
 {
 	Scene3D::Update();
-	if (pLogo)
-		pLogo->Update();
+	if (Logo)
+		Logo->Update();
+	return SCENE_TITLE_SCREEN;
 }
 
 void SceneTitleScreen3D::Draw()
 {
+	SetZBuffer(true);//3D
 	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(1));
-	if (pLogo)
-		pLogo->Draw();
+	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(2));
+	SetZBuffer(false);//2D
+	if(Logo)
+		Logo->Draw();
 }
 
 void SceneTitleScreen3D::End()

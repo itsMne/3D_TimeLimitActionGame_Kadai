@@ -6,6 +6,7 @@ enum UI_TYPE
 {
 	UI_HEART,
 	UI_AIM,
+	UI_LOGO,
 	UI_TYPE_MAX
 };
 class UIObject2D :

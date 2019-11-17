@@ -18,7 +18,7 @@ Scene3D::~Scene3D()
 {
 }
 
-void Scene3D::Update()
+eSceneType Scene3D::Update()
 {
 	// 光源更新
 	if(pSceneLight)
@@ -27,6 +27,8 @@ void Scene3D::Update()
 	// カメラ更新
 	if(pSceneCamera)
 		pSceneCamera->Update();
+
+	return MAX_SCENES;
 }
 
 void Scene3D::End()

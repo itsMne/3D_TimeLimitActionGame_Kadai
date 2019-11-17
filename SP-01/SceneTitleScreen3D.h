@@ -1,16 +1,16 @@
 #pragma once
 #include "Scene3D.h"
-#include "GameObject3D.h"
+#include "UIManager2D.h"
 class SceneTitleScreen3D :
 	public Scene3D
 {
 private:
-	GameObject3D* pLogo;
+	UIObject2D* Logo;
 public:
 	SceneTitleScreen3D();
 	~SceneTitleScreen3D();
 	void Init();
-	void Update();
+	eSceneType Update();
 	void Draw();
 	void End();
 };

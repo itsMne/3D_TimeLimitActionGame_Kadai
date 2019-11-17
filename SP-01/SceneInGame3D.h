@@ -10,15 +10,13 @@ class SceneInGame3D :
 private:
 	
 	ID3D11Device* g_pDevice;
-	
 	Player3D* pPlayer;
-
 	InGameUI2D* pUI;
 public:
 	SceneInGame3D();
 	~SceneInGame3D();
 	void Init();
-	void Update();
+	eSceneType Update();
 	void Draw();
 	void End();
 };

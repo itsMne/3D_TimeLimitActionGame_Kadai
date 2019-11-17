@@ -2,6 +2,12 @@
 #include "DXWindow3D.h"
 #include "Camera3D.h"
 #include "Light3D.h"
+enum eSceneType
+{
+	SCENE_TITLE_SCREEN = 0,
+	SCENE_IN_GAME,
+	MAX_SCENES
+};
 class Scene3D
 {
 protected:
@@ -13,7 +19,7 @@ public:
 	Scene3D(bool);
 	~Scene3D();
 	virtual void Init() = 0;
-	virtual void Update();
+	virtual eSceneType Update();
 	virtual void Draw() = 0;
 	virtual void End();
 };

@@ -42,9 +42,6 @@
     <ClCompile Include="Texture.cpp">
       <Filter>CPPファイル\エンジンCPP</Filter>
     </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>CPPファイル\ゲームCPP</Filter>
-    </ClCompile>
     <ClCompile Include="Model3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
@@ -69,15 +66,24 @@
     <ClCompile Include="Player3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="Scene3D.cpp" />
-    <ClCompile Include="SceneInGame3D.cpp" />
     <ClCompile Include="C_XInput.cpp">
       <Filter>CPPファイル\エンジンCPP</Filter>
     </ClCompile>
     <ClCompile Include="UIManager2D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="SceneTitleScreen3D.cpp" />
+    <ClCompile Include="Scene3D.cpp">
+      <Filter>CPPファイル\シーンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneInGame3D.cpp">
+      <Filter>CPPファイル\シーンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneTitleScreen3D.cpp">
+      <Filter>CPPファイル\シーンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -104,9 +110,6 @@
     <ClInclude Include="Texture.h">
       <Filter>Hファイル\エンジンH</Filter>
     </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>Hファイル\ゲームH</Filter>
-    </ClInclude>
     <ClInclude Include="Polygon2D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
@@ -131,15 +134,24 @@
     <ClInclude Include="Player3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="Scene3D.h" />
-    <ClInclude Include="SceneInGame3D.h" />
     <ClInclude Include="C_XInput.h">
       <Filter>CPPファイル\エンジンCPP</Filter>
     </ClInclude>
     <ClInclude Include="UIManager2D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="SceneTitleScreen3D.h" />
+    <ClInclude Include="Scene3D.h">
+      <Filter>Hファイル\シーンH</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneInGame3D.h">
+      <Filter>Hファイル\シーンH</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneTitleScreen3D.h">
+      <Filter>Hファイル\シーンH</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">
@@ -162,6 +174,12 @@
     </Filter>
     <Filter Include="Misc">
       <UniqueIdentifier>{a7b81ba3-e3e5-4de9-9468-012455ab55ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPPファイル\シーンCPP">
+      <UniqueIdentifier>{7726d67f-6a72-4284-899c-79aa1747321e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hファイル\シーンH">
+      <UniqueIdentifier>{bf4fb830-f1ed-41e9-9eff-525f8ab5637a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

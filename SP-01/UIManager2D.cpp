@@ -33,6 +33,18 @@ UIObject2D::UIObject2D(int nUI_Type)
 		SetPolygonSize(AIM_SIZE, AIM_SIZE);
 		SetTexture(gpTexture);
 		break;
+	case UI_LOGO:
+		CreateTextureFromFile(GetDevice(), "data/texture/LogoUI.tga", &gpTexture);
+		Position.x = 0;
+		Position.y = 0;
+		x2Frame.x = 1.0f/8.0f;
+		x2Frame.y = 1.0f/8.0f;
+		uv.U = 0;
+		uv.V = 0;
+		nAnimationSpeed = 1;
+		SetPolygonSize(768, 432);
+		SetTexture(gpTexture);
+		break;
 	default:
 		break;
 	}
@@ -70,6 +82,21 @@ void UIObject2D::Update()
 	case UI_AIM:
 		Rotation.z++;
 		break;
+	case UI_LOGO:
+		if (++nAnimationTimer > nAnimationSpeed) {
+			nAnimationTimer = 0;
+			uv.U++;
+			if (uv.U == 8)
+			{
+				uv.U = 0;
+				uv.V++;
+				if (uv.V == 8) {
+					uv.V = 6;
+					uv.U = 3;
+				}
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -104,6 +131,11 @@ void UIObject2D::Draw()
 		else
 			if(pPlayer->IsPlayerAiming())
 				DrawPolygon(GetDeviceContext());
+		break;
+	case UI_LOGO:
+		SetPolygonFrameSize(x2Frame.x, x2Frame.y);
+		SetPolygonUV(uv.U / 8.0f, uv.V / 8.0f);
+		DrawPolygon(GetDeviceContext());
 		break;
 	default:
 		DrawPolygon(GetDeviceContext());

@@ -4,8 +4,8 @@
 Scene3D* pCurrentScene = nullptr;
 HRESULT InitScene()
 {
-	//pCurrentScene = new SceneTitleScreen3D();
-	pCurrentScene = new SceneInGame3D();
+	pCurrentScene = new SceneTitleScreen3D();
+	//pCurrentScene = new SceneInGame3D();
 	
 	return S_OK;
 }

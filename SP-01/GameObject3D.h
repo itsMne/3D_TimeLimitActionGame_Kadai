@@ -3,7 +3,7 @@
 #include "Model3D.h"
 #include "Light3D.h"
 
-enum GameObjectTypes
+enum eGameObjectTypes
 {
 	GO_PLAYER=0,
 	GO_BULLET,
