@@ -69,10 +69,15 @@
     <ClCompile Include="Player3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="UIObject2D.cpp">
+    <ClCompile Include="Scene3D.cpp" />
+    <ClCompile Include="SceneInGame3D.cpp" />
+    <ClCompile Include="C_XInput.cpp">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager2D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="C_XInput.cpp" />
+    <ClCompile Include="SceneTitleScreen3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -126,8 +131,15 @@
     <ClInclude Include="Player3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="UIObject2D.h" />
-    <ClInclude Include="C_XInput.h" />
+    <ClInclude Include="Scene3D.h" />
+    <ClInclude Include="SceneInGame3D.h" />
+    <ClInclude Include="C_XInput.h">
+      <Filter>CPPファイル\エンジンCPP</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager2D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneTitleScreen3D.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

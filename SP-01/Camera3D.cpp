@@ -39,6 +39,7 @@ Camera3D::Camera3D(bool bisMainCamera) : FocalPoint(nullptr)
 
 Camera3D::~Camera3D()
 {
+	End();
 }
 
 HRESULT Camera3D::Init()

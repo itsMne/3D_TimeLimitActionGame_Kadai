@@ -172,10 +172,13 @@
     <ClCompile Include="Model3D.cpp" />
     <ClCompile Include="Player3D.cpp" />
     <ClCompile Include="Polygon2D.cpp" />
+    <ClCompile Include="Scene3D.cpp" />
+    <ClCompile Include="SceneInGame3D.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SceneTitleScreen3D.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="UIObject2D.cpp" />
+    <ClCompile Include="UIManager2D.cpp" />
     <ClCompile Include="C_XInput.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -192,10 +195,13 @@
     <ClInclude Include="Model3D.h" />
     <ClInclude Include="Player3D.h" />
     <ClInclude Include="Polygon2D.h" />
+    <ClInclude Include="Scene3D.h" />
+    <ClInclude Include="SceneInGame3D.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SceneTitleScreen3D.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="UIObject2D.h" />
+    <ClInclude Include="UIManager2D.h" />
     <ClInclude Include="UniversalStructures.h" />
     <ClInclude Include="C_XInput.h" />
   </ItemGroup>

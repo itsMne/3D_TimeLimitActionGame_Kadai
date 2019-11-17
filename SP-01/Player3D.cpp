@@ -35,27 +35,27 @@ enum PLAYER_ANIMATIONS
 };
 int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
-	{5},//IDLE
-	{1},//WALKING
-	{5},//AIMING
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{0},
-	{6},//SLOWWALK
+	{2},//IDLE
+	{4},//WALKING
+	{1},//AIMING
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},//SLOWWALK
 };
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
@@ -76,6 +76,7 @@ Player3D::Player3D(Light3D * Light):GameObject3D(Light, PLAYER_MODEL_PATH, GO_PL
 
 Player3D::~Player3D()
 {
+	End();
 }
 
 void Player3D::Init()
@@ -84,7 +85,7 @@ void Player3D::Init()
 	pMainPlayer3D = this;
 	nState = PLAYER_IDLE_STATE;
 	nMaxHealth = nCurrentHealth = INITIAL_HEALTH;
-	printf("%f\n", GetModel()->GetPosition().y);
+	//printf("%f\n", GetModel()->GetPosition().y);
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
 	pDeviceContext = GetDeviceContext();
@@ -138,13 +139,13 @@ void Player3D::Update()
 	PrintDebugProc("ﾐｷﾞ  ｾﾝｶｲ : RSHIFT\n");
 	PrintDebugProc("\n");
 
-	if(!GetInput(INPUT_AIM))
-		Model->SetRotationX(-pMainCamera->GetCameraAngle().x);
 	if (bSwitcheToAimingState)
 	{
 		bSwitcheToAimingState = GetInput(INPUT_AIM);
-		if (!bSwitcheToAimingState)
+		if (!bSwitcheToAimingState) {
 			Rotation.x = 0;
+			Model->SetRotationX(0);
+		}
 	}
 	PlayerCameraControl();
 	PlayerBulletsControl();
@@ -153,19 +154,16 @@ void Player3D::Update()
 
 void Player3D::PlayerCameraControl()
 {
-	if (GetAxis(CAMERA_AXIS_HORIZONTAL) != 0) {
+	if (GetAxis(CAMERA_AXIS_HORIZONTAL) != 0)
 		RotateAroundY(-ROTATION_SPEED * GetAxis(CAMERA_AXIS_HORIZONTAL));
-		Model->RotateAroundY(ROTATION_SPEED*GetAxis(CAMERA_AXIS_HORIZONTAL));
-	}
-	if (GetAxis(CAMERA_AXIS_VERTICAL) != 0) {
+	if (GetAxis(CAMERA_AXIS_VERTICAL) != 0)
 		RotateAroundX(ROTATION_SPEED * GetAxis(CAMERA_AXIS_VERTICAL));
-		Model->RotateAroundX(-ROTATION_SPEED*GetAxis(CAMERA_AXIS_VERTICAL));
-	}
+
 }
 
 void Player3D::MoveControl()
 {
-
+	
 	XMFLOAT3 rotCamera;
 	float fHorizontalAxis = GetAxis(MOVEMENT_AXIS_HORIZONTAL);
 	float fVerticalAxis = GetAxis(MOVEMENT_AXIS_VERTICAL);
@@ -177,7 +175,7 @@ void Player3D::MoveControl()
 	}
 	//スティック：
 
-	float nModelRotetion = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
+	float nModelRotation = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
 	//printf("%f\n", nModelRotetion);
 	if (fVerticalAxis != 0) {
 		
@@ -191,7 +189,8 @@ void Player3D::MoveControl()
 	}
 	if (fVerticalAxis != 0 || fHorizontalAxis != 0)
 	{
-		Model->SetRotation({ 0,nModelRotetion,0 });
+		XMFLOAT3 x3CurrentModelRot = Model->GetRotation();
+		Model->SetRotationY(nModelRotation+Rotation.y);
 		if (!GetInput(INPUT_AIM)) {
 			if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
 				fVerticalAxis > -0.2f && fHorizontalAxis > -0.2f)
@@ -200,8 +199,6 @@ void Player3D::MoveControl()
 				SetPlayerAnimation(ANIMATION_WALKING);
 		}
 	}
-	if (GetInput(INPUT_AIM))
-		SetPlayerAnimation(ANIMATION_AIMING);
 	if (GetKeyPress(VK_RETURN)) {
 		// リセット
 		Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -211,12 +208,12 @@ void Player3D::MoveControl()
 
 void Player3D::SetPlayerAnimation(int Animation)
 {
-	Model->SwitchAnimation(Animation, nAnimationSpeeds[Animation]);
+	Model->SwitchAnimation(Animation, 0, nAnimationSpeeds[Animation]);
 }
 
-void Player3D::SetPlayerAnimation(int Animation, int Slowness)
+void Player3D::SetPlayerAnimation(int Animation, int Speed)
 {
-	Model->SwitchAnimation(Animation, Slowness);
+	Model->SwitchAnimation(Animation, 0, Speed);
 }
 
 void Player3D::PlayerShadowControl()
@@ -232,8 +229,8 @@ void Player3D::PlayerBulletsControl()
 {
 	if (GetInput(INPUT_AIM))
 	{
-		GetModel()->SetRotation({0,0,0});
-		Model->SwitchAnimation(2, 5);
+		GetModel()->SetRotation(Rotation);
+		SetPlayerAnimation(ANIMATION_AIMING);
 		bSwitcheToAimingState = true;
 		
 	}

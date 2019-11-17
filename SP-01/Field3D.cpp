@@ -61,6 +61,7 @@ Field3D::Field3D()
 
 Field3D::~Field3D()
 {
+	UninitField();
 }
 
 

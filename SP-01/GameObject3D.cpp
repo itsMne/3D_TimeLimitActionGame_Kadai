@@ -16,9 +16,10 @@ GameObject3D::GameObject3D(int Type)
 	switch (Type)
 	{
 	case GO_SHADOW:
-		Model = new Model3D();
-		Model->InitModel(GetMainLight(), "data/model/Shadow.fbx");
-		Model->SetParent(this);
+		Model = new Model3D(this, "data/model/Shadow.fbx");
+		break;
+	case GO_TITLE_LOGO:
+		Model = new Model3D(this, "data/model/LogoV3.fbx");
 		break;
 	default:
 		break;
@@ -31,9 +32,7 @@ GameObject3D::GameObject3D(int Type)
 GameObject3D::GameObject3D(const char * ModelPath, int Type)
 {
 	Init();
-	Model = new Model3D();
-	Model->InitModel(GetMainLight(), ModelPath);
-	Model->SetParent(this);
+	Model = new Model3D(this, ModelPath);
 	nInitedGameObjects++;
 	nType = Type;
 }
@@ -41,9 +40,8 @@ GameObject3D::GameObject3D(const char * ModelPath, int Type)
 GameObject3D::GameObject3D(Light3D* light, const char * ModelPath, int Type)
 {
 	Init();
-	Model = new Model3D();
-	Model->InitModel(light, ModelPath);
-	Model->SetParent(this);
+	Model = new Model3D(this, ModelPath);
+	Model->SetLight(light);
 	nInitedGameObjects++;
 	nType = Type;
 }
@@ -85,12 +83,12 @@ void GameObject3D::Update()
 			nUseCounterFrame = 0;
 			bUse = false;
 		}
-		Model->SetRotation({ Rotation.x, 0, 0 });
+		Model->SetRotation(Rotation);
 		break;
 	case GO_SHADOW:
 		if (!p_goParent)
 			return;
-		XMFLOAT3 ParentPosition = p_goParent->GetLocation();
+		XMFLOAT3 ParentPosition = p_goParent->GetPosition();
 		Position.x = ParentPosition.x;
 		Position.z = ParentPosition.z;
 		break;
@@ -113,7 +111,7 @@ void GameObject3D::End()
 		Model->UninitModel();
 }
 
-XMFLOAT3 GameObject3D::GetLocation()
+XMFLOAT3 GameObject3D::GetPosition()
 {
 	return Position;
 }

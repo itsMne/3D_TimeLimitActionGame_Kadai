@@ -8,6 +8,7 @@ enum GameObjectTypes
 	GO_PLAYER=0,
 	GO_BULLET,
 	GO_SHADOW,
+	GO_TITLE_LOGO,
 	GO_MAX
 };
 class GameObject3D
@@ -34,7 +35,7 @@ public:
 	virtual void Update();
 	virtual void Draw();
 	virtual void End();
-	XMFLOAT3 GetLocation();
+	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetRotation();
 	XMFLOAT3 GetScale();
 	Model3D* GetModel();

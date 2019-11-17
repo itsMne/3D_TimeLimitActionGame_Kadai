@@ -18,12 +18,15 @@
 
 
 
-Model3D::Model3D()
+Model3D::Model3D(void* pParent, const char*ModelPath)
 {
 	pMainCamera = nullptr;
 	nFramCount = 0;
-	nAnimationFrameSpeed = 5;
+	nAnimationFrameSlowness = 0;
+	nAnimationSkipFrame = 1;
 	GameObjectParent = nullptr;
+	GameObjectParent = pParent;
+	InitModel(ModelPath);
 }
 
 
@@ -34,20 +37,20 @@ Model3D::~Model3D()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT Model3D::InitModel(Light3D* SceneLight, const char* ModelPath)
+HRESULT Model3D::InitModel(const char* ModelPath)
 {
 	HRESULT hr = S_OK;
 	ID3D11Device* pDevice = GetDevice();
 	ID3D11DeviceContext* pDeviceContext = GetDeviceContext();
 	pMainCamera = GetMainCamera();
 	// 位置、向きの初期設定
-	g_posModel = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	g_rotModel = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float ModelScale = 1.0f;
-	g_ScaleModel = XMFLOAT3(ModelScale, ModelScale, ModelScale);
+	Scale = XMFLOAT3(ModelScale, ModelScale, ModelScale);
 	// FBXファイルの読み込み
 	g_pModel = new CFbxModel();
-	Light3D* pLight = SceneLight;
+	Light3D* pLight = GetMainLight();
 	nFrame = g_pModel->GetInitialAnimFrame();
 	if (!pMainCamera)
 	{
@@ -81,19 +84,20 @@ void Model3D::UninitModel(void)
 //=============================================================================
 void Model3D::UpdateModel(void)
 {
-	
+	AnimationControl();
 }
 
-void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness)
+void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, int AnimationFrameSkip)
 {
 	if (g_pModel->GetCurrentAnimation() == nNewAnimNum) {
-		if(nAnimationFrameSpeed != FrameSlowness)
-			nAnimationFrameSpeed = FrameSlowness;
+		if(nAnimationFrameSlowness != FrameSlowness)
+			nAnimationFrameSlowness = FrameSlowness;
 		return;
 	}
-	nAnimationFrameSpeed = FrameSlowness;
+	nAnimationFrameSlowness = FrameSlowness;
 	g_pModel->SetAnimStack(nNewAnimNum);
 	nFrame = g_pModel->GetInitialAnimFrame();
+	nAnimationSkipFrame = AnimationFrameSkip;
 	nFramCount = 0;
 }
 
@@ -107,52 +111,42 @@ void Model3D::DrawModel(void)
 		printf("メインカメラがありません\n");
 		return;
 	}
+
+	GameObject3D* goParent = (GameObject3D*)GameObjectParent;//親のポインターを使う
+	XMFLOAT3 ParentPos = { 0,0,0 };
+	XMFLOAT3 ParentScale = { 1,1,1 };//親の拠点と親の大きさ
+	if (goParent) {
+		ParentPos = goParent->GetPosition();
+		ParentScale = goParent->GetScale();
+	}
 	ID3D11Device* pDevice = GetDevice();
 	ID3D11DeviceContext* pDeviceContext = GetDeviceContext();
 	XMMATRIX mtxWorld, mtxRot, mtxTranslate, mtxScale;
 
-	GameObject3D* Parent = (GameObject3D*)GameObjectParent;
 	// ワールドマトリックスの初期化
 	mtxWorld = XMMatrixIdentity();
 
 	//サイズ
-	if (!Parent) {
-		mtxScale = XMMatrixScaling(g_ScaleModel.x, g_ScaleModel.y, g_ScaleModel.z);
-		mtxWorld = XMMatrixMultiply(mtxWorld, mtxScale);
-	}
-	else {
-		XMFLOAT3 ParentScale = Parent->GetScale();
-		mtxScale = XMMatrixScaling(g_ScaleModel.x * ParentScale.x, g_ScaleModel.y * ParentScale.y, g_ScaleModel.z * ParentScale.z);
-		mtxWorld = XMMatrixMultiply(mtxWorld, mtxScale);
-	}
-	// 回転を反映
-	if (!Parent) {
-		mtxRot = XMMatrixRotationRollPitchYaw(g_rotModel.x, g_rotModel.y, g_rotModel.z);
-		mtxWorld = XMMatrixMultiply(mtxWorld, mtxRot);
-	}
-	else {
-		XMFLOAT3 ParentRotation = Parent->GetRotation();
-		mtxRot = XMMatrixRotationRollPitchYaw(ParentRotation.x+g_rotModel.x, ParentRotation.y + g_rotModel.y, ParentRotation.z + g_rotModel.z);
-		mtxWorld = XMMatrixMultiply(mtxWorld, mtxRot);
-	}
+	mtxScale = XMMatrixScaling(Scale.x * ParentScale.x, Scale.y * ParentScale.y, Scale.z * ParentScale.z);
+	mtxWorld = XMMatrixMultiply(mtxWorld, mtxScale);
 
-	if (!Parent) {
-		// 移動を反映
-		mtxTranslate = XMMatrixTranslation(g_posModel.x, g_posModel.y, g_posModel.z);
-		mtxWorld = XMMatrixMultiply(mtxWorld, mtxTranslate);
-	}
-	else {
-		XMFLOAT3 ParentLocation = Parent->GetLocation();
-		mtxTranslate = XMMatrixTranslation(g_posModel.x + ParentLocation.x, g_posModel.y + ParentLocation.y, g_posModel.z + ParentLocation.z);
-		mtxWorld = XMMatrixMultiply(mtxWorld, mtxTranslate);
-	}
+	// 回転を反映
+	mtxRot = XMMatrixRotationRollPitchYaw(Rotation.x, Rotation.y, Rotation.z);
+	mtxWorld = XMMatrixMultiply(mtxWorld, mtxRot);
+
+
+
+	// 移動を反映
+	mtxTranslate = XMMatrixTranslation(Position.x + ParentPos.x, Position.y + ParentPos.y, Position.z + ParentPos.z);
+	mtxWorld = XMMatrixMultiply(mtxWorld, mtxTranslate);
+
 
 
 	// ワールドマトリックスの設定
 	XMStoreFloat4x4(&g_mtxWorld, mtxWorld);
 
 
-	AnimationControl();
+	
 	SetZWrite(true);
 	g_pModel->Render(g_mtxWorld, pMainCamera->GetViewMatrix(), pMainCamera->GetProjMatrix(), eOpacityOnly);
 	SetZWrite(false);
@@ -161,9 +155,9 @@ void Model3D::DrawModel(void)
 
 void Model3D::AnimationControl()
 {
-	if (++nFramCount >= nAnimationFrameSpeed) {
+	if (++nFramCount >= nAnimationFrameSlowness) {
 		nFramCount = 0;
-		if (++nFrame >= g_pModel->GetMaxAnimFrame()) nFrame = g_pModel->GetInitialAnimFrame();
+		if ((nFrame+=nAnimationSkipFrame) >= g_pModel->GetMaxAnimFrame()) nFrame = g_pModel->GetInitialAnimFrame();
 		g_pModel->SetAnimFrame(nFrame);
 	}
 }
@@ -175,17 +169,17 @@ XMFLOAT4X4 * Model3D::GetModelWorld()
 
 XMFLOAT3 Model3D::GetRotation()
 {
-	return g_rotModel;
+	return Rotation;
 }
 
 XMFLOAT3 Model3D::GetPosition()
 {
-	return g_posModel;
+	return Position;
 }
 
 void Model3D::SetScale(float newScale)
 {
-	g_ScaleModel = XMFLOAT3(newScale, newScale, newScale);
+	Scale = XMFLOAT3(newScale, newScale, newScale);
 }
 
 int Model3D::GetNumberOfAnimations()
@@ -200,34 +194,50 @@ void Model3D::SetParent(void * newParent)
 
 void Model3D::RotateAroundX(float x)
 {
-	g_rotModel.x -= x;
-	if (g_rotModel.x < -XM_PI) {
-		g_rotModel.x += XM_2PI;
+	Rotation.x -= x;
+	if (Rotation.x < -XM_PI) {
+		Rotation.x += XM_2PI;
 	}
 }
 
 void Model3D::RotateAroundY(float y)
 {
-	g_rotModel.y -= y;
-	if (g_rotModel.y < -XM_PI) {
-		g_rotModel.y += XM_2PI;
+	Rotation.y -= y;
+	if (Rotation.y < -XM_PI) {
+		Rotation.y += XM_2PI;
 	}
 	//printf("%f\n", g_rotModel.y);
 }
 
 void Model3D::TranslateModel(XMFLOAT3 translation)
 {
-	g_posModel.x += translation.x;
-	g_posModel.y += translation.y;
-	g_posModel.y += translation.y;
+	Position.x += translation.x;
+	Position.y += translation.y;
+	Position.y += translation.y;
 }
 
 void Model3D::SetRotation(XMFLOAT3 rot)
 {
-	g_rotModel=rot;
+	Rotation=rot;
+}
+
+void Model3D::SetPosition(XMFLOAT3 pos)
+{
+	Position = pos;
 }
 
 void Model3D::SetRotationX(float rotx)
 {
-	g_rotModel.x = rotx;
+	Rotation.x = rotx;
+}
+
+void Model3D::SetRotationY(float roty)
+{
+	Rotation.y = roty;
+}
+
+void Model3D::SetLight(Light3D * newLight)
+{
+	if(g_pModel && newLight)
+		g_pModel->SetLight(newLight->GetLight());
 }

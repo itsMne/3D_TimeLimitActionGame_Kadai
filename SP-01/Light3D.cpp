@@ -24,6 +24,7 @@ Light3D::Light3D(bool bMainLight)
 
 Light3D::~Light3D()
 {
+	End();
 }
 
 HRESULT Light3D::Init(void)

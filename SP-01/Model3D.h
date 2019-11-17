@@ -9,23 +9,24 @@ class Model3D
 {
 private:
 	CFbxModel*		g_pModel;		// FBXモデルへのポインタ
-	XMFLOAT3		g_posModel;		// 現在の位置
-	XMFLOAT3		g_rotModel;		// 現在の向き
-	XMFLOAT3		g_ScaleModel;		// 現在の向き
+	XMFLOAT3		Position;		// 現在の位置
+	XMFLOAT3		Rotation;		// 現在の向き
+	XMFLOAT3		Scale;		// 現在の向き
 	XMFLOAT4X4	g_mtxWorld;		// ワールドマトリックス
 	bool bIsMoving = false;
 	Camera3D* pMainCamera;
 	int nFrame;
 	int nFramCount;
-	int nAnimationFrameSpeed;
+	int nAnimationFrameSlowness;
+	int nAnimationSkipFrame;
 	void* GameObjectParent;
 public:
-	Model3D();
+	Model3D(void* Parent, const char*ModelPath);
 	~Model3D();
-	HRESULT InitModel(Light3D* SceneLight, const char*ModelPath);
+	HRESULT InitModel(const char*ModelPath);
 	void UninitModel(void);
 	void UpdateModel(void);
-	void SwitchAnimation(int nNewAnimNum, int FrameSlowness);
+	void SwitchAnimation(int nNewAnimNum, int FrameSlowness, int nAnimationSkipFrame);
 	void DrawModel(void);
 	void AnimationControl();
 	XMFLOAT4X4 *GetModelWorld();
@@ -38,6 +39,9 @@ public:
 	void RotateAroundY(float y);
 	void TranslateModel(XMFLOAT3 translation);
 	void SetRotation(XMFLOAT3 rot);
+	void SetPosition(XMFLOAT3 pos);
 	void SetRotationX(float rotx);
+	void SetRotationY(float roty);
+	void SetLight(Light3D* newLight);
 };
 #endif
