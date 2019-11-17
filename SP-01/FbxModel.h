@@ -175,12 +175,13 @@ public:
 	// メソッド
 	void Render(DirectX::XMFLOAT4X4& mWorld, DirectX::XMFLOAT4X4& mView, DirectX::XMFLOAT4X4& mProj, EByOpacity byOpacity = eNoAffect);
 	HRESULT Init(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, LPCSTR pszFileName);
-	void SetLight(CFbxLight& light);
+	void SetLight(CFbxLight* light);
 	void SetCamera(DirectX::XMFLOAT3& vCamera);
 	void SetAnimFrame(int nFrame);
 	int GetMaxAnimFrame();
 	int GetInitialAnimFrame();
 	int GetCurrentAnimation();
+	int GetCurrentAnimationFrame();
 	void SetAnimStack(int nAnimStack);
 	int GetMaxNumberOfAnimations();
 private:
@@ -203,7 +204,7 @@ private:
 	FbxImporter* m_pImporter;
 	FbxScene* m_pScene;
 	DirectX::XMFLOAT4X4 m_mFinalWorld;//最終的なワールド行列（この姿勢でレンダリングする）
-	CFbxLight m_light;
+	CFbxLight* m_light;
 	DirectX::XMFLOAT3 m_vCamera;
 	int nAnimationNumber;
 private:

@@ -10,6 +10,7 @@ SceneTitleScreen3D::SceneTitleScreen3D() :Scene3D(true)
 	pLogo->GetModel()->SetPosition({ 0,25,0 });
 	pLogo->GetModel()->SetRotation({0,-XM_PI/2, 0});
 	pLogo->GetModel()->SetScale(2);
+	pSceneLight->GetLight();
 }
 
 

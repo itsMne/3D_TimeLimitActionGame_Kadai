@@ -895,7 +895,7 @@ void CFbxModel::RenderMesh(CFbxMesh* pMesh, EByOpacity byOpacity)
 {
 	pMesh->m_mView = m_mView;
 	pMesh->m_mProj = m_mProj;
-	pMesh->m_pLight = &m_light;
+	pMesh->m_pLight = m_light;
 	pMesh->m_pCamera = &m_vCamera;
 	pMesh->RenderMesh(byOpacity);
 }
@@ -980,6 +980,11 @@ int CFbxModel::GetCurrentAnimation()
 	return m_nAnimStack;
 }
 
+int CFbxModel::GetCurrentAnimationFrame()
+{
+	return m_nAnimFrame;
+}
+
 //---------------------------------------------------------------------------------------
 // アニメーション切換
 //---------------------------------------------------------------------------------------
@@ -1004,7 +1009,7 @@ int CFbxModel::GetMaxNumberOfAnimations()
 //---------------------------------------------------------------------------------------
 // 光源設定
 //---------------------------------------------------------------------------------------
-void CFbxModel::SetLight(CFbxLight& light)
+void CFbxModel::SetLight(CFbxLight* light)
 {
 	m_light = light;
 }

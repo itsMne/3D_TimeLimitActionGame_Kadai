@@ -20,6 +20,7 @@ private:
 	int nAnimationFrameSlowness;
 	int nAnimationSkipFrame;
 	void* GameObjectParent;
+	Light3D* pLight;
 public:
 	Model3D(void* Parent, const char*ModelPath);
 	~Model3D();
@@ -43,5 +44,7 @@ public:
 	void SetRotationX(float rotx);
 	void SetRotationY(float roty);
 	void SetLight(Light3D* newLight);
+	int GetCurrentAnimation();
+	int GetCurrentFrameOfAnimation();
 };
 #endif

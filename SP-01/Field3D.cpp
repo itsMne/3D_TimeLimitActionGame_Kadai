@@ -218,7 +218,7 @@ void Field3D::DrawField(void)
 	pDeviceContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer[0]);
 	SHADER_GLOBAL2 cb2;
 	cb2.vEye = XMLoadFloat3(&(pMainCamera->GetCameraPos()));
-	CFbxLight& light = pSceneLight->GetLight();
+	CFbxLight& light = *pSceneLight->GetLight();
 	if (pSceneLight)
 	{
 		cb2.vLightDir = XMVectorSet(light.m_direction.x, light.m_direction.y, light.m_direction.z, 0.f);

@@ -50,7 +50,7 @@ HRESULT Model3D::InitModel(const char* ModelPath)
 	Scale = XMFLOAT3(ModelScale, ModelScale, ModelScale);
 	// FBXƒtƒ@ƒCƒ‹‚Ì“Ç‚Ýž‚Ý
 	g_pModel = new CFbxModel();
-	Light3D* pLight = GetMainLight();
+	pLight = GetMainLight();
 	nFrame = g_pModel->GetInitialAnimFrame();
 	if (!pMainCamera)
 	{
@@ -241,3 +241,14 @@ void Model3D::SetLight(Light3D * newLight)
 	if(g_pModel && newLight)
 		g_pModel->SetLight(newLight->GetLight());
 }
+
+int Model3D::GetCurrentAnimation()
+{
+	return g_pModel->GetCurrentAnimation();
+}
+
+int Model3D::GetCurrentFrameOfAnimation()
+{
+	return g_pModel->GetCurrentAnimationFrame();
+}
+

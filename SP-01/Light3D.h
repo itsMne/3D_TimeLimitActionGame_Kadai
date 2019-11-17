@@ -12,7 +12,11 @@ public:
 	HRESULT Init(void);
 	void End(void);
 	void Update(void);
-	CFbxLight& GetLight(void);
+	CFbxLight* GetLight(void);
+	void SetDiffuse(XMFLOAT4 newDif);
+	void SetSpecular(XMFLOAT4 newSpec);
+	void SetAmbient(XMFLOAT4 newAmb);
+	void SetDirection(XMFLOAT3 newDir);
 };
 
 Light3D* GetMainLight();

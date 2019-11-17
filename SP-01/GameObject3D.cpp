@@ -92,6 +92,10 @@ void GameObject3D::Update()
 		Position.x = ParentPosition.x;
 		Position.z = ParentPosition.z;
 		break;
+	case GO_TITLE_LOGO:
+		if (Model->GetCurrentAnimation() == 0 && Model->GetCurrentFrameOfAnimation() == 148)
+			Model->SwitchAnimation(1, 0, 1);
+		break;
 	default:
 		break;
 	}
