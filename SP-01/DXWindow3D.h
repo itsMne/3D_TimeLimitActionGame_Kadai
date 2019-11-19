@@ -50,7 +50,9 @@ public:
 	void ActivateConsole();
 	int GetFPS();
 	ID3D11RasterizerState* GetRasterizerState(int num);
+	void SetCull(int nCullMode);
 };
 
 DXWindow3D* GetMainWindow();
 int GetMainWindowFPS();
+void SetCullMode(int nCullMode);

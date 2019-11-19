@@ -117,7 +117,7 @@ HRESULT Field3D::InitField(Light3D* SceneLight, const char* TexturePath)
 	// 位置、向きの初期設定
 	g_posField = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	g_rotField = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
+	Scale = { 1,1,1 };
 	// マテリアルの初期設定
 	g_Kd = M_DIFFUSE;
 	g_Ka = M_AMBIENT;
@@ -185,7 +185,9 @@ void Field3D::DrawField(void)
 	// ワールドマトリックスの初期化
 	mtxWorld = XMMatrixIdentity();
 
-
+	//大きさ
+	mtxScale = XMMatrixScaling(Scale.x, Scale.y, Scale.z);
+	mtxWorld = XMMatrixMultiply(mtxWorld, mtxScale);
 	// 回転を反映
 	mtxRot = XMMatrixRotationRollPitchYaw(g_rotField.x, g_rotField.y, g_rotField.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxRot);
@@ -241,6 +243,7 @@ void Field3D::DrawField(void)
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// ポリゴンの描画
+	//pDeviceContext->DrawIndexed(0, 0, 4);
 	pDeviceContext->Draw(NUM_VERTEX, 0);
 }
 
@@ -255,10 +258,10 @@ void Field3D::SetFieldLight(Light3D * SceneLight)
 HRESULT Field3D::MakeVertexField(ID3D11Device* pDevice)
 {
 	// 頂点座標の設定
-	g_vertexWk[0].vtx = XMFLOAT3(-100.0f, 0.0f, 100.0f);
-	g_vertexWk[1].vtx = XMFLOAT3(100.0f, 0.0f, 100.0f);
-	g_vertexWk[2].vtx = XMFLOAT3(-100.0f, 0.0f, -100.0f);
-	g_vertexWk[3].vtx = XMFLOAT3(100.0f, 0.0f, -100.0f);
+	g_vertexWk[0].vtx = XMFLOAT3(-1.0f, 0.0f,  1.0f);
+	g_vertexWk[1].vtx = XMFLOAT3( 1.0f, 0.0f,  1.0f);
+	g_vertexWk[2].vtx = XMFLOAT3(-1.0f, 0.0f, -1.0f);
+	g_vertexWk[3].vtx = XMFLOAT3( 1.0f, 0.0f, -1.0f);
 
 	// 法線ベクトルの設定
 	g_vertexWk[0].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -303,6 +306,11 @@ void Field3D::SetPosition(XMFLOAT3 newPos)
 void Field3D::SetRotation(XMFLOAT3 newRot)
 {
 	g_rotField = newRot;
+}
+
+void Field3D::SetScale(float newScale)
+{
+	Scale = { newScale ,newScale ,newScale };
 }
 
 void Field3D::SetTextureSubdivisions(int newSubs)

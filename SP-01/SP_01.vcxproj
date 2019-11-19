@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Billboard2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="DXWindow3D.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Light3D.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh3D.cpp" />
     <ClCompile Include="Model3D.cpp" />
     <ClCompile Include="Player3D.cpp" />
     <ClCompile Include="Polygon2D.cpp" />
@@ -180,8 +182,10 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UIManager2D.cpp" />
     <ClCompile Include="C_XInput.cpp" />
+    <ClCompile Include="UniversalStructures.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Billboard2D.h" />
     <ClInclude Include="Camera3D.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="DXWindow3D.h" />
@@ -192,6 +196,7 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Light3D.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Mesh3D.h" />
     <ClInclude Include="Model3D.h" />
     <ClInclude Include="Player3D.h" />
     <ClInclude Include="Polygon2D.h" />

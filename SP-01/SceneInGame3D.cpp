@@ -1,15 +1,16 @@
 #include "SceneInGame3D.h"
 #include "debugproc.h"
 #include "Field3D.h"
+#include "Billboard2D.h"
 
 
 
 
 Field3D* HelloField = nullptr;
+Billboard2D* HelloBill;
 
 
-
-SceneInGame3D::SceneInGame3D():Scene3D(true)
+SceneInGame3D::SceneInGame3D() :Scene3D(true)
 {
 	MainWindow = GetMainWindow();
 	MainWindow->SetWindowColor255(150, 71, 89);
@@ -20,10 +21,15 @@ SceneInGame3D::SceneInGame3D():Scene3D(true)
 	HRESULT	hr;
 	g_pDevice = GetDevice();
 	hr = HelloField->InitField(pSceneLight, "data/texture/field000.jpg");
-	HelloField->SetTextureSubdivisions(3);
+	HelloField->SetTextureSubdivisions(3); 
+	HelloField->SetScale(100);
 	hr = InitDebugProc();
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
+
+	HelloBill = new Billboard2D("data/texture/explosion000.png");
+	HelloBill->SetColor({1, 1, 1, 1});
+	HelloBill->SetUVFrames(8, 1);
 }
 
 
@@ -56,6 +62,9 @@ eSceneType SceneInGame3D::Update()
 
 	pUI->Update();
 
+
+	HelloBill->Update();
+
 	return SCENE_IN_GAME;
 }
 
@@ -84,7 +93,10 @@ void SceneInGame3D::Draw()
 
 	// デバッグ文字列表示
 	DrawDebugProc();
-
+	
+	SetCullMode(CULLMODE_NONE);
+	HelloBill->Draw();
+	SetCullMode(CULLMODE_CCW);
 	pUI->Draw();
 }
 
@@ -99,4 +111,6 @@ void SceneInGame3D::End()
 	UninitDebugProc();
 
 	SAFE_DELETE(pUI);
+
+	SAFE_DELETE(HelloBill);
 }

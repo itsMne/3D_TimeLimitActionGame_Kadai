@@ -25,7 +25,9 @@
 #define SCREEN_CENTER_X	(SCREEN_WIDTH/2)	// ウインドウの中心Ｘ座標
 #define SCREEN_CENTER_Y	(SCREEN_HEIGHT/2)	// ウインドウの中心Ｙ座標
 #define NUM_VERTEX 4
-
+#define CULLMODE_NONE	0					// カリングしない
+#define CULLMODE_CW		1					// 前面カリング
+#define CULLMODE_CCW	2					// 背面カリング
 using namespace DirectX;
 //*****************************************************************************
 // 構造体定義
@@ -41,6 +43,14 @@ typedef struct UV
 {
 	float U, V;
 };
+
+typedef struct Box
+{
+	float PositionX=0, PositionY=0, PositionZ=0;
+	float SizeX=0, SizeY=0, SizeZ=0;
+};
+
+bool IsInCollision3D(Box a, Box b);
 // 頂点フォーマット( 頂点座標[3D] / 法線ベクトル / 反射光 / テクスチャ座標 )
 typedef struct {
 	XMFLOAT3 vtx;		// 頂点座標

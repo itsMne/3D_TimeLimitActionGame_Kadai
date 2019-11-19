@@ -96,6 +96,8 @@ void UIObject2D::Update()
 				}
 			}
 		}
+		if (uv.V == 6)
+			nAnimationSpeed = 3;
 		break;
 	default:
 		break;

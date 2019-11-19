@@ -3,7 +3,7 @@
 
 SceneTitleScreen3D::SceneTitleScreen3D() :Scene3D(true)
 {
-	MainWindow->SetWindowColor(1, 1, 1);
+	MainWindow->SetWindowColor(0.8, 0.8, 0.8);
 	pSceneLight->GetLight();
 	Logo = new UIObject2D(UI_LOGO);
 }

@@ -475,6 +475,16 @@ ID3D11RasterizerState * DXWindow3D::GetRasterizerState(int num)
 	return g_pRs[num];
 }
 
+//=============================================================================
+// カリング設定
+//=============================================================================
+void DXWindow3D::SetCull(int nCullMode)
+{
+	if (nCullMode >= 0 && nCullMode < _countof(g_pRs)) {
+		GetDeviceContext()->RSSetState(g_pRs[nCullMode]);
+	}
+}
+
 DXWindow3D * GetMainWindow()
 {
 	return pMainWindow;
@@ -485,4 +495,15 @@ int GetMainWindowFPS()
 	if (!pMainWindow)
 		return 0;
 	return pMainWindow->GetFPS();
+}
+
+//=============================================================================
+// カリング設定
+//=============================================================================
+void SetCullMode(int nCullMode)
+{
+	if (GetMainWindow())
+	{
+		GetMainWindow()->SetCull(nCullMode);
+	}
 }

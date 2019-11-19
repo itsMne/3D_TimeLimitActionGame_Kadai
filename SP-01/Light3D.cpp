@@ -33,9 +33,23 @@ HRESULT Light3D::Init(void)
 	XMFLOAT3 vecDir;
 	//XMStoreFloat3(&g_UnivLight.m_direction, XMVector3Normalize(XMLoadFloat3(&LIGHT0_DIR)));
 	//g_UnivLight.m_direction = LIGHT0_DIR;
-	g_UnivLight.m_diffuse = LIGHT0_DIFFUSE;
+
+
+	/*g_UnivLight.m_diffuse = LIGHT0_DIFFUSE;
 	g_UnivLight.m_ambient = LIGHT0_AMBIENT;
 	g_UnivLight.m_specular = LIGHT0_SPECULAR;
+	vecDir = LIGHT0_DIR;
+	XMStoreFloat3(&g_UnivLight.m_direction, XMVector3Normalize(XMLoadFloat3(&vecDir)));*/
+
+	//XMFLOAT3 vecDir;
+
+	// 拡散光
+	g_UnivLight.m_diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// 環境光
+	g_UnivLight.m_ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// ライトの方向の設定
 	vecDir = LIGHT0_DIR;
 	XMStoreFloat3(&g_UnivLight.m_direction, XMVector3Normalize(XMLoadFloat3(&vecDir)));
 	return S_OK;
@@ -78,4 +92,18 @@ void Light3D::SetDirection(XMFLOAT3 newDir)
 Light3D * GetMainLight()
 {
 	return MainLightSource;
+}
+
+//=============================================================================
+// ライトの有効化/無効化
+//=============================================================================
+void  Light3D::SetLightEnable(bool bEnable)
+{
+	if (bEnable) {
+		XMFLOAT3 vecDir = LIGHT0_DIR;
+		XMStoreFloat3(&g_UnivLight.m_direction, XMVector3Normalize(XMLoadFloat3(&vecDir)));
+	}
+	else {
+		g_UnivLight.m_direction = XMFLOAT3(0, 0, 0);
+	}
 }

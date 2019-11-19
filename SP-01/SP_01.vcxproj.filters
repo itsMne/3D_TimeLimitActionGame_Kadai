@@ -84,6 +84,13 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>CPPファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Billboard2D.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh3D.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalStructures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -151,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="SceneManager.h">
       <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Billboard2D.h">
+      <Filter>CPPファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh3D.h">
+      <Filter>CPPファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -29,21 +29,32 @@ SamplerState g_sampler : register(s0);	// サンプラ
 
 float4 main(VS_OUTPUT input) : SV_Target0
 {
-	float3 L = normalize(-g_vLightDir.xyz);				// 光源へのベクトル
-	float3 N = normalize(input.Normal);					// 法線ベクトル
-	float3 V = normalize(g_vEye.xyz - input.Pos4PS);	// 視点へのベクトル
-	float3 H = normalize(L + V);						// ハーフベクトル
-
-	float3 Diff = input.Diffuse.rgb * g_vLa.rgb * g_vKa.rgb +
-		g_vLd.rgb * g_vKd.rgb * saturate(dot(L, N));	// 拡散色 + 環境色
-	float3 Spec = g_vLs.rgb * g_vKs.rgb *
-		pow(saturate(dot(N, H)), g_vKs.a);				// 鏡面反射色
+	float3 Diff = input.Diffuse.rgb;
 	float Alpha = input.Diffuse.a * g_vKd.a;
-
-	if (g_vKa.a != 0.0f) {								// テクスチャ有無
+	if (g_vKa.a > 0.0f) {
+		// テクスチャ有
 		float4 vTd = g_texture.Sample(g_sampler, input.TexCoord);
 		Diff *= vTd.rgb;
 		Alpha *= vTd.a;
+	}
+	//clip(Alpha - 0.0001f);
+	if (Alpha <= 0.0f) discard;
+
+	float3 Spec;	// 鏡面反射光
+	if (g_vLightDir.x != 0.0f || g_vLightDir.y != 0.0f || g_vLightDir.z != 0.0f) {
+		// 光源有効
+		float3 L = normalize(-g_vLightDir.xyz);				// 光源へのベクトル
+		float3 N = normalize(input.Normal);					// 法線ベクトル
+		float3 V = normalize(g_vEye.xyz - input.Pos4PS);	// 視点へのベクトル
+		float3 H = normalize(L + V);						// ハーフベクトル
+		Diff = g_vLa.rgb * g_vKa.rgb + g_vLd.rgb *
+			Diff * g_vKd.rgb * saturate(dot(L, N));			// 拡散色 + 環境色
+		Spec = g_vLs.rgb * g_vKs.rgb *
+			pow(saturate(dot(N, H)), g_vKs.a);				// 鏡面反射色
+	} else {
+		// 光源無効
+		Diff = g_vKa.rgb + Diff * g_vKd.rgb;				// 拡散色 + 環境色
+		Spec = g_vKs.rgb;									// 鏡面反射色
 	}
 
 	Diff += Spec;

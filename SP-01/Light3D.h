@@ -17,6 +17,7 @@ public:
 	void SetSpecular(XMFLOAT4 newSpec);
 	void SetAmbient(XMFLOAT4 newAmb);
 	void SetDirection(XMFLOAT3 newDir);
+	void SetLightEnable(bool bEnable);
 };
 
 Light3D* GetMainLight();
