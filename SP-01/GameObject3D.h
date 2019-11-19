@@ -2,6 +2,7 @@
 #include "UniversalStructures.h"
 #include "Model3D.h"
 #include "Light3D.h"
+#include "Cube3D.h"
 
 enum eGameObjectTypes
 {
@@ -25,6 +26,8 @@ protected:
 	//‰e‚ÉŠÖ‚·‚é
 	GameObject3D* p_goParent;
 	int nUseCounterFrame;
+	Box Hitbox;
+	Cube3D* pVisualHitbox;
 public:
 	GameObject3D();
 	GameObject3D(int nType);
@@ -51,5 +54,7 @@ public:
 	void SetParent(GameObject3D* pNewParent);
 	bool IsInUse();
 	int GetType();
+	Box GetHitbox();
+	void SetHitbox(Box);
 };
 

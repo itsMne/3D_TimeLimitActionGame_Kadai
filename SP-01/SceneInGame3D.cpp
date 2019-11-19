@@ -85,8 +85,9 @@ void SceneInGame3D::Draw()
 	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(2));
 
 	// フィールド描画
+	SetCullMode(CULLMODE_NONE);
 	HelloField->DrawField();
-
+	SetCullMode(CULLMODE_CCW);
 	//HelloShadow->Draw();
 	// Zバッファ無効
 	SetZBuffer(false);

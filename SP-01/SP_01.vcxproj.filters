@@ -54,9 +54,6 @@
     <ClCompile Include="Light3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="Field3D.cpp">
-      <Filter>CPPファイル\ゲームCPP</Filter>
-    </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
@@ -91,6 +88,10 @@
       <Filter>CPPファイル</Filter>
     </ClCompile>
     <ClCompile Include="UniversalStructures.cpp" />
+    <ClCompile Include="Cube3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Field3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -129,9 +130,6 @@
     <ClInclude Include="Light3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="Field3D.h">
-      <Filter>Hファイル\ゲームH</Filter>
-    </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
@@ -165,6 +163,10 @@
     <ClInclude Include="Mesh3D.h">
       <Filter>CPPファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Cube3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
+    <ClInclude Include="Field3D.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

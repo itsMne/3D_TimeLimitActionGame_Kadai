@@ -305,7 +305,7 @@ bool DXWindow3D::UpdateDXWindow()
 			dwFPSLastTime = dwCurrentTime;
 			dwFrameCount = 0;
 		}
-		if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60)) {
+		if ((dwCurrentTime - dwExecLastTime) >= (1000 / 69)) {
 			dwExecLastTime = dwCurrentTime;
 			// XVˆ—
 			Update();

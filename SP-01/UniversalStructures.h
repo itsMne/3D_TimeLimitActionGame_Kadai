@@ -46,7 +46,9 @@ typedef struct UV
 
 typedef struct Box
 {
-	float PositionX=0, PositionY=0, PositionZ=0;
+	float PositionX = 0; 
+	float PositionY = 0; 
+	float PositionZ = 0;
 	float SizeX=0, SizeY=0, SizeZ=0;
 };
 

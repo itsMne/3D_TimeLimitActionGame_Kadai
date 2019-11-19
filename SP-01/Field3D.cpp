@@ -258,10 +258,10 @@ void Field3D::SetFieldLight(Light3D * SceneLight)
 HRESULT Field3D::MakeVertexField(ID3D11Device* pDevice)
 {
 	// 頂点座標の設定
-	g_vertexWk[0].vtx = XMFLOAT3(-1.0f, 0.0f,  1.0f);
-	g_vertexWk[1].vtx = XMFLOAT3( 1.0f, 0.0f,  1.0f);
+	g_vertexWk[0].vtx = XMFLOAT3(-1.0f, 0.0f, 1.0f);
+	g_vertexWk[1].vtx = XMFLOAT3(1.0f, 0.0f, 1.0f);
 	g_vertexWk[2].vtx = XMFLOAT3(-1.0f, 0.0f, -1.0f);
-	g_vertexWk[3].vtx = XMFLOAT3( 1.0f, 0.0f, -1.0f);
+	g_vertexWk[3].vtx = XMFLOAT3(1.0f, 0.0f, -1.0f);
 
 	// 法線ベクトルの設定
 	g_vertexWk[0].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);

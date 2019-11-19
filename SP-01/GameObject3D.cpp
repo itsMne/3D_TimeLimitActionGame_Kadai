@@ -221,3 +221,13 @@ int GameObject3D::GetType()
 {
 	return nType;
 }
+
+Box GameObject3D::GetHitbox()
+{
+	return Hitbox;
+}
+
+void GameObject3D::SetHitbox(Box newHitbox)
+{
+	Hitbox = newHitbox;
+}

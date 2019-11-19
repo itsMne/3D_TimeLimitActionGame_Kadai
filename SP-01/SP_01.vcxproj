@@ -164,6 +164,7 @@
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="DXWindow3D.cpp" />
     <ClCompile Include="FbxModel.cpp" />
+    <ClCompile Include="Cube3D.cpp" />
     <ClCompile Include="Field3D.cpp" />
     <ClCompile Include="GameObject3D.cpp" />
     <ClCompile Include="input.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="DXWindow3D.h" />
     <ClInclude Include="FbxModel.h" />
+    <ClInclude Include="Cube3D.h" />
     <ClInclude Include="Field3D.h" />
     <ClInclude Include="GameObject3D.h" />
     <ClInclude Include="input.h" />
