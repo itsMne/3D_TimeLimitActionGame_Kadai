@@ -1,14 +1,15 @@
 #include "SceneInGame3D.h"
 #include "debugproc.h"
 #include "Field3D.h"
+#include "Cube3D.h"
 #include "Billboard2D.h"
 
 
 
 
 Field3D* HelloField = nullptr;
-Billboard2D* HelloBill;
-
+//Billboard2D* HelloBill;
+Cube3D* HelloCube;
 
 SceneInGame3D::SceneInGame3D() :Scene3D(true)
 {
@@ -27,9 +28,11 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
 
-	HelloBill = new Billboard2D("data/texture/explosion000.png");
-	HelloBill->SetColor({1, 1, 1, 1});
-	HelloBill->SetUVFrames(8, 1);
+	InitExplosions();
+
+	HelloCube = new Cube3D();
+	HelloCube->Init("data/texture/hbox.tga");
+	HelloCube->SetScale(10);
 }
 
 
@@ -63,8 +66,9 @@ eSceneType SceneInGame3D::Update()
 	pUI->Update();
 
 
-	HelloBill->Update();
-
+	UpdateExplosions();
+	 
+	HelloCube->Update();
 	return SCENE_IN_GAME;
 }
 
@@ -81,23 +85,23 @@ void SceneInGame3D::Draw()
 	// モデル描画
 	pPlayer->Draw();
 
+	SetCullMode(CULLMODE_NONE);
+	//HelloCube->Draw();
+	SetCullMode(CULLMODE_CCW);
 	// 背面カリング (通常は表面のみ描画)
 	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(2));
 
+
 	// フィールド描画
-	SetCullMode(CULLMODE_NONE);
 	HelloField->DrawField();
-	SetCullMode(CULLMODE_CCW);
 	//HelloShadow->Draw();
 	// Zバッファ無効
 	SetZBuffer(false);
 
 	// デバッグ文字列表示
 	DrawDebugProc();
-	
-	SetCullMode(CULLMODE_NONE);
-	HelloBill->Draw();
-	SetCullMode(CULLMODE_CCW);
+	DrawExplosions();
+
 	pUI->Draw();
 }
 
@@ -113,5 +117,5 @@ void SceneInGame3D::End()
 
 	SAFE_DELETE(pUI);
 
-	SAFE_DELETE(HelloBill);
+	//SAFE_DELETE(HelloBill);
 }

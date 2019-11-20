@@ -7,6 +7,9 @@
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
 #define INITIAL_HEALTH 3
+#define USE_HITBOX true
+#define GRAVITY_FORCE  0.35f
+#define JUMP_FORCE  6
 Player3D* pMainPlayer3D = nullptr;
 enum PLAYER_ANIMATIONS
 {
@@ -60,6 +63,7 @@ int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
 	mShadow = nullptr;
+	pFloor = nullptr;
 	bSwitcheToAimingState = false;
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
@@ -81,6 +85,10 @@ Player3D::~Player3D()
 
 void Player3D::Init()
 {
+	for (int i = 0; i < PLAYER_HB_MAX; i++)
+	{
+		pVisualHitboxes[i] = nullptr;
+	}
 	SetScale(PLAYER_SCALE);
 	pMainPlayer3D = this;
 	nState = PLAYER_IDLE_STATE;
@@ -88,6 +96,7 @@ void Player3D::Init()
 	//printf("%f\n", GetModel()->GetPosition().y);
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
+	fY_force = 0;
 	pDeviceContext = GetDeviceContext();
 	pCurrentWindow = GetMainWindow();
 	mShadow = new GameObject3D("data/model/Shadow.fbx", GO_SHADOW);
@@ -95,19 +104,36 @@ void Player3D::Init()
 	mShadow->SetParent(this);
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
-		goBullets[i] = new GameObject3D("data/model/Bullet.fbx", GO_BULLET);
+		goBullets[i] = new GameObject3D(GO_BULLET);
 		goBullets[i]->SetUse(false);
+		goBullets[i]->SetHitbox({ 0,0,0,2,2,2 });
 	}
+	Hitboxes[PLAYER_HB_FEET] = { 0,5,0,5,3,5 };
+#if USE_HITBOX
+	for (int i = 0; i < PLAYER_HB_MAX; i++)
+	{
+		pVisualHitboxes[i] = new Cube3D();
+		pVisualHitboxes[i]->Init("data/texture/hbox.tga");
+		pVisualHitboxes[i]->SetScale({ Hitboxes[i].SizeX, Hitboxes[i].SizeY, Hitboxes[i].SizeZ });
+		pVisualHitboxes[i]->SetPosition({ Hitboxes[i].PositionX,Hitboxes[i].PositionY,Hitboxes[i].PositionZ });
+	}
+#endif
 }
 
 void Player3D::Update()
 {
 	GameObject3D::Update();
-
+	GravityControl();
 	// カメラの向き取得
 	if (!pMainCamera)
 		pMainCamera = GetMainCamera();
-
+	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
+	{
+		while (IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET)))
+			Position.y++;
+		fY_force = -JUMP_FORCE;
+		pFloor = nullptr;
+	}
 	static int NumTest = 0;
 	switch (nState)
 	{
@@ -124,21 +150,6 @@ void Player3D::Update()
 		break;
 	}
 
-
-
-	PrintDebugProc("[ｸﾙﾏ ｲﾁ : (%f, %f, %f)]\n", Position.x, Position.y, Position.z);
-	PrintDebugProc("[ｸﾙﾏ ﾑｷ : (%f)]\n", XMConvertToDegrees(Rotation.y));
-	PrintDebugProc("\n");
-
-	PrintDebugProc("*** ｸﾙﾏ ｿｳｻ ***\n");
-	PrintDebugProc("ﾏｴ   ｲﾄﾞｳ : \x1e\n");//↑
-	PrintDebugProc("ｳｼﾛ  ｲﾄﾞｳ : \x1f\n");//↓
-	PrintDebugProc("ﾋﾀﾞﾘ ｲﾄﾞｳ : \x1d\n");//←
-	PrintDebugProc("ﾐｷﾞ  ｲﾄﾞｳ : \x1c\n");//→
-	PrintDebugProc("ﾋﾀﾞﾘ ｾﾝｶｲ : LSHIFT\n");
-	PrintDebugProc("ﾐｷﾞ  ｾﾝｶｲ : RSHIFT\n");
-	PrintDebugProc("\n");
-
 	if (bSwitcheToAimingState)
 	{
 		bSwitcheToAimingState = GetInput(INPUT_AIM);
@@ -150,6 +161,22 @@ void Player3D::Update()
 	PlayerCameraControl();
 	PlayerBulletsControl();
 	PlayerShadowControl();
+}
+
+void Player3D::GravityControl()
+{
+	if (pFloor) {
+		bool bCurrentfloorcol = IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET));
+		if (!bCurrentfloorcol) {
+			
+			pFloor = nullptr;
+			fY_force = 0;
+		}
+		return;
+	}
+	printf("%f\n", fY_force);
+	fY_force += GRAVITY_FORCE;
+	Position.y -= fY_force;
 }
 
 void Player3D::PlayerCameraControl()
@@ -247,6 +274,8 @@ void Player3D::PlayerBulletsControl()
 			goBullets[i]->SetRotation(Rotation);
 			float fYOffset = 14*(sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x))+1);
 			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y + fYOffset, Position.z+ cosf(rotCamera.y)*15 });
+			//printf("%f\n", goBullets[i]->GetPosition().y);
+			SetExplosion(goBullets[i]->GetPosition());
 			nShootCooldown = 0;
 			break;
 		}
@@ -272,7 +301,18 @@ void Player3D::Draw()
 			continue;
 		goBullets[i]->Draw();
 	}
-	
+#if USE_HITBOX
+	GetMainLight()->SetLightEnable(false);
+	for (int i = 0; i < PLAYER_HB_MAX; i++)
+	{
+		if (!pVisualHitboxes[i])continue;
+		Box pHB = GetHitboxPlayer(i);
+		pVisualHitboxes[i]->SetScale({ pHB.SizeX, pHB.SizeY, pHB.SizeZ });
+		pVisualHitboxes[i]->SetPosition({ pHB.PositionX, pHB.PositionY, pHB.PositionZ });
+		pVisualHitboxes[i]->Draw();
+	}
+	GetMainLight()->SetLightEnable(true);
+#endif
 }
 
 void Player3D::End()
@@ -280,12 +320,10 @@ void Player3D::End()
 	GameObject3D::End();
 	mShadow->End();
 	for (int i = 0; i < MAX_BULLETS; i++)
-	{
-		if (!goBullets[i])
-			continue;
-		delete(goBullets[i]);
-		goBullets[i] = nullptr;
-	}
+		SAFE_DELETE(goBullets[i])
+	for (int i = 0; i < PLAYER_HB_MAX; i++)
+		SAFE_DELETE(pVisualHitboxes[i])
+
 }
 
 int Player3D::GetCurrentHealth()
@@ -301,6 +339,21 @@ int Player3D::GetMaxHealth()
 bool Player3D::IsPlayerAiming()
 {
 	return bSwitcheToAimingState;
+}
+
+Box Player3D::GetHitboxPlayer(int hb)
+{
+	return { Hitboxes[hb].PositionX + Position.x,Hitboxes[hb].PositionY + Position.y,Hitboxes[hb].PositionZ + Position.z, Hitboxes[hb].SizeX,Hitboxes[hb].SizeY,Hitboxes[hb].SizeZ };
+}
+
+void Player3D::SetFloor(Field3D * Floor)
+{
+	pFloor = Floor;
+}
+
+bool Player3D::IsOnTheFloor()
+{
+	return pFloor!=nullptr;
 }
 
 Player3D * GetMainPlayer3D()

@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera3D.h"
+#include "Player3D.h"
 #include "UniversalStructures.h"
 
 
@@ -115,8 +116,8 @@ HRESULT Field3D::InitField(Light3D* SceneLight, const char* TexturePath)
 	XMStoreFloat4x4(&g_mtxTexture, XMMatrixIdentity());
 
 	// 位置、向きの初期設定
-	g_posField = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	g_rotField = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	Scale = { 1,1,1 };
 	// マテリアルの初期設定
 	g_Kd = M_DIFFUSE;
@@ -165,7 +166,19 @@ void Field3D::UninitField(void)
 //=============================================================================
 void Field3D::UpdateField(void)
 {
-	// (何もしない)
+	Player3D* pPlayer = GetMainPlayer3D();
+	if (pPlayer)
+	{
+		if (!pPlayer->IsOnTheFloor()) {
+			if (!IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
+				return;
+			printf("set OnFloor");
+			while (IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
+				pPlayer->TranslateOnY(0.1f);
+			pPlayer->TranslateOnY(-0.1f);
+			pPlayer->SetFloor(this);
+		}
+	}
 }
 
 //=============================================================================
@@ -189,11 +202,11 @@ void Field3D::DrawField(void)
 	mtxScale = XMMatrixScaling(Scale.x, Scale.y, Scale.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxScale);
 	// 回転を反映
-	mtxRot = XMMatrixRotationRollPitchYaw(g_rotField.x, g_rotField.y, g_rotField.z);
+	mtxRot = XMMatrixRotationRollPitchYaw(Rotation.x, Rotation.y, Rotation.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxRot);
 
 	// 移動を反映
-	mtxTranslate = XMMatrixTranslation(g_posField.x, g_posField.y, g_posField.z);
+	mtxTranslate = XMMatrixTranslation(Position.x, Position.y, Position.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxTranslate);
 
 	// ワールドマトリックスの設定
@@ -300,12 +313,12 @@ HRESULT Field3D::MakeVertexField(ID3D11Device* pDevice)
 
 void Field3D::SetPosition(XMFLOAT3 newPos)
 {
-	g_posField = newPos;
+	Position = newPos;
 }
 
 void Field3D::SetRotation(XMFLOAT3 newRot)
 {
-	g_rotField = newRot;
+	Rotation = newRot;
 }
 
 void Field3D::SetScale(float newScale)
@@ -316,4 +329,9 @@ void Field3D::SetScale(float newScale)
 void Field3D::SetTextureSubdivisions(int newSubs)
 {
 	nTextureSubDivisions = newSubs;
+}
+
+Box Field3D::GetHitbox()
+{
+	return { Position.x, Position.y- 5.0f, Position.z, Scale.x, 5, Scale.z };
 }

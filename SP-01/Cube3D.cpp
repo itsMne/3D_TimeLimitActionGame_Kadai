@@ -75,9 +75,9 @@ Cube3D::~Cube3D()
 //=============================================================================
 // èâä˙âªèàóù
 //=============================================================================
-HRESULT Cube3D::Init(Light3D* SceneLight, const char* TexturePath)
+HRESULT Cube3D::Init(const char* TexturePath)
 {
-	SetLight(SceneLight);
+	SetLight(GetMainLight());
 	ID3D11Device* pDevice = GetDevice();
 	HRESULT hr;
 
@@ -124,7 +124,7 @@ HRESULT Cube3D::Init(Light3D* SceneLight, const char* TexturePath)
 
 	// à íuÅAå¸Ç´ÇÃèâä˙ê›íË
 	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	g_rotField = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	Scale = { 1,1,1 };
 	// É}ÉeÉäÉAÉãÇÃèâä˙ê›íË
 	g_Kd = M_DIFFUSE;
@@ -173,7 +173,7 @@ void Cube3D::End(void)
 //=============================================================================
 void Cube3D::Update(void)
 {
-
+	
 }
 
 //=============================================================================
@@ -197,7 +197,7 @@ void Cube3D::Draw(void)
 	mtxScale = XMMatrixScaling(Scale.x, Scale.y, Scale.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxScale);
 	// âÒì]ÇîΩâf
-	mtxRot = XMMatrixRotationRollPitchYaw(g_rotField.x, g_rotField.y, g_rotField.z);
+	mtxRot = XMMatrixRotationRollPitchYaw(Rotation.x, Rotation.y, Rotation.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxRot);
 
 	// à⁄ìÆÇîΩâf
@@ -326,31 +326,58 @@ HRESULT Cube3D::MakeVertex(ID3D11Device* pDevice)
 		g_vertexWk[4].nor = XMFLOAT3(0.0f, +1.0f, 0.0f);
 	}
 	else {
-		g_vertexWk[0].vtx = XMFLOAT3(-1.0f, -1.0f, 1.0f);
-		g_vertexWk[1].vtx = XMFLOAT3(1.0f, -1.0f, 1.0f);
-		g_vertexWk[2].vtx = XMFLOAT3(-1.0f, 1.0f, 1.0f);
-		g_vertexWk[3].vtx = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		g_vertexWk[4].vtx = XMFLOAT3(1.0f, -1.0f, 1.0f);
-		g_vertexWk[5].vtx = XMFLOAT3(1.0f, -1.0f, -1.0f);
-		g_vertexWk[6].vtx = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		g_vertexWk[7].vtx = XMFLOAT3(1.0f, 1.0f, -1.0f);
-		g_vertexWk[8].vtx = XMFLOAT3(1.0f, -1.0f, -1.0f);
-		g_vertexWk[9].vtx = XMFLOAT3(-1.0f, -1.0f, -1.0f);
-		g_vertexWk[10].vtx = XMFLOAT3(1.0f, 1.0f, -1.0f);
-		g_vertexWk[11].vtx = XMFLOAT3(-1.0f, 1.0f, -1.0f);
-		g_vertexWk[12].vtx = XMFLOAT3(-1.0f, -1.0f, -1.0f);
-		g_vertexWk[13].vtx = XMFLOAT3(-1.0f, -1.0f, 1.0f);
-		g_vertexWk[14].vtx = XMFLOAT3(-1.0f, 1.0f, -1.0f);
-		g_vertexWk[15].vtx = XMFLOAT3(-1.0f, 1.0f, 1.0f);
-		g_vertexWk[16].vtx = XMFLOAT3(-1.0f, -1.0f, -1.0f);
-		g_vertexWk[17].vtx = XMFLOAT3(1.0f, -1.0f, -1.0f);
-		g_vertexWk[18].vtx = XMFLOAT3(-1.0f, -1.0f, 1.0f);
-		g_vertexWk[19].vtx = XMFLOAT3(1.0f, -1.0f, 1.0f);
-		g_vertexWk[20].vtx = XMFLOAT3(-1.0f, 1.0f, 1.0f);
-		g_vertexWk[21].vtx = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		g_vertexWk[22].vtx = XMFLOAT3(-1.0f, 1.0f, -1.0f);
-		g_vertexWk[23].vtx = XMFLOAT3(1.0f, 1.0f, -1.0f);
+		g_vertexWk[0].vtx = XMFLOAT3(-1.0f, -1.0f, -1.0f);
+		g_vertexWk[1].vtx = XMFLOAT3(-1.0f,  1.0f, -1.0f);
+		g_vertexWk[2].vtx = XMFLOAT3(1.0f,  1.0f, -1.0f );
+		g_vertexWk[3].vtx = XMFLOAT3(1.0f, -1.0f, -1.0f ); 
+		g_vertexWk[4].vtx = XMFLOAT3(-1.0f, -1.0f, 1.0f );
+		g_vertexWk[5].vtx = XMFLOAT3(1.0f, -1.0f, 1.0f  );
+		g_vertexWk[6].vtx = XMFLOAT3(1.0f,  1.0f, 1.0f  );
+		g_vertexWk[7].vtx = XMFLOAT3(-1.0f,  1.0f, 1.0f ); 
+		g_vertexWk[8].vtx = XMFLOAT3(-1.0f, 1.0f, -1.0f );
+		g_vertexWk[9].vtx = XMFLOAT3(-1.0f, 1.0f,  1.0f );
+		g_vertexWk[10].vtx =XMFLOAT3(1.0f, 1.0f,  1.0f  );
+		g_vertexWk[11].vtx =XMFLOAT3(1.0f, 1.0f, -1.0f  );  
+		g_vertexWk[12].vtx =XMFLOAT3(-1.0f, -1.0f, -1.0f);
+		g_vertexWk[13].vtx =XMFLOAT3(1.0f, -1.0f, -1.0f );
+		g_vertexWk[14].vtx =XMFLOAT3(1.0f, -1.0f,  1.0f );
+		g_vertexWk[15].vtx =XMFLOAT3(-1.0f, -1.0f,  1.0f);
+		g_vertexWk[16].vtx =XMFLOAT3(-1.0f, -1.0f,  1.0f);
+		g_vertexWk[17].vtx =XMFLOAT3(-1.0f,  1.0f,  1.0f);
+		g_vertexWk[18].vtx =XMFLOAT3(-1.0f,  1.0f, -1.0f);
+		g_vertexWk[19].vtx =XMFLOAT3(-1.0f, -1.0f, -1.0f);
+		g_vertexWk[20].vtx =XMFLOAT3(1.0f, -1.0f, -1.0f );
+		g_vertexWk[21].vtx =XMFLOAT3(1.0f,  1.0f, -1.0f );
+		g_vertexWk[22].vtx =XMFLOAT3(1.0f,  1.0f,  1.0f );
+		g_vertexWk[23].vtx =XMFLOAT3(1.0f, -1.0f,  1.0f );
 
+		/*
+		        // Front Face
+        XMFLOAT3(-1.0f, -1.0f, -1.0f),
+        XMFLOAT3(-1.0f,  1.0f, -1.0f),
+        XMFLOAT3(1.0f,  1.0f, -1.0f),
+        XMFLOAT3(1.0f, -1.0f, -1.0f),       
+        XMFLOAT3(-1.0f, -1.0f, 1.0f),
+        XMFLOAT3(1.0f, -1.0f, 1.0f),
+        XMFLOAT3(1.0f,  1.0f, 1.0f),
+        XMFLOAT3(-1.0f,  1.0f, 1.0f),             
+        XMFLOAT3(-1.0f, 1.0f, -1.0f),
+        XMFLOAT3(-1.0f, 1.0f,  1.0f),
+        XMFLOAT3(1.0f, 1.0f,  1.0f),
+        XMFLOAT3(1.0f, 1.0f, -1.0f),          
+        XMFLOAT3(-1.0f, -1.0f, -1.0f),
+        XMFLOAT3(1.0f, -1.0f, -1.0f),
+        XMFLOAT3(1.0f, -1.0f,  1.0f),
+        XMFLOAT3(-1.0f, -1.0f,  1.0f),          
+        XMFLOAT3(-1.0f, -1.0f,  1.0f),
+        XMFLOAT3(-1.0f,  1.0f,  1.0f),
+        XMFLOAT3(-1.0f,  1.0f, -1.0f),
+        XMFLOAT3(-1.0f, -1.0f, -1.0f),         
+        XMFLOAT3(1.0f, -1.0f, -1.0f),
+        XMFLOAT3(1.0f,  1.0f, -1.0f),
+        XMFLOAT3(1.0f,  1.0f,  1.0f),
+        XMFLOAT3(1.0f, -1.0f,  1.0f),
+		*/
 		for (int i = 0; i < NUM_VERTEX_CUBE; i++)
 		{
 			switch (i)
@@ -430,18 +457,29 @@ HRESULT Cube3D::MakeVertex(ID3D11Device* pDevice)
 
 	const unsigned short indices[] =
 	{
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 0, 6,    // side 2
-		6, 0, 2,
-		7, 5, 6,    // side 3
-		6, 5, 4,
-		3, 1, 7,    // side 4
-		7, 1, 5,
-		4, 5, 0,    // side 5
-		0, 5, 1,
-		3, 7, 2,    // side 6
-		2, 7, 6,
+				// Front Face
+				0,  1,  2,
+				0,  2,  3,
+
+				// Back Face
+				4,  5,  6,
+				4,  6,  7,
+
+				// Top Face
+				8,  9, 10,
+				8, 10, 11,
+
+				// Bottom Face
+				12, 13, 14,
+				12, 14, 15,
+
+				// Left Face
+				16, 17, 18,
+				16, 18, 19,
+
+				// Right Face
+				20, 21, 22,
+				20, 22, 23
 	};
 	D3D11_BUFFER_DESC ibd;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -465,7 +503,7 @@ void Cube3D::SetPosition(XMFLOAT3 newPos)
 
 void Cube3D::SetRotation(XMFLOAT3 newRot)
 {
-	g_rotField = newRot;
+	Rotation = newRot;
 }
 
 void Cube3D::SetScale(float newScale)

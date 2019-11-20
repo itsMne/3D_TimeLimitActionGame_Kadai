@@ -3,6 +3,7 @@
 #include "Model3D.h"
 #include "Light3D.h"
 #include "Cube3D.h"
+#include "Billboard2D.h"
 
 enum eGameObjectTypes
 {
@@ -28,6 +29,8 @@ protected:
 	int nUseCounterFrame;
 	Box Hitbox;
 	Cube3D* pVisualHitbox;
+	Billboard2D* pEffect2D;
+	int nCurrentRasterizer;
 public:
 	GameObject3D();
 	GameObject3D(int nType);
@@ -37,6 +40,7 @@ public:
 	virtual void Init();
 	virtual void Update();
 	virtual void Draw();
+	virtual void Draw2DEffect();
 	virtual void End();
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetRotation();
@@ -52,6 +56,7 @@ public:
 	void RotateAroundZ(float z);
 	void SetUse(bool newUse);
 	void SetParent(GameObject3D* pNewParent);
+	void TranslateOnY(float translation);
 	bool IsInUse();
 	int GetType();
 	Box GetHitbox();

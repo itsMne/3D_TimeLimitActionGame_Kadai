@@ -24,6 +24,7 @@ private:
 	float fWidth;			// ïù
 	float fHeight;			// çÇÇ≥
 	bool bUse;				// égópÇµÇƒÇ¢ÇÈÇ©Ç«Ç§Ç©
+	
 public:
 	Billboard2D(const char* szpath);
 	~Billboard2D();
@@ -39,4 +40,12 @@ public:
 	void SetWidth(float newWidth);
 	void SetHeight(float newHeight);
 	void SetUVFrames(int nX, int nY);
+	bool GetUse();
+	void SetUse(bool);
+	void ResetUV();
 };
+
+void InitExplosions();
+void UpdateExplosions();
+void DrawExplosions();
+void SetExplosion(XMFLOAT3 Pos);

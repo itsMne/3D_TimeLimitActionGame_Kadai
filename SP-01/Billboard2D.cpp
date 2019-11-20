@@ -12,7 +12,8 @@
 /*#define	TREE_WIDTH			(50.0f)							// 弾の半径幅
 #define	TREE_HEIGHT			(80.0f)							// 弾の半径幅*/
 #define	VALUE_MOVE_TREE		(3.00f)							// 移動速度
-
+#define	MAX_EXPLOSIONS		180							// 移動速度
+Billboard2D* ExplosionTemp[MAX_EXPLOSIONS] = {nullptr};
 Billboard2D::Billboard2D(const char* szpath): Mesh3D()
 {
 	Init(szpath);
@@ -54,13 +55,14 @@ HRESULT Billboard2D::Init(const char* szpath)
 	SetBillboard(XMFLOAT3(0.0f, 0.0f, -10.0f), 60.0f, 90.0f, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	nFrameX = 1;
 	nFrameY = 1;
+	bUse = true;
 	return S_OK;
 }
 
 void Billboard2D::Update()
 {
 	Camera3D* camera = GetMainCamera();
-	Rotation.y = camera->GetCameraAngle().y;
+	Rotation = camera->GetCameraAngle();
 	if (++nAnimeCount >= 3) {
 		++uv.U;
 		if (uv.U >= (float)nFrameX) {
@@ -75,6 +77,7 @@ void Billboard2D::Update()
 			if (uv.V >= (float)nFrameY)
 			{
 				uv.V = 0;
+				bUse = false;
 			}
 		}
 		nAnimeCount = 0;
@@ -83,14 +86,13 @@ void Billboard2D::Update()
 
 void Billboard2D::Draw()
 {
-	GetMainLight()->SetLightEnable(true);
+	if (!bUse)
+		return;
+	GetMainLight()->SetLightEnable(false);
 	ID3D11DeviceContext* pDeviceContext = GetDeviceContext();
 	XMMATRIX mtxWorld, mtxScale, mtxRotate, mtxTranslate;
 
-	// ライティングを無効にする
-	//SetLightEnable(false);
 
-	// ビューマトリックスを取得
 
 	if (!GetMainCamera())
 		return;
@@ -242,5 +244,65 @@ void Billboard2D::SetUVFrames(int nX, int nY)
 	nFrameX = nX;
 	nFrameY = nY;
 
+}
+
+bool Billboard2D::GetUse()
+{
+	return bUse;
+}
+
+void Billboard2D::SetUse(bool use)
+{
+	bUse = use;
+}
+
+void Billboard2D::ResetUV()
+{
+	uv = { 0,0 };
+}
+
+void InitExplosions()
+{
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		ExplosionTemp[i] = new Billboard2D("data/texture/explosion000.png");
+		ExplosionTemp[i]->SetColor({ 1, 1, 1, 1 });
+		ExplosionTemp[i]->SetUVFrames(8, 1);
+		ExplosionTemp[i]->SetUse(false);
+	}
+
+}
+
+void UpdateExplosions()
+{
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		if(ExplosionTemp[i])
+			ExplosionTemp[i]->Update();
+	}
+}
+
+void DrawExplosions()
+{
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		if (ExplosionTemp[i])
+			ExplosionTemp[i]->Draw();
+	}
+}
+
+void SetExplosion(XMFLOAT3 Pos)
+{
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		if (ExplosionTemp[i]) {
+			if (!ExplosionTemp[i]->GetUse()) {
+				ExplosionTemp[i]->SetPosition(Pos);
+				ExplosionTemp[i]->ResetUV();
+				ExplosionTemp[i]->SetUse(true);
+				return;
+			}
+		}
+	}
 }
 

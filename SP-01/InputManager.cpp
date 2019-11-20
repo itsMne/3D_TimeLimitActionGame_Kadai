@@ -29,6 +29,8 @@ void UpdateInputManager()
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
 
+	bInputs[INPUT_JUMP] = GetKeyPress(VK_SPACE);
+
 	bInputs[INPUT_SHOOT] =  GetMouseButton(MOUSEBUTTON_L) ||
 		(bXinputConnected && Player1->GetState().Gamepad.bLeftTrigger > 0);
 	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || 

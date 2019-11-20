@@ -19,7 +19,7 @@ private:
 	XMFLOAT4X4					g_mtxWorldField;		// ワールドマトリックス
 	XMFLOAT4X4					g_mtxTexture;			// テクスチャマトリックス
 	XMFLOAT3					Position;				// 現在の位置
-	XMFLOAT3					g_rotField;				// 現在の向き
+	XMFLOAT3					Rotation;				// 現在の向き
 	XMFLOAT3					Scale;				// 現在の向き
 
 	// マテリアル
@@ -35,7 +35,7 @@ public:
 	Cube3D();
 	Cube3D(bool IsPlane);
 	~Cube3D();
-	HRESULT Init(Light3D* SceneLight, const char* TexturePath);
+	HRESULT Init(const char* TexturePath);
 	void End(void);
 	void Update(void);
 	void Draw(void);

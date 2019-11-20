@@ -1,6 +1,6 @@
 #include "GameObject3D.h"
 #define BULLET_SPEED 30
-
+#define PRINT_HITBOX false
 int nInitedGameObjects = 0;
 
 GameObject3D::GameObject3D()
@@ -21,12 +21,21 @@ GameObject3D::GameObject3D(int Type)
 	case GO_TITLE_LOGO:
 		Model = new Model3D(this, "data/model/LogoV3.fbx");
 		break;
+	case GO_BULLET:
+		Model = new Model3D(this, "data/model/Bullet.fbx");
+		/*pEffect2D = new Billboard2D("data/texture/explosion000.png");
+		pEffect2D->SetColor({ 1, 1, 1, 1 });
+		pEffect2D->SetUVFrames(8, 1);*/
+		nCurrentRasterizer = 1;
+		break;
 	default:
 		break;
 	}
 
 	nInitedGameObjects++;
 	nType = Type;
+
+
 }
 
 GameObject3D::GameObject3D(const char * ModelPath, int Type)
@@ -63,6 +72,15 @@ void GameObject3D::Init()
 	nUseCounterFrame = 0;
 	p_goParent = nullptr;
 	Model = nullptr;
+	pEffect2D = nullptr;
+	pVisualHitbox = nullptr;
+	Hitbox = { 0,0,0,0,0,0 };
+#if PRINT_HITBOX
+	pVisualHitbox = new Cube3D();
+	pVisualHitbox->Init("data/texture/hbox.tga");
+	pVisualHitbox->SetScale({ Hitbox.SizeX, Hitbox.SizeY, Hitbox.SizeZ });
+	pVisualHitbox->SetPosition({ Hitbox.PositionX,Hitbox.PositionY,Hitbox.PositionZ });
+#endif
 }
 
 void GameObject3D::Update()
@@ -74,6 +92,7 @@ void GameObject3D::Update()
 	switch (nType)
 	{
 	case GO_BULLET:
+		
 		Position.x -= sinf(XM_PI + Rotation.y) * BULLET_SPEED;
 		Position.z -= cosf(XM_PI + Rotation.y) * BULLET_SPEED;
 		Position.y += sinf(XM_PI + Rotation.x) * BULLET_SPEED;
@@ -83,6 +102,7 @@ void GameObject3D::Update()
 			nUseCounterFrame = 0;
 			bUse = false;
 		}
+
 		Model->SetRotation(Rotation);
 		break;
 	case GO_SHADOW:
@@ -99,20 +119,53 @@ void GameObject3D::Update()
 	default:
 		break;
 	}
+	if(pEffect2D)
+		pEffect2D->Update();
 }
 
 void GameObject3D::Draw()
 {
 	if (!bUse)
 		return;
-	if (Model) 
-		Model->DrawModel();
+	switch (nType)
+	{
+	case GO_BULLET:
+		if (Model)
+			Model->DrawModel();
+		Draw2DEffect();
+		break;
+	default:
+		if (Model)
+			Model->DrawModel();
+		break;
+	}
+	
+
+#if PRINT_HITBOX
+	if (pVisualHitbox) {
+		Box ThisHitbox = GetHitbox();
+		pVisualHitbox->SetScale({ ThisHitbox.SizeX, ThisHitbox.SizeY, ThisHitbox.SizeZ });
+		pVisualHitbox->SetPosition({ ThisHitbox.PositionX,ThisHitbox.PositionY,ThisHitbox.PositionZ });
+		pVisualHitbox->Draw();
+	}
+#endif
+}
+
+void GameObject3D::Draw2DEffect()
+{
+	SetCullMode(CULLMODE_NONE);
+	if (pEffect2D)
+		pEffect2D->Draw();
+	SetCullMode(CULLMODE_CCW);
 }
 
 void GameObject3D::End()
 {
-	if (Model)
-		Model->UninitModel();
+	SAFE_DELETE(Model);
+	SAFE_DELETE(pEffect2D);
+#if PRINT_HITBOX
+	SAFE_DELETE(pVisualHitbox);
+#endif
 }
 
 XMFLOAT3 GameObject3D::GetPosition()
@@ -212,6 +265,11 @@ void GameObject3D::SetParent(GameObject3D * pNewParent)
 	p_goParent = pNewParent;
 }
 
+void GameObject3D::TranslateOnY(float translation)
+{
+	Position.y += translation;
+}
+
 bool GameObject3D::IsInUse()
 {
 	return bUse;
@@ -224,7 +282,7 @@ int GameObject3D::GetType()
 
 Box GameObject3D::GetHitbox()
 {
-	return Hitbox;
+	return { Hitbox.PositionX + Position.x,Hitbox.PositionY + Position.y,Hitbox.PositionZ + Position.z, Hitbox.SizeX, Hitbox.SizeY, Hitbox.SizeZ };
 }
 
 void GameObject3D::SetHitbox(Box newHitbox)

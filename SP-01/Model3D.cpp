@@ -32,6 +32,7 @@ Model3D::Model3D(void* pParent, const char*ModelPath)
 
 Model3D::~Model3D()
 {
+	UninitModel();
 }
 
 //=============================================================================

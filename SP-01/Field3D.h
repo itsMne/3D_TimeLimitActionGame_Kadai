@@ -2,12 +2,12 @@
 #include "main.h"
 #include "UniversalStructures.h"
 #include "Light3D.h"
-#define NUM_VERTEX_CUBE 24
+
 class Field3D
 {
 private:
 	ID3D11ShaderResourceView*	g_pTexture;				// テクスチャへのポインタ
-	VERTEX_3D					g_vertexWk[NUM_VERTEX_CUBE];	// 頂点情報格納ワーク
+	VERTEX_3D					g_vertexWk[NUM_VERTEX];	// 頂点情報格納ワーク
 
 	ID3D11Buffer*				g_pConstantBuffer[2];	// 定数バッファ
 	ID3D11Buffer*				g_pVertexBuffer;		// 頂点バッファ
@@ -18,8 +18,8 @@ private:
 
 	XMFLOAT4X4					g_mtxWorldField;		// ワールドマトリックス
 	XMFLOAT4X4					g_mtxTexture;			// テクスチャマトリックス
-	XMFLOAT3					g_posField;				// 現在の位置
-	XMFLOAT3					g_rotField;				// 現在の向き
+	XMFLOAT3					Position;				// 現在の位置
+	XMFLOAT3					Rotation;				// 現在の向き
 	XMFLOAT3					Scale;				// 現在の向き
 
 	// マテリアル
@@ -47,5 +47,6 @@ public:
 	void SetRotation(XMFLOAT3 newRot);
 	void SetScale(float newScale);
 	void SetTextureSubdivisions(int newSubs);
+	Box GetHitbox();
 };
 
