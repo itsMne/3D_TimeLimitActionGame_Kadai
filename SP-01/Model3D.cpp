@@ -7,9 +7,7 @@
 #include "UniversalStructures.h"
 #include "debugproc.h"
 #define DEBUG_SHOW_INITED_MODEL_PATH false
-//*****************************************************************************
-// マクロ定義
-//*****************************************************************************
+#define MAX_LOOPS	9000
 
 
 //*****************************************************************************
@@ -53,6 +51,7 @@ HRESULT Model3D::InitModel(const char* ModelPath)
 	g_pModel = new CFbxModel();
 	pLight = GetMainLight();
 	nFrame = g_pModel->GetInitialAnimFrame();
+	nFramCount = nCountLoop = 0;
 	if (!pMainCamera)
 	{
 		printf("メインカメラがありません\n");
@@ -158,7 +157,12 @@ void Model3D::AnimationControl()
 {
 	if (++nFramCount >= nAnimationFrameSlowness) {
 		nFramCount = 0;
-		if ((nFrame+=nAnimationSkipFrame) >= g_pModel->GetMaxAnimFrame()) nFrame = g_pModel->GetInitialAnimFrame();
+		nFrame += nAnimationSkipFrame;
+		if (nFrame >= g_pModel->GetMaxAnimFrame()) {
+			if (++nCountLoop > MAX_LOOPS)
+				nCountLoop = MAX_LOOPS;
+			nFrame = g_pModel->GetInitialAnimFrame();
+		}
 		g_pModel->SetAnimFrame(nFrame);
 	}
 }
@@ -251,5 +255,24 @@ int Model3D::GetCurrentAnimation()
 int Model3D::GetCurrentFrameOfAnimation()
 {
 	return g_pModel->GetCurrentAnimationFrame();
+}
+
+int Model3D::GetEndFrameOfCurrentAnimation()
+{
+	if (g_pModel)
+		return g_pModel->GetMaxAnimFrame();
+	return 0;
+}
+
+int Model3D::GetCurrentFrame()
+{
+	if (g_pModel)
+		return nFrame;
+	return 0;
+}
+
+int Model3D::GetLoops()
+{
+	return nCountLoop;
 }
 

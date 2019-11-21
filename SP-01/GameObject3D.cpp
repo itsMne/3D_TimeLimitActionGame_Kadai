@@ -53,6 +53,7 @@ GameObject3D::GameObject3D(Light3D* light, const char * ModelPath, int Type)
 	Model->SetLight(light);
 	nInitedGameObjects++;
 	nType = Type;
+	pLight = light;
 }
 
 
@@ -74,6 +75,7 @@ void GameObject3D::Init()
 	Model = nullptr;
 	pEffect2D = nullptr;
 	pVisualHitbox = nullptr;
+	pLight = nullptr;
 	Hitbox = { 0,0,0,0,0,0 };
 #if PRINT_HITBOX
 	pVisualHitbox = new Cube3D();

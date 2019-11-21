@@ -31,6 +31,7 @@ protected:
 	Cube3D* pVisualHitbox;
 	Billboard2D* pEffect2D;
 	int nCurrentRasterizer;
+	Light3D* pLight;
 public:
 	GameObject3D();
 	GameObject3D(int nType);

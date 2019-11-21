@@ -5,15 +5,15 @@
 C_XInput* Player1 = nullptr;
 bool bInputs[MAX_INPUTS];
 float fAxis[MAX_AXIS];
+bool bHoldingXinput[MAX_INPUTS];
 bool bXinputConnected;
+
+void XinputTriggerControl(bool BeforeInputs);
 void InitInputManager()
 {
 	InitInput();
 	Player1 = new C_XInput(1);
-	for (int i = 0; i < MAX_INPUTS; i++)
-	{
-		bInputs[i] = false;
-	}
+	for (int i = 0; i < MAX_INPUTS; bInputs[i] = false, i++);
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);
 }
 
@@ -21,6 +21,7 @@ void UpdateInputManager()
 {
 	UpdateInput();
 	Player1->UpdateXinput();
+	XinputTriggerControl(true);
 	bXinputConnected = Player1->IsConnected();
 
 	bInputs[INPUT_FORWARD] = GetKeyPress(VK_W);
@@ -29,12 +30,14 @@ void UpdateInputManager()
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
 
-	bInputs[INPUT_JUMP] = GetKeyPress(VK_SPACE);
+	bInputs[INPUT_JUMP] = GetKeyPress(VK_SPACE) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);
 
 	bInputs[INPUT_SHOOT] =  GetMouseButton(MOUSEBUTTON_L) ||
 		(bXinputConnected && Player1->GetState().Gamepad.bLeftTrigger > 0);
 	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || 
 							(bXinputConnected && Player1->GetState().Gamepad.bRightTrigger>0);
+
+	bInputs[INPUT_ATTACK] = GetMouseButton(MOUSEBUTTON_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
 	bool bUsingKeyBoard = false;
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);
 		
@@ -89,6 +92,7 @@ void UpdateInputManager()
 		fAxis[MOVEMENT_AXIS_VERTICAL] = (float)Player1->GetState().Gamepad.sThumbLY / 32767;
 	}
 	
+	XinputTriggerControl(false);
 
 	//printf("%f\n", fAxis[MOVEMENT_AXIS_VERTICAL]);
 }
@@ -117,4 +121,15 @@ void VibrateXinput(float vivbrationL, float VibrationR)
 	Player1->Vibrate(vivbrationL, VibrationR, 10);
 }
 
+void XinputTriggerControl(bool BeforeInputs)
+{
+	if (BeforeInputs) {
+		if (bHoldingXinput[INPUT_ATTACK] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y)) bHoldingXinput[INPUT_ATTACK] = false;
+		if (bHoldingXinput[INPUT_JUMP] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)) bHoldingXinput[INPUT_JUMP] = false;
 
+	}
+	else {
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y) bHoldingXinput[INPUT_ATTACK] = true;
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A) bHoldingXinput[INPUT_JUMP] = true;
+	}
+}

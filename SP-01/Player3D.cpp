@@ -10,6 +10,9 @@
 #define USE_HITBOX true
 #define GRAVITY_FORCE  0.35f
 #define JUMP_FORCE  6
+#define MAX_GRAVITY_FORCE 5.5f
+#define MAX_INPUT_TIMER 60
+#define MAX_ATTACKS 5
 Player3D* pMainPlayer3D = nullptr;
 enum PLAYER_ANIMATIONS
 {
@@ -36,10 +39,19 @@ enum PLAYER_ANIMATIONS
 	SLOWWALK,
 	MAX_ANIMATIONS
 };
+
+PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
+{
+	{"A",  BASIC_CHAIN_A,   false, GROUND_MOVE },
+	{"AA", BASIC_CHAIN_B,   false, GROUND_MOVE },
+	{"AAA",BASIC_CHAIN_C,   false, GROUND_MOVE },
+	{"AAAA",BASIC_CHAIN_D,  false, GROUND_MOVE },
+	{"AAAAA",BASIC_CHAIN_E, true,  GROUND_MOVE },
+};
 int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
 	{2},//IDLE
-	{4},//WALKING
+	{3},//WALKING
 	{1},//AIMING
 	{1},
 	{1},
@@ -53,23 +65,19 @@ int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1},
 	{1},
 	{1},
-	{1},
+	{3},//AIR_IDLE
 	{1},
 	{1},
 	{1},
 	{1},
 	{1},//SLOWWALK
 };
+
 Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
-	mShadow = nullptr;
-	pFloor = nullptr;
-	bSwitcheToAimingState = false;
-	for (int i = 0; i < MAX_BULLETS; i++)
-	{
-		goBullets[i] = nullptr;
-	}
+
 	Init();
+	pLight = GetMainLight();
 }
 
 Player3D::Player3D(Light3D * Light):GameObject3D(Light, PLAYER_MODEL_PATH, GO_PLAYER)
@@ -85,15 +93,23 @@ Player3D::~Player3D()
 
 void Player3D::Init()
 {
+	mShadow = nullptr;
+	pFloor = nullptr;
+	CurrentAttackPlaying = nullptr;
+	bSwitcheToAimingState = false;
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		goBullets[i] = nullptr;
+	}
 	for (int i = 0; i < PLAYER_HB_MAX; i++)
 	{
 		pVisualHitboxes[i] = nullptr;
 	}
+	strcpy(szInputs, "********");
 	SetScale(PLAYER_SCALE);
 	pMainPlayer3D = this;
 	nState = PLAYER_IDLE_STATE;
 	nMaxHealth = nCurrentHealth = INITIAL_HEALTH;
-	//printf("%f\n", GetModel()->GetPosition().y);
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
 	fY_force = 0;
@@ -102,13 +118,14 @@ void Player3D::Init()
 	mShadow = new GameObject3D("data/model/Shadow.fbx", GO_SHADOW);
 	mShadow->SetRotation({ 0,0,0 });
 	mShadow->SetParent(this);
+	
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = new GameObject3D(GO_BULLET);
 		goBullets[i]->SetUse(false);
 		goBullets[i]->SetHitbox({ 0,0,0,2,2,2 });
 	}
-	Hitboxes[PLAYER_HB_FEET] = { 0,5,0,5,3,5 };
+	Hitboxes[PLAYER_HB_FEET] = { 0,5,0,5,5,5 };
 #if USE_HITBOX
 	for (int i = 0; i < PLAYER_HB_MAX; i++)
 	{
@@ -122,23 +139,46 @@ void Player3D::Init()
 
 void Player3D::Update()
 {
+	//printf("%s\n", szInputs);
+	if (strcmp(szInputs, "********")) {
+		if (++nInputTimer > MAX_INPUT_TIMER)
+		{
+			if (GetLastInputInserted() != 'P')
+			{
+				nInputTimer = (MAX_INPUT_TIMER / 2);
+				AddInput('P');
+			}
+			else {
+				ResetInputs();
+			}
+			nInputTimer = 0;
+		}
+	}
+	if (GetInput(INPUT_ATTACK))
+	{
+		nInputTimer = 0;
+		AddInput('A');
+	}
 	GameObject3D::Update();
 	GravityControl();
 	// カメラの向き取得
 	if (!pMainCamera)
 		pMainCamera = GetMainCamera();
-	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
+	if (GetInput(INPUT_JUMP) && IsOnTheFloor() && !IsPlayerAiming())
 	{
 		while (IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET)))
 			Position.y++;
-		fY_force = -JUMP_FORCE;
-		pFloor = nullptr;
+		ResetInputs();
+		Jump(JUMP_FORCE);
 	}
 	static int NumTest = 0;
 	switch (nState)
 	{
 	case PLAYER_IDLE_STATE:
-		SetPlayerAnimation(ANIMATION_IDLE);
+		if(IsOnTheFloor())
+			SetPlayerAnimation(ANIMATION_IDLE);
+		else
+			SetPlayerAnimation(AIR_IDLE);
 		if (GetInput(INPUT_FORWARD) || GetInput(INPUT_BACKWARD) || GetInput(INPUT_RIGHT) || GetInput(INPUT_LEFT) || GetInput(INPUT_AIM) 
 			|| GetAxis(MOVEMENT_AXIS_VERTICAL) != 0 || GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0)
 			nState = PLAYER_MOVING_STATE;
@@ -163,6 +203,12 @@ void Player3D::Update()
 	PlayerShadowControl();
 }
 
+void Player3D::Jump(float jumpforce)
+{
+	fY_force = -jumpforce;
+	pFloor = nullptr;
+}
+
 void Player3D::GravityControl()
 {
 	if (pFloor) {
@@ -174,8 +220,17 @@ void Player3D::GravityControl()
 		}
 		return;
 	}
-	printf("%f\n", fY_force);
-	fY_force += GRAVITY_FORCE;
+	if (fY_force < 0) {
+		fY_force += GRAVITY_FORCE;
+	}
+	else {
+		if(!IsPlayerAiming())
+			fY_force += GRAVITY_FORCE;
+		else
+			fY_force += GRAVITY_FORCE*0.025f;
+	}
+	if (fY_force > MAX_GRAVITY_FORCE)
+		fY_force = MAX_GRAVITY_FORCE;
 	Position.y -= fY_force;
 }
 
@@ -219,11 +274,14 @@ void Player3D::MoveControl()
 		XMFLOAT3 x3CurrentModelRot = Model->GetRotation();
 		Model->SetRotationY(nModelRotation+Rotation.y);
 		if (!GetInput(INPUT_AIM)) {
-			if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
-				fVerticalAxis > -0.2f && fHorizontalAxis > -0.2f)
-				SetPlayerAnimation(SLOWWALK);
-			else
-				SetPlayerAnimation(ANIMATION_WALKING);
+			if (IsOnTheFloor()) {
+				if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
+					fVerticalAxis > -0.2f && fHorizontalAxis > -0.2f)
+					SetPlayerAnimation(SLOWWALK);
+				else
+					SetPlayerAnimation(ANIMATION_WALKING);
+			}else
+				SetPlayerAnimation(AIR_IDLE);
 		}
 	}
 	if (GetKeyPress(VK_RETURN)) {
@@ -290,17 +348,20 @@ void Player3D::PlayerBulletsControl()
 
 void Player3D::Draw()
 {
+
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(1));
 	GameObject3D::Draw();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(2));
 	if(mShadow)
 		mShadow->Draw();
+	pLight->SetLightEnable(false);
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		if (!goBullets[i])
 			continue;
 		goBullets[i]->Draw();
 	}
+	pLight->SetLightEnable(true);
 #if USE_HITBOX
 	GetMainLight()->SetLightEnable(false);
 	for (int i = 0; i < PLAYER_HB_MAX; i++)
@@ -354,6 +415,77 @@ void Player3D::SetFloor(Field3D * Floor)
 bool Player3D::IsOnTheFloor()
 {
 	return pFloor!=nullptr;
+}
+
+
+void Player3D::AddInput(char A)
+{
+	if (A == 'S' && szInputs[0] == '*')
+		return;
+	for (int i = 0; i < MAX_PLAYER_INPUT; i++)
+	{
+		if (szInputs[i] == '*') {
+			szInputs[i] = A;
+			return;
+		}
+	}
+	for (int i = 0; i < MAX_PLAYER_INPUT; i++)
+	{
+		if (i != MAX_PLAYER_INPUT - 1)
+		{
+			szInputs[i] = szInputs[i + 1];
+		}
+		else {
+			szInputs[i] = A;
+		}
+	}
+}
+
+char Player3D::GetLastInputInserted()
+{
+	for (int i = 0; i < MAX_PLAYER_INPUT; i++)
+	{
+		if (szInputs[i] == '*')
+			return szInputs[i - 1];
+	}
+	return szInputs[MAX_PLAYER_INPUT - 1];
+}
+
+void Player3D::ResetInputs()
+{
+	strcpy(szInputs, "********");
+
+}
+
+
+void Player3D::Attack(const char * atkInput)
+{
+	char szAtkInput[MAX_PLAYER_INPUT + 1];
+	int i = 0;
+	for (i = 0; i < MAX_PLAYER_INPUT && atkInput[i] != '*'; szAtkInput[i] = atkInput[i], i++);
+	szAtkInput[i] = '\0';
+	Attack(szAtkInput, MAX_PLAYER_INPUT);
+}
+
+void Player3D::Attack(const char * atkInput, int recursions)
+{
+	//printf("trying: %s\n", atkInput);
+	if (recursions <= 0)
+		return;
+	for (int i = 0; i < MAX_ATTACKS; i++)
+	{
+		/*if (!strcmp(stAllMoves[i].Input, atkInput))
+		{
+			//printf("i: %s  atk: %s\n", stAllMoves[i].Input, atkInput);
+			printf("FOUND AT: %d\n", i);
+			return;
+		}*/
+	}
+	char szAtkInput[MAX_PLAYER_INPUT + 1];
+	int i = 0;
+	for (i = 1; i < MAX_PLAYER_INPUT && atkInput[i] != '\0'; szAtkInput[i - 1] = atkInput[i], i++);
+	szAtkInput[i - 1] = '\0';
+	Attack(szAtkInput, recursions - 1);
 }
 
 Player3D * GetMainPlayer3D()

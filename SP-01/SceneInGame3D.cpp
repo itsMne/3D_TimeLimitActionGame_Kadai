@@ -82,11 +82,9 @@ void SceneInGame3D::Draw()
 		pDeviceContext = MainWindow->GetDeviceContext();
 	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(1));
 
+	SetCullMode(CULLMODE_NONE);
 	// ƒ‚ƒfƒ‹•`‰æ
 	pPlayer->Draw();
-
-	SetCullMode(CULLMODE_NONE);
-	//HelloCube->Draw();
 	SetCullMode(CULLMODE_CCW);
 	// ”w–ÊƒJƒŠƒ“ƒO (’Êí‚Í•\–Ê‚Ì‚Ý•`‰æ)
 	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(2));

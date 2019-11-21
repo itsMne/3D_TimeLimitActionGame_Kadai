@@ -21,6 +21,7 @@ private:
 	int nAnimationSkipFrame;
 	void* GameObjectParent;
 	Light3D* pLight;
+	int nCountLoop;
 public:
 	Model3D(void* Parent, const char*ModelPath);
 	~Model3D();
@@ -46,5 +47,8 @@ public:
 	void SetLight(Light3D* newLight);
 	int GetCurrentAnimation();
 	int GetCurrentFrameOfAnimation();
+	int GetEndFrameOfCurrentAnimation();
+	int GetCurrentFrame();
+	int GetLoops();
 };
 #endif
