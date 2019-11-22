@@ -374,6 +374,7 @@ void Player3D::Draw()
 	}
 	GetMainLight()->SetLightEnable(true);
 #endif
+	DrawExplosions();
 }
 
 void Player3D::End()

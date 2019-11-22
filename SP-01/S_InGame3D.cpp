@@ -1,4 +1,4 @@
-#include "SceneInGame3D.h"
+#include "S_InGame3D.h"
 #include "debugproc.h"
 #include "Field3D.h"
 #include "Cube3D.h"
@@ -8,7 +8,6 @@
 
 
 Field3D* HelloField = nullptr;
-//Billboard2D* HelloBill;
 Cube3D* HelloCube;
 
 SceneInGame3D::SceneInGame3D() :Scene3D(true)
@@ -98,7 +97,7 @@ void SceneInGame3D::Draw()
 
 	// デバッグ文字列表示
 	DrawDebugProc();
-	DrawExplosions();
+	
 
 	pUI->Draw();
 }

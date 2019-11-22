@@ -1,6 +1,6 @@
 #include "SceneManager.h"
-#include "SceneInGame3D.h"
-#include "SceneTitleScreen3D.h"
+#include "S_InGame3D.h"
+#include "S_TitleScreen3D.h"
 Scene3D* pCurrentScene = nullptr;
 HRESULT InitScene()
 {
