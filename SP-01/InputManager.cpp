@@ -37,7 +37,7 @@ void UpdateInputManager()
 	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || 
 							(bXinputConnected && Player1->GetState().Gamepad.bRightTrigger>0);
 
-	bInputs[INPUT_ATTACK] = GetMouseButton(MOUSEBUTTON_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
+	bInputs[INPUT_ATTACK] = GetMouseTrigger(MOUSEBUTTON_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
 	bool bUsingKeyBoard = false;
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);
 		

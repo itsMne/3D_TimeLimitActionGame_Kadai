@@ -21,7 +21,7 @@ Model3D::Model3D(void* pParent, const char*ModelPath)
 	pMainCamera = nullptr;
 	nFramCount = 0;
 	nAnimationFrameSlowness = 0;
-	nAnimationSkipFrame = 1;
+	fAnimationSkipFrame = 1;
 	GameObjectParent = nullptr;
 	GameObjectParent = pParent;
 	InitModel(ModelPath);
@@ -50,7 +50,7 @@ HRESULT Model3D::InitModel(const char* ModelPath)
 	// FBXƒtƒ@ƒCƒ‹‚Ì“Ç‚Ýž‚Ý
 	g_pModel = new CFbxModel();
 	pLight = GetMainLight();
-	nFrame = g_pModel->GetInitialAnimFrame();
+	fFrame = g_pModel->GetInitialAnimFrame();
 	nFramCount = nCountLoop = 0;
 	if (!pMainCamera)
 	{
@@ -87,17 +87,18 @@ void Model3D::UpdateModel(void)
 	AnimationControl();
 }
 
-void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, int AnimationFrameSkip)
+void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, float AnimationFrameSkip)
 {
 	if (g_pModel->GetCurrentAnimation() == nNewAnimNum) {
 		if(nAnimationFrameSlowness != FrameSlowness)
 			nAnimationFrameSlowness = FrameSlowness;
 		return;
 	}
+	nCountLoop = 0;
 	nAnimationFrameSlowness = FrameSlowness;
 	g_pModel->SetAnimStack(nNewAnimNum);
-	nFrame = g_pModel->GetInitialAnimFrame();
-	nAnimationSkipFrame = AnimationFrameSkip;
+	fFrame = g_pModel->GetInitialAnimFrame();
+	fAnimationSkipFrame = AnimationFrameSkip;
 	nFramCount = 0;
 }
 
@@ -157,13 +158,13 @@ void Model3D::AnimationControl()
 {
 	if (++nFramCount >= nAnimationFrameSlowness) {
 		nFramCount = 0;
-		nFrame += nAnimationSkipFrame;
-		if (nFrame >= g_pModel->GetMaxAnimFrame()) {
+		fFrame += fAnimationSkipFrame;
+		if (fFrame >= g_pModel->GetMaxAnimFrame()) {
 			if (++nCountLoop > MAX_LOOPS)
 				nCountLoop = MAX_LOOPS;
-			nFrame = g_pModel->GetInitialAnimFrame();
+			fFrame = g_pModel->GetInitialAnimFrame();
 		}
-		g_pModel->SetAnimFrame(nFrame);
+		g_pModel->SetAnimFrame((int)fFrame);
 	}
 }
 
@@ -267,7 +268,7 @@ int Model3D::GetEndFrameOfCurrentAnimation()
 int Model3D::GetCurrentFrame()
 {
 	if (g_pModel)
-		return nFrame;
+		return fFrame;
 	return 0;
 }
 

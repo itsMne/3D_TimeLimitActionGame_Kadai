@@ -5,10 +5,12 @@
 #include "Field3D.h"
 #define MAX_BULLETS 40
 #define MAX_PLAYER_INPUT 8
+#define	MAX_EXPLOSIONS	20
 enum EPLAYER_STATE
 {
 	PLAYER_IDLE_STATE=0,
 	PLAYER_MOVING_STATE,
+	PLAYER_ATTACKING_STATE,
 	MAX_PLAYER_STATE
 };
 enum EPLAYER_HITBOXES
@@ -51,16 +53,23 @@ private:
 	Cube3D* pVisualHitboxes[PLAYER_HB_MAX];
 	Field3D* pFloor;
 	float fY_force;
+	//çUåÇÇ…ä÷ÇµÇƒ
+	float fAtkAcceleration;
 	char szInputs[MAX_PLAYER_INPUT + 1];
 	int nInputTimer;
 	PLAYER_ATTACK_MOVE* CurrentAttackPlaying;
+	Billboard2D* ExplosionTemp[MAX_EXPLOSIONS] = { nullptr };
+	ID3D11ShaderResourceView* pFlowerTexture;
 public:
 	Player3D();
 	Player3D(Light3D* Light);
 	~Player3D();
 
 	void Init();
+	void InitPlayerHitboxes();
 	void Update();
+	void AttackInputsControl();
+	void PlayerAttackingControl();
 	void Jump(float jumpforce);
 	void GravityControl();
 	void PlayerCameraControl();
@@ -82,8 +91,13 @@ public:
 	void ResetInputs();
 	void Attack(const char * atkInput);
 	void Attack(const char * atkInput, int recursions);
-	
+	void InitFlowers();
+	void UpdateFlowers();
+	void DrawExplosions();
+	void SetFlower(XMFLOAT3 Pos);
 };
 
 Player3D*  GetMainPlayer3D();
+
+
 #endif

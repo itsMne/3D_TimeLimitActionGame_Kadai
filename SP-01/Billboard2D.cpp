@@ -12,11 +12,17 @@
 /*#define	TREE_WIDTH			(50.0f)							// 弾の半径幅
 #define	TREE_HEIGHT			(80.0f)							// 弾の半径幅*/
 #define	VALUE_MOVE_TREE		(3.00f)							// 移動速度
-#define	MAX_EXPLOSIONS		180							// 移動速度
-Billboard2D* ExplosionTemp[MAX_EXPLOSIONS] = {nullptr};
+
 Billboard2D::Billboard2D(const char* szpath): Mesh3D()
 {
+	pTexture = nullptr;
 	Init(szpath);
+}
+
+Billboard2D::Billboard2D(ID3D11ShaderResourceView * texture): Mesh3D()
+{
+	pTexture = texture;
+	Init("");
 }
 
 
@@ -27,22 +33,27 @@ Billboard2D::~Billboard2D()
 
 HRESULT Billboard2D::Init(const char* szpath)
 {
-	
 	ID3D11Device* pDevice = GetDevice();
+	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	MakeVertex(pDevice);
 
 	// テクスチャの読み込み
-	printf("%s\n", szpath);
-	CreateTextureFromFile(pDevice,					// デバイスへのポインタ
-		szpath,		// ファイルの名前
-		&(pMesh->pTexture));
-
+	
+	if (!pTexture) {
+		printf("%s\n", szpath);
+		CreateTextureFromFile(pDevice,					// デバイスへのポインタ
+			szpath,		// ファイルの名前
+			&(pMesh->pTexture));
+	}
+	else
+	{
+		pMesh->pTexture = pTexture;
+	}
 	XMStoreFloat4x4(&pMesh->mtxTexture, XMMatrixIdentity());
 
 	// マテリアルの設定
 	g_nAlpha = 0;
-	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	fWidth = 10;
 	fHeight = 10;
 	bUse = false;
@@ -62,7 +73,7 @@ HRESULT Billboard2D::Init(const char* szpath)
 void Billboard2D::Update()
 {
 	Camera3D* camera = GetMainCamera();
-	Rotation = camera->GetCameraAngle();
+	Rotation= camera->GetCameraAngle();
 	if (++nAnimeCount >= 3) {
 		++uv.U;
 		if (uv.U >= (float)nFrameX) {
@@ -77,6 +88,7 @@ void Billboard2D::Update()
 			if (uv.V >= (float)nFrameY)
 			{
 				uv.V = 0;
+				if(bSetFalseAfterAnimation)
 				bUse = false;
 			}
 		}
@@ -122,7 +134,7 @@ void Billboard2D::Draw()
 	mtxRotate = XMMatrixRotationRollPitchYaw(Rotation.x, Rotation.y, Rotation.z);
 	mtxWorld = XMMatrixMultiply(mtxWorld, mtxRotate);
 
-
+	
 	// 移動を反映
 	mtxTranslate = XMMatrixTranslation(Position.x,
 		Position.y,
@@ -137,6 +149,8 @@ void Billboard2D::Draw()
 	XMMATRIX mtxTex = XMMatrixScaling(1.0f / (float)nFrameX, 1.0f / (float)nFrameY, 0.0f);
 	mtxTex *= XMMatrixTranslation((float)uv.U / (float)nFrameX, (float)uv.V / (float)nFrameY, 0.0f);
 	XMStoreFloat4x4(&pMesh->mtxTexture, mtxTex);
+
+
 	Mesh3D::Draw(pDeviceContext);
 	g_bInTree = false;
 	GetMainLight()->SetLightEnable(true);
@@ -183,10 +197,10 @@ HRESULT Billboard2D::MakeVertex(ID3D11Device * pDevice)
 	pVtx[3].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
 
 	// 反射光の設定
-	pVtx[0].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[0].diffuse = Color;
+	pVtx[1].diffuse = Color;
+	pVtx[2].diffuse = Color;
+	pVtx[3].diffuse = Color;
 
 	// テクスチャ座標の設定
 	pVtx[0].tex = XMFLOAT2(0.0f, 1.0f);
@@ -205,7 +219,6 @@ HRESULT Billboard2D::MakeVertex(ID3D11Device * pDevice)
 
 	// 頂点バッファ生成
 	HRESULT hr = MakeMeshVertex(pDevice, pMesh, pVertexWk, pIndexWk);
-
 	// 一時配列の解放
 	delete[] pIndexWk;
 	delete[] pVertexWk;
@@ -215,13 +228,21 @@ HRESULT Billboard2D::MakeVertex(ID3D11Device * pDevice)
 
 void Billboard2D::SetVertex(float fWidth, float fHeight)
 {
-	fWidth = fWidth;
-	fHeight = fHeight;
+	this->fWidth = fWidth;
+	this->fHeight = fHeight;
 }
 
 void Billboard2D::SetColor(XMFLOAT4 col)
 {
 	this->Color = col;
+	if (Color.x < 0)
+		Color.x = 0;
+	if (Color.y < 0)
+		Color.y = 0;
+	if (Color.z < 0)
+		Color.z = 0;
+	if (Color.w < 0)
+		Color.w = 0;
 }
 
 void Billboard2D::SetPosition(XMFLOAT3 newPosition)
@@ -246,6 +267,23 @@ void Billboard2D::SetUVFrames(int nX, int nY)
 
 }
 
+void Billboard2D::SetScale(float nScale)
+{
+	fHeight = nScale;
+	fWidth = nScale;
+}
+
+void Billboard2D::ScaleUp(float nS_Up)
+{
+	fHeight += nS_Up;
+	fWidth  += nS_Up;
+}
+
+float Billboard2D::GetAlpha()
+{
+	return Color.w;
+}
+
 bool Billboard2D::GetUse()
 {
 	return bUse;
@@ -261,48 +299,7 @@ void Billboard2D::ResetUV()
 	uv = { 0,0 };
 }
 
-void InitExplosions()
+void Billboard2D::SetUnusableAfterAnimation(bool inv)
 {
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
-	{
-		ExplosionTemp[i] = new Billboard2D("data/texture/explosion000.png");
-		ExplosionTemp[i]->SetColor({ 1, 1, 1, 1 });
-		ExplosionTemp[i]->SetUVFrames(8, 1);
-		ExplosionTemp[i]->SetUse(false);
-	}
-
+	bSetFalseAfterAnimation = inv;
 }
-
-void UpdateExplosions()
-{
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
-	{
-		if(ExplosionTemp[i])
-			ExplosionTemp[i]->Update();
-	}
-}
-
-void DrawExplosions()
-{
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
-	{
-		if (ExplosionTemp[i])
-			ExplosionTemp[i]->Draw();
-	}
-}
-
-void SetExplosion(XMFLOAT3 Pos)
-{
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
-	{
-		if (ExplosionTemp[i]) {
-			if (!ExplosionTemp[i]->GetUse()) {
-				ExplosionTemp[i]->SetPosition(Pos);
-				ExplosionTemp[i]->ResetUV();
-				ExplosionTemp[i]->SetUse(true);
-				return;
-			}
-		}
-	}
-}
-

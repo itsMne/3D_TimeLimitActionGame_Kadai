@@ -27,7 +27,7 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
 
-	InitExplosions();
+	
 
 	HelloCube = new Cube3D();
 	HelloCube->Init("data/texture/hbox.tga");
@@ -65,7 +65,7 @@ eSceneType SceneInGame3D::Update()
 	pUI->Update();
 
 
-	UpdateExplosions();
+	
 	 
 	HelloCube->Update();
 	return SCENE_IN_GAME;

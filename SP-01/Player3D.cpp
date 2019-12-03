@@ -1,22 +1,24 @@
 #include "Player3D.h"
 #include "InputManager.h"
 #include "debugproc.h"
+#include "Texture.h"
 #define PLAYER_MODEL_PATH "data/model/NinaModel.fbx"
-#define PLAYER_SPEED	2.5f					// 移動速度
+#define PLAYER_SPEED	1.75f					// 移動速度
 #define ROTATION_SPEED	XM_PI*0.02f			// 回転速度
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
 #define INITIAL_HEALTH 3
-#define USE_HITBOX true
 #define GRAVITY_FORCE  0.35f
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
-#define MAX_INPUT_TIMER 60
+#define MAX_INPUT_TIMER 30
 #define MAX_ATTACKS 5
+#define MAX_FLOWER_TIMER 15
 Player3D* pMainPlayer3D = nullptr;
+
 enum PLAYER_ANIMATIONS
 {
-	ANIMATION_IDLE=0,//アイドル
+	ANIMATION_IDLE = 0,//アイドル
 	ANIMATION_WALKING,//動く 
 	ANIMATION_AIMING,//狙う
 	BASIC_CHAIN_A,
@@ -37,22 +39,28 @@ enum PLAYER_ANIMATIONS
 	STAB_BLOCK,
 	AIR_STAB_BLOCK,
 	SLOWWALK,
+	FALLING,
 	MAX_ANIMATIONS
 };
 
 PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 {
-	{"A",  BASIC_CHAIN_A,   false, GROUND_MOVE },
-	{"AA", BASIC_CHAIN_B,   false, GROUND_MOVE },
-	{"AAA",BASIC_CHAIN_C,   false, GROUND_MOVE },
-	{"AAAA",BASIC_CHAIN_D,  false, GROUND_MOVE },
-	{"AAAAA",BASIC_CHAIN_E, true,  GROUND_MOVE },
+	{"A",  BASIC_CHAIN_A,   false, GROUND_MOVE, 490 },
+	{"AA", BASIC_CHAIN_B,   false, GROUND_MOVE, 630 },
+	{"AAA",BASIC_CHAIN_C,   false, GROUND_MOVE, 780 },
+	{"AAAA",BASIC_CHAIN_D,  false, GROUND_MOVE, 950 },
+	{"AAAAA",BASIC_CHAIN_E, true,  GROUND_MOVE, 1098 },
 };
-int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
+float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
 	{2},//IDLE
 	{3},//WALKING
 	{1},//AIMING
+	{2.5f},//BASIC_CHAIN_A
+	{2.35f},//BASIC_CHAIN_B
+	{2.5f},//BASIC_CHAIN_C
+	{2.5f},//BASIC_CHAIN_D
+	{2.5f},//BASIC_CHAIN_E
 	{1},
 	{1},
 	{1},
@@ -60,27 +68,22 @@ int nAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1},
 	{1},
 	{1},
-	{1},
-	{1},
-	{1},
-	{1},
-	{1},
-	{3},//AIR_IDLE
+	{2},//AIR_IDLE
 	{1},
 	{1},
 	{1},
 	{1},
 	{1},//SLOWWALK
+	{1},//FALLING
 };
 
-Player3D::Player3D():GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
+Player3D::Player3D() :GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
-
 	Init();
 	pLight = GetMainLight();
 }
 
-Player3D::Player3D(Light3D * Light):GameObject3D(Light, PLAYER_MODEL_PATH, GO_PLAYER)
+Player3D::Player3D(Light3D * Light) :GameObject3D(Light, PLAYER_MODEL_PATH, GO_PLAYER)
 {
 	Init();
 }
@@ -95,16 +98,14 @@ void Player3D::Init()
 {
 	mShadow = nullptr;
 	pFloor = nullptr;
+	fAtkAcceleration = 0;
 	CurrentAttackPlaying = nullptr;
 	bSwitcheToAimingState = false;
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = nullptr;
 	}
-	for (int i = 0; i < PLAYER_HB_MAX; i++)
-	{
-		pVisualHitboxes[i] = nullptr;
-	}
+
 	strcpy(szInputs, "********");
 	SetScale(PLAYER_SCALE);
 	pMainPlayer3D = this;
@@ -118,12 +119,21 @@ void Player3D::Init()
 	mShadow = new GameObject3D("data/model/Shadow.fbx", GO_SHADOW);
 	mShadow->SetRotation({ 0,0,0 });
 	mShadow->SetParent(this);
-	
+
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = new GameObject3D(GO_BULLET);
 		goBullets[i]->SetUse(false);
 		goBullets[i]->SetHitbox({ 0,0,0,2,2,2 });
+	}
+	InitPlayerHitboxes();
+	InitFlowers();
+}
+void Player3D::InitPlayerHitboxes()
+{
+	for (int i = 0; i < PLAYER_HB_MAX; i++)
+	{
+		pVisualHitboxes[i] = nullptr;
 	}
 	Hitboxes[PLAYER_HB_FEET] = { 0,5,0,5,5,5 };
 #if USE_HITBOX
@@ -136,35 +146,14 @@ void Player3D::Init()
 	}
 #endif
 }
-
 void Player3D::Update()
 {
-	//printf("%s\n", szInputs);
-	if (strcmp(szInputs, "********")) {
-		if (++nInputTimer > MAX_INPUT_TIMER)
-		{
-			if (GetLastInputInserted() != 'P')
-			{
-				nInputTimer = (MAX_INPUT_TIMER / 2);
-				AddInput('P');
-			}
-			else {
-				ResetInputs();
-			}
-			nInputTimer = 0;
-		}
-	}
-	if (GetInput(INPUT_ATTACK))
-	{
-		nInputTimer = 0;
-		AddInput('A');
-	}
 	GameObject3D::Update();
+	AttackInputsControl();
 	GravityControl();
-	// カメラの向き取得
 	if (!pMainCamera)
 		pMainCamera = GetMainCamera();
-	if (GetInput(INPUT_JUMP) && IsOnTheFloor() && !IsPlayerAiming())
+	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
 	{
 		while (IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET)))
 			Position.y++;
@@ -175,16 +164,25 @@ void Player3D::Update()
 	switch (nState)
 	{
 	case PLAYER_IDLE_STATE:
-		if(IsOnTheFloor())
+		if (IsOnTheFloor())
 			SetPlayerAnimation(ANIMATION_IDLE);
-		else
-			SetPlayerAnimation(AIR_IDLE);
-		if (GetInput(INPUT_FORWARD) || GetInput(INPUT_BACKWARD) || GetInput(INPUT_RIGHT) || GetInput(INPUT_LEFT) || GetInput(INPUT_AIM) 
+		else {
+			if(fY_force<0)
+				SetPlayerAnimation(AIR_IDLE);
+			else
+				SetPlayerAnimation(FALLING);
+		}
+		if (GetInput(INPUT_FORWARD) || GetInput(INPUT_BACKWARD) || GetInput(INPUT_RIGHT) || GetInput(INPUT_LEFT) || GetInput(INPUT_AIM)
 			|| GetAxis(MOVEMENT_AXIS_VERTICAL) != 0 || GetAxis(MOVEMENT_AXIS_HORIZONTAL) != 0)
 			nState = PLAYER_MOVING_STATE;
 		break;
 	case PLAYER_MOVING_STATE:
 		MoveControl();
+		break;
+	case PLAYER_ATTACKING_STATE:
+		if (!CurrentAttackPlaying)
+			break;
+		PlayerAttackingControl();
 		break;
 	default:
 		break;
@@ -201,12 +199,115 @@ void Player3D::Update()
 	PlayerCameraControl();
 	PlayerBulletsControl();
 	PlayerShadowControl();
+	UpdateFlowers();
+}
+
+void Player3D::AttackInputsControl()
+{
+	if (CurrentAttackPlaying)
+	{
+		if (nState == PLAYER_ATTACKING_STATE && Model->GetCurrentFrame() < CurrentAttackPlaying->UnlockFrame)
+			return;
+	}
+	if (strcmp(szInputs, "********")) {
+		if (++nInputTimer > MAX_INPUT_TIMER)
+		{
+			if (GetLastInputInserted() != 'P')
+			{
+				nInputTimer = (MAX_INPUT_TIMER / 2);
+				AddInput('P');
+			}
+			else {
+				ResetInputs();
+			}
+			nInputTimer = 0;
+		}
+	}
+
+	if (GetInput(INPUT_ATTACK))
+	{
+		nInputTimer = 0;
+		AddInput('A');
+		Attack(szInputs);
+	}
+}
+
+void Player3D::PlayerAttackingControl()
+{
+	XMFLOAT3 ModelRot;
+	ModelRot = Model->GetRotation();
+	SetPlayerAnimation(CurrentAttackPlaying->Animation);
+	int nCurrentFrame = Model->GetCurrentFrame();
+	static float AttackDistanceAcceleration = 0;
+	
+	switch (CurrentAttackPlaying->Animation)
+	{
+	case BASIC_CHAIN_A:
+		AttackDistanceAcceleration = 0.5f;
+		if (nCurrentFrame > 430 && nCurrentFrame < 460) {
+			if (fAtkAcceleration<2.5f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if(fAtkAcceleration>0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}										 
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case BASIC_CHAIN_B:
+		AttackDistanceAcceleration = 0.5f;
+		if (nCurrentFrame > 576 && nCurrentFrame < 590) {
+			if (fAtkAcceleration < 4.5f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case BASIC_CHAIN_C:
+
+		AttackDistanceAcceleration = 0.75f;
+		if (nCurrentFrame > 755 && nCurrentFrame < 775) {
+			if (fAtkAcceleration < 5.0f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+	
+		break;
+	default:
+		break;
+	}
+	if (Model->GetLoops() >= 1) {
+		CurrentAttackPlaying = nullptr;
+		nState = PLAYER_IDLE_STATE;
+		Update();
+		return;
+	}
+	printf("FRAME: %d\n", Model->GetCurrentFrame());
+
 }
 
 void Player3D::Jump(float jumpforce)
 {
 	fY_force = -jumpforce;
 	pFloor = nullptr;
+	nState = PLAYER_IDLE_STATE;
+	CurrentAttackPlaying = nullptr;
 }
 
 void Player3D::GravityControl()
@@ -214,7 +315,7 @@ void Player3D::GravityControl()
 	if (pFloor) {
 		bool bCurrentfloorcol = IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET));
 		if (!bCurrentfloorcol) {
-			
+
 			pFloor = nullptr;
 			fY_force = 0;
 		}
@@ -224,10 +325,10 @@ void Player3D::GravityControl()
 		fY_force += GRAVITY_FORCE;
 	}
 	else {
-		if(!IsPlayerAiming())
+		if (!IsPlayerAiming())
 			fY_force += GRAVITY_FORCE;
 		else
-			fY_force += GRAVITY_FORCE*0.025f;
+			fY_force += GRAVITY_FORCE * 0.025f;
 	}
 	if (fY_force > MAX_GRAVITY_FORCE)
 		fY_force = MAX_GRAVITY_FORCE;
@@ -245,7 +346,7 @@ void Player3D::PlayerCameraControl()
 
 void Player3D::MoveControl()
 {
-	
+
 	XMFLOAT3 rotCamera;
 	float fHorizontalAxis = GetAxis(MOVEMENT_AXIS_HORIZONTAL);
 	float fVerticalAxis = GetAxis(MOVEMENT_AXIS_VERTICAL);
@@ -260,7 +361,7 @@ void Player3D::MoveControl()
 	float nModelRotation = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
 	//printf("%f\n", nModelRotetion);
 	if (fVerticalAxis != 0) {
-		
+
 		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis;
 		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis;
 	}
@@ -272,7 +373,7 @@ void Player3D::MoveControl()
 	if (fVerticalAxis != 0 || fHorizontalAxis != 0)
 	{
 		XMFLOAT3 x3CurrentModelRot = Model->GetRotation();
-		Model->SetRotationY(nModelRotation+Rotation.y);
+		Model->SetRotationY(nModelRotation + Rotation.y);
 		if (!GetInput(INPUT_AIM)) {
 			if (IsOnTheFloor()) {
 				if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
@@ -280,20 +381,26 @@ void Player3D::MoveControl()
 					SetPlayerAnimation(SLOWWALK);
 				else
 					SetPlayerAnimation(ANIMATION_WALKING);
-			}else
-				SetPlayerAnimation(AIR_IDLE);
+			}
+			else
+			{
+				if (fY_force < 0)
+					SetPlayerAnimation(AIR_IDLE);
+				else
+					SetPlayerAnimation(FALLING);
+			}
 		}
 	}
-	if (GetKeyPress(VK_RETURN)) {
-		// リセット
-		Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	static int nFlowerTimer = 0;
+	if (++nFlowerTimer > MAX_FLOWER_TIMER && IsOnTheFloor()) {
+		SetFlower({ Position.x,Position.y-1.2f,Position.z });
+		nFlowerTimer = 0;
 	}
 }
 
 void Player3D::SetPlayerAnimation(int Animation)
 {
-	Model->SwitchAnimation(Animation, 0, nAnimationSpeeds[Animation]);
+	Model->SwitchAnimation(Animation, 0, fAnimationSpeeds[Animation]);
 }
 
 void Player3D::SetPlayerAnimation(int Animation, int Speed)
@@ -317,9 +424,9 @@ void Player3D::PlayerBulletsControl()
 		GetModel()->SetRotation(Rotation);
 		SetPlayerAnimation(ANIMATION_AIMING);
 		bSwitcheToAimingState = true;
-		
+
 	}
-	if (GetInput(INPUT_SHOOT) && GetInput(INPUT_AIM) && ++nShootCooldown>= BULLET_COOLDOWN) {
+	if (GetInput(INPUT_SHOOT) && GetInput(INPUT_AIM) && ++nShootCooldown >= BULLET_COOLDOWN) {
 		for (int i = 0; i < MAX_BULLETS; i++)
 		{
 			if (!goBullets[i])
@@ -330,10 +437,11 @@ void Player3D::PlayerBulletsControl()
 			rotCamera = pMainCamera->GetCameraAngle();
 			goBullets[i]->SetUse(true);
 			goBullets[i]->SetRotation(Rotation);
-			float fYOffset = 14*(sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x))+1);
-			goBullets[i]->SetPosition({ Position.x+ sinf(rotCamera.y) *15, Position.y + fYOffset, Position.z+ cosf(rotCamera.y)*15 });
-			//printf("%f\n", goBullets[i]->GetPosition().y);
-			SetExplosion(goBullets[i]->GetPosition());
+			float fYOffset = 14 * (sinf(Rotation.x)*cosf(XM_PI + Rotation.x) + (cosf(Rotation.x)*sinf(XM_PI + Rotation.x)) + 1);
+			XMFLOAT3 BulPos = { Position.x + sinf(rotCamera.y) * 15, Position.y + fYOffset, Position.z + cosf(rotCamera.y) * 15 };
+			goBullets[i]->SetPosition(BulPos);
+			BulPos.y -= 2;
+			BulPos.x += 4;
 			nShootCooldown = 0;
 			break;
 		}
@@ -348,11 +456,11 @@ void Player3D::PlayerBulletsControl()
 
 void Player3D::Draw()
 {
-
+	DrawExplosions();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(1));
 	GameObject3D::Draw();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(2));
-	if(mShadow)
+	if (mShadow)
 		mShadow->Draw();
 	pLight->SetLightEnable(false);
 	for (int i = 0; i < MAX_BULLETS; i++)
@@ -374,7 +482,7 @@ void Player3D::Draw()
 	}
 	GetMainLight()->SetLightEnable(true);
 #endif
-	DrawExplosions();
+	
 }
 
 void Player3D::End()
@@ -383,8 +491,8 @@ void Player3D::End()
 	mShadow->End();
 	for (int i = 0; i < MAX_BULLETS; i++)
 		SAFE_DELETE(goBullets[i])
-	for (int i = 0; i < PLAYER_HB_MAX; i++)
-		SAFE_DELETE(pVisualHitboxes[i])
+		for (int i = 0; i < PLAYER_HB_MAX; i++)
+			SAFE_DELETE(pVisualHitboxes[i])
 
 }
 
@@ -415,7 +523,7 @@ void Player3D::SetFloor(Field3D * Floor)
 
 bool Player3D::IsOnTheFloor()
 {
-	return pFloor!=nullptr;
+	return pFloor != nullptr;
 }
 
 
@@ -475,18 +583,84 @@ void Player3D::Attack(const char * atkInput, int recursions)
 		return;
 	for (int i = 0; i < MAX_ATTACKS; i++)
 	{
-		/*if (!strcmp(stAllMoves[i].Input, atkInput))
+		if (stAllMoves[i].eAirMove == GROUND_MOVE && !IsOnTheFloor()
+			|| stAllMoves[i].eAirMove == AIR_MOVE && IsOnTheFloor())
+			continue;
+		if (!strcmp(stAllMoves[i].Input, atkInput))
 		{
 			//printf("i: %s  atk: %s\n", stAllMoves[i].Input, atkInput);
+			fAtkAcceleration = 0;
 			printf("FOUND AT: %d\n", i);
+			CurrentAttackPlaying = &stAllMoves[i];
+			nState = PLAYER_ATTACKING_STATE;
+			if (stAllMoves[i].ResetInputs)
+				ResetInputs();
 			return;
-		}*/
+		}
 	}
 	char szAtkInput[MAX_PLAYER_INPUT + 1];
 	int i = 0;
 	for (i = 1; i < MAX_PLAYER_INPUT && atkInput[i] != '\0'; szAtkInput[i - 1] = atkInput[i], i++);
 	szAtkInput[i - 1] = '\0';
 	Attack(szAtkInput, recursions - 1);
+}
+
+void Player3D::InitFlowers()
+{
+	CreateTextureFromFile(GetDevice(), "data/texture/Flower.tga", &pFlowerTexture);
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		
+		ExplosionTemp[i] = new Billboard2D(pFlowerTexture);
+		ExplosionTemp[i]->SetColor({ 1, 1, 1, 1 });
+		ExplosionTemp[i]->SetUVFrames(20, 1);
+		ExplosionTemp[i]->SetColor({ 1, 1, 1, 1 });
+		ExplosionTemp[i]->SetVertex(10/1.5f,11/1.5f);
+		ExplosionTemp[i]->SetUse(false);
+		ExplosionTemp[i]->SetUnusableAfterAnimation(true);
+	}
+
+}
+
+void Player3D::UpdateFlowers()
+{
+	static float ScaleAcceleration[MAX_EXPLOSIONS] = { 0 };
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		if (!ExplosionTemp[i])
+			continue;
+		if (!ExplosionTemp[i]->GetUse()) {
+			ScaleAcceleration[i] = 0;
+			continue;
+		}
+		//ScaleAcceleration[i] += 0.5f;
+		//ExplosionTemp[i]->ScaleUp(ScaleAcceleration[i]);
+		ExplosionTemp[i]->Update();
+	}
+}
+
+void Player3D::DrawExplosions()
+{
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		if (ExplosionTemp[i])
+			ExplosionTemp[i]->Draw();
+	}
+}
+
+void Player3D::SetFlower(XMFLOAT3 Pos)
+{
+	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	{
+		if (ExplosionTemp[i]) {
+			if (!ExplosionTemp[i]->GetUse()) {
+				ExplosionTemp[i]->SetPosition(Pos);
+				ExplosionTemp[i]->ResetUV();
+				ExplosionTemp[i]->SetUse(true);
+				return;
+			}
+		}
+	}
 }
 
 Player3D * GetMainPlayer3D()

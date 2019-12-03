@@ -24,9 +24,11 @@ private:
 	float fWidth;			// ïù
 	float fHeight;			// çÇÇ≥
 	bool bUse;				// égópÇµÇƒÇ¢ÇÈÇ©Ç«Ç§Ç©
-	
+	bool bSetFalseAfterAnimation;
+	ID3D11ShaderResourceView* pTexture;
 public:
 	Billboard2D(const char* szpath);
+	Billboard2D(ID3D11ShaderResourceView* texture);
 	~Billboard2D();
 	HRESULT Init(const char* szpath);
 	void Update();
@@ -40,12 +42,12 @@ public:
 	void SetWidth(float newWidth);
 	void SetHeight(float newHeight);
 	void SetUVFrames(int nX, int nY);
+	void SetScale(float nScale);
+	void ScaleUp(float nS_Up);
+	float GetAlpha();
 	bool GetUse();
 	void SetUse(bool);
 	void ResetUV();
+	void SetUnusableAfterAnimation(bool inv);
 };
 
-void InitExplosions();
-void UpdateExplosions();
-void DrawExplosions();
-void SetExplosion(XMFLOAT3 Pos);

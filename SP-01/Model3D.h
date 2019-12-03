@@ -15,10 +15,10 @@ private:
 	XMFLOAT4X4	g_mtxWorld;		// ワールドマトリックス
 	bool bIsMoving = false;
 	Camera3D* pMainCamera;
-	int nFrame;
+	float fFrame;
 	int nFramCount;
 	int nAnimationFrameSlowness;
-	int nAnimationSkipFrame;
+	float fAnimationSkipFrame;
 	void* GameObjectParent;
 	Light3D* pLight;
 	int nCountLoop;
@@ -28,7 +28,7 @@ public:
 	HRESULT InitModel(const char*ModelPath);
 	void UninitModel(void);
 	void UpdateModel(void);
-	void SwitchAnimation(int nNewAnimNum, int FrameSlowness, int nAnimationSkipFrame);
+	void SwitchAnimation(int nNewAnimNum, int FrameSlowness, float nAnimationSkipFrame);
 	void DrawModel(void);
 	void AnimationControl();
 	XMFLOAT4X4 *GetModelWorld();
