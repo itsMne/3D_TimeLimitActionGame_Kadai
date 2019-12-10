@@ -140,6 +140,10 @@ void Mesh3D::Update()
 
 void Mesh3D::Draw(ID3D11DeviceContext* pDeviceContext)
 {
+	if (bisUnlit)
+		GetMainLight()->SetLightEnable(false);
+	if (bNoCull)
+		SetCullMode(CULLMODE_NONE);
 	// シェーダ設定
 	pDeviceContext->VSSetShader(g_pVertexShader, nullptr, 0);
 	pDeviceContext->PSSetShader(g_pPixelShader, nullptr, 0);
@@ -195,6 +199,10 @@ void Mesh3D::Draw(ID3D11DeviceContext* pDeviceContext)
 
 	// ポリゴンの描画
 	pDeviceContext->DrawIndexed(pMesh->nNumIndex, 0, 0);
+	if (bisUnlit)
+		GetMainLight()->SetLightEnable(true);
+	if (bNoCull)
+		SetCullMode(CULLMODE_CCW);
 }
 
 void Mesh3D::Uninit()
@@ -211,6 +219,7 @@ void Mesh3D::Uninit()
 	SAFE_RELEASE(g_pInputLayout);
 	// 頂点シェーダ解放
 	SAFE_RELEASE(g_pVertexShader);
+
 }
 
 float Mesh3D::GetAlphaTestValue(void)
@@ -253,6 +262,16 @@ void Mesh3D::ReleaseMesh()
 	SAFE_RELEASE(pMesh->pVertexBuffer);
 	// インデックス バッファ解放
 	SAFE_RELEASE(pMesh->pIndexBuffer);
+}
+
+void Mesh3D::SetNoCull(bool flag)
+{
+	bNoCull = flag;
+}
+
+void Mesh3D::SetUnlit(bool flag)
+{
+	bisUnlit = flag;
 }
 
 

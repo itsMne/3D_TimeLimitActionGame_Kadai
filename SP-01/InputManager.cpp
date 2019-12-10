@@ -30,14 +30,14 @@ void UpdateInputManager()
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
 
-	bInputs[INPUT_JUMP] = GetKeyPress(VK_SPACE) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);
+	bInputs[INPUT_JUMP] = GetKeyPress(VK_SPACE) || GetKeyPress(VK_K) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);
 
-	bInputs[INPUT_SHOOT] =  GetMouseButton(MOUSEBUTTON_L) ||
+	bInputs[INPUT_SHOOT] =  GetMouseButton(MOUSEBUTTON_L) || GetKeyPress(VK_J) ||
 		(bXinputConnected && Player1->GetState().Gamepad.bLeftTrigger > 0);
-	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || 
+	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || GetKeyPress(VK_J) ||
 							(bXinputConnected && Player1->GetState().Gamepad.bRightTrigger>0);
 
-	bInputs[INPUT_ATTACK] = GetMouseTrigger(MOUSEBUTTON_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
+	bInputs[INPUT_ATTACK] = GetMouseTrigger(MOUSEBUTTON_L) || GetKeyTrigger(VK_I) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
 	bool bUsingKeyBoard = false;
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);
 		
@@ -65,12 +65,12 @@ void UpdateInputManager()
 		fAxis[MOVEMENT_AXIS_HORIZONTAL] = -1;
 	}
 
-	if (GetKeyPress(VK_LEFT)) 
+	if (GetKeyPress(VK_LEFT) || GetKeyPress(VK_Q))
 	{
 		bUsingKeyBoard = true;
 		fAxis[CAMERA_AXIS_HORIZONTAL] = -1;
 	}
-	if (GetKeyPress(VK_RIGHT))
+	if (GetKeyPress(VK_RIGHT) || GetKeyPress(VK_E))
 	{
 		bUsingKeyBoard = true;
 		fAxis[CAMERA_AXIS_HORIZONTAL] = 1;

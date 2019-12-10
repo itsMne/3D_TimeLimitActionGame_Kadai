@@ -58,7 +58,7 @@ private:
 	char szInputs[MAX_PLAYER_INPUT + 1];
 	int nInputTimer;
 	PLAYER_ATTACK_MOVE* CurrentAttackPlaying;
-	Billboard2D* ExplosionTemp[MAX_EXPLOSIONS] = { nullptr };
+	Billboard2D* ExplosionTemp[MAX_EXPLOSIONS];
 	ID3D11ShaderResourceView* pFlowerTexture;
 public:
 	Player3D();
@@ -71,7 +71,7 @@ public:
 	void AttackInputsControl();
 	void PlayerAttackingControl();
 	void Jump(float jumpforce);
-	void GravityControl();
+	void GravityControl(bool bCountAttackState);
 	void PlayerCameraControl();
 	void MoveControl();
 	void SetPlayerAnimation(int Animation);

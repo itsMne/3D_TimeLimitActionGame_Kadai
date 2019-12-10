@@ -7,8 +7,9 @@
 
 
 
-Field3D* HelloField = nullptr;
+Field3D* HelloField;
 Cube3D* HelloCube;
+
 
 SceneInGame3D::SceneInGame3D() :Scene3D(true)
 {
@@ -16,8 +17,7 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	MainWindow->SetWindowColor255(150, 71, 89);
 	pPlayer = new Player3D();
 	HelloField = new Field3D();
-	//HelloShadow = new GameObject3D(GO_MAX);
-	//HelloShadow->SetParent(pPlayer);
+	pSkybox = new Sphere3D("data/texture/Skybox.tga");
 	HRESULT	hr;
 	g_pDevice = GetDevice();
 	hr = HelloField->InitField(pSceneLight, "data/texture/field000.jpg");
@@ -64,7 +64,7 @@ eSceneType SceneInGame3D::Update()
 
 	pUI->Update();
 
-
+	pSkybox->Update();
 	
 	 
 	HelloCube->Update();
@@ -85,10 +85,11 @@ void SceneInGame3D::Draw()
 	// モデル描画
 	pPlayer->Draw();
 	SetCullMode(CULLMODE_CCW);
+
 	// 背面カリング (通常は表面のみ描画)
 	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(2));
 
-
+	pSkybox->Draw();
 	// フィールド描画
 	HelloField->DrawField();
 	//HelloShadow->Draw();
@@ -98,7 +99,7 @@ void SceneInGame3D::Draw()
 	// デバッグ文字列表示
 	DrawDebugProc();
 	
-
+	
 	pUI->Draw();
 }
 

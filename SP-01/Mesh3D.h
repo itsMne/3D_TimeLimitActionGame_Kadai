@@ -56,6 +56,8 @@ protected:
 	// マテリアル
 	MATERIAL						g_material;
 	int							g_nAlpha;			// アルファテストの閾値
+	bool bisUnlit;
+	bool bNoCull;
 public:
 	Mesh3D();
 	~Mesh3D();
@@ -67,6 +69,8 @@ public:
 	HRESULT MakeMeshVertex(ID3D11Device* pDevice, MESH* pMesh,
 		VERTEX_3D vertexWk[], int indexWk[]);
 	void ReleaseMesh();
+	void SetNoCull(bool);
+	void SetUnlit(bool);
 };
 
 

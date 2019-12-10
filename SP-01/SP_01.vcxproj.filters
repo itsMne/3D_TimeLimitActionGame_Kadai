@@ -69,9 +69,6 @@
     <ClCompile Include="UIManager2D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>CPPファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Billboard2D.cpp">
       <Filter>CPPファイル</Filter>
     </ClCompile>
@@ -82,7 +79,6 @@
     <ClCompile Include="Cube3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="Field3D.cpp" />
     <ClCompile Include="S_InGame3D.cpp">
       <Filter>CPPファイル\シーンCPP</Filter>
     </ClCompile>
@@ -90,6 +86,15 @@
       <Filter>CPPファイル\シーンCPP</Filter>
     </ClCompile>
     <ClCompile Include="S_Scene3D.cpp">
+      <Filter>CPPファイル\シーンCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Field3D.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere3D.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
       <Filter>CPPファイル\シーンCPP</Filter>
     </ClCompile>
   </ItemGroup>
@@ -145,9 +150,6 @@
     <ClInclude Include="UIManager2D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>Hファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Billboard2D.h">
       <Filter>CPPファイル</Filter>
     </ClInclude>
@@ -157,7 +159,6 @@
     <ClInclude Include="Cube3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="Field3D.h" />
     <ClInclude Include="S_InGame3D.h">
       <Filter>Hファイル\シーンH</Filter>
     </ClInclude>
@@ -165,6 +166,15 @@
       <Filter>Hファイル\シーンH</Filter>
     </ClInclude>
     <ClInclude Include="S_Scene3D.h">
+      <Filter>Hファイル\シーンH</Filter>
+    </ClInclude>
+    <ClInclude Include="Field3D.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere3D.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
       <Filter>Hファイル\シーンH</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,7 @@
 #include "debugproc.h"
 #include "Texture.h"
 #define PLAYER_MODEL_PATH "data/model/NinaModel.fbx"
-#define PLAYER_SPEED	1.75f					// 移動速度
+#define PLAYER_SPEED	1.95f					// 移動速度
 #define ROTATION_SPEED	XM_PI*0.02f			// 回転速度
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
@@ -11,9 +11,10 @@
 #define GRAVITY_FORCE  0.35f
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
-#define MAX_INPUT_TIMER 30
-#define MAX_ATTACKS 5
+#define MAX_INPUT_TIMER 25
+#define MAX_ATTACKS 10
 #define MAX_FLOWER_TIMER 15
+#define DEBUG_ANIMATION_FRAME false
 Player3D* pMainPlayer3D = nullptr;
 
 enum PLAYER_ANIMATIONS
@@ -45,30 +46,35 @@ enum PLAYER_ANIMATIONS
 
 PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 {
-	{"A",  BASIC_CHAIN_A,   false, GROUND_MOVE, 490 },
-	{"AA", BASIC_CHAIN_B,   false, GROUND_MOVE, 630 },
-	{"AAA",BASIC_CHAIN_C,   false, GROUND_MOVE, 780 },
-	{"AAAA",BASIC_CHAIN_D,  false, GROUND_MOVE, 950 },
-	{"AAAAA",BASIC_CHAIN_E, true,  GROUND_MOVE, 1098 },
+	{"A",	 BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},
+	{"AA",	 BASIC_CHAIN_B,   false, GROUND_MOVE, 630	},
+	{"AAA",	 BASIC_CHAIN_C,   false, GROUND_MOVE, 780	},
+	{"AAAA", BASIC_CHAIN_D,	  false, GROUND_MOVE, 950	},
+	{"AAAAA",BASIC_CHAIN_E,   true,  GROUND_MOVE, 1098	},
+	{"A",	 AIRCOMBOA,       false, AIR_MOVE,	  1403	},
+	{"AA",	 AIRCOMBOB,       false, AIR_MOVE,	  1535	},
+	{"AAA",	 AIRCOMBOC,       false, AIR_MOVE,	  1669	},
+	{"AAAA", AIRCOMBOD,       false, AIR_MOVE,	  1820	},
+	{"AAAAA",AIRCOMBOE,       true, AIR_MOVE,	  2000	},
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
 	{2},//IDLE
 	{3},//WALKING
 	{1},//AIMING
-	{2.5f},//BASIC_CHAIN_A
-	{2.35f},//BASIC_CHAIN_B
-	{2.5f},//BASIC_CHAIN_C
-	{2.5f},//BASIC_CHAIN_D
-	{2.5f},//BASIC_CHAIN_E
-	{1},
-	{1},
-	{1},
-	{1},
-	{1},
-	{1},
-	{1},
-	{2},//AIR_IDLE
+	{3.8f},//BASIC_CHAIN_A
+	{3.15f},//BASIC_CHAIN_B
+	{3.25f},//BASIC_CHAIN_C
+	{3.25f},//BASIC_CHAIN_D
+	{3.25f},//BASIC_CHAIN_E
+	{1},//SLIDE,
+	{1},//SLIDEKICK,
+	{2.2f},//AIRCOMBOA,
+	{2.3f},//AIRCOMBOB,
+	{2.3f},//AIRCOMBOC,
+	{2.3f},//AIRCOMBOD,
+	{2.8f},//AIRCOMBOE,
+	{2},//JUMP
 	{1},
 	{1},
 	{1},
@@ -100,7 +106,7 @@ void Player3D::Init()
 	pFloor = nullptr;
 	fAtkAcceleration = 0;
 	CurrentAttackPlaying = nullptr;
-	bSwitcheToAimingState = false;
+	bSwitcheToAimingState = false; 
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = nullptr;
@@ -150,7 +156,7 @@ void Player3D::Update()
 {
 	GameObject3D::Update();
 	AttackInputsControl();
-	GravityControl();
+	GravityControl(true);
 	if (!pMainCamera)
 		pMainCamera = GetMainCamera();
 	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
@@ -180,8 +186,10 @@ void Player3D::Update()
 		MoveControl();
 		break;
 	case PLAYER_ATTACKING_STATE:
-		if (!CurrentAttackPlaying)
+		if (!CurrentAttackPlaying) {
+			nState = PLAYER_IDLE_STATE;
 			break;
+		}
 		PlayerAttackingControl();
 		break;
 	default:
@@ -224,7 +232,7 @@ void Player3D::AttackInputsControl()
 		}
 	}
 
-	if (GetInput(INPUT_ATTACK))
+	if (GetInput(INPUT_ATTACK) && !IsPlayerAiming())
 	{
 		nInputTimer = 0;
 		AddInput('A');
@@ -243,6 +251,7 @@ void Player3D::PlayerAttackingControl()
 	switch (CurrentAttackPlaying->Animation)
 	{
 	case BASIC_CHAIN_A:
+		GravityControl(false);
 		AttackDistanceAcceleration = 0.5f;
 		if (nCurrentFrame > 430 && nCurrentFrame < 460) {
 			if (fAtkAcceleration<2.5f)
@@ -258,6 +267,7 @@ void Player3D::PlayerAttackingControl()
 		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	case BASIC_CHAIN_B:
+		GravityControl(false);
 		AttackDistanceAcceleration = 0.5f;
 		if (nCurrentFrame > 576 && nCurrentFrame < 590) {
 			if (fAtkAcceleration < 4.5f)
@@ -273,7 +283,7 @@ void Player3D::PlayerAttackingControl()
 		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	case BASIC_CHAIN_C:
-
+		GravityControl(false);
 		AttackDistanceAcceleration = 0.75f;
 		if (nCurrentFrame > 755 && nCurrentFrame < 775) {
 			if (fAtkAcceleration < 5.0f)
@@ -298,8 +308,9 @@ void Player3D::PlayerAttackingControl()
 		Update();
 		return;
 	}
+#if DEBUG_ANIMATION_FRAME
 	printf("FRAME: %d\n", Model->GetCurrentFrame());
-
+#endif
 }
 
 void Player3D::Jump(float jumpforce)
@@ -310,8 +321,10 @@ void Player3D::Jump(float jumpforce)
 	CurrentAttackPlaying = nullptr;
 }
 
-void Player3D::GravityControl()
+void Player3D::GravityControl(bool bCountAttackState)
 {
+	if (nState == PLAYER_ATTACKING_STATE && bCountAttackState)
+		return;
 	if (pFloor) {
 		bool bCurrentfloorcol = IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET));
 		if (!bCurrentfloorcol) {
@@ -356,10 +369,8 @@ void Player3D::MoveControl()
 		nState = PLAYER_IDLE_STATE;
 		return;
 	}
-	//スティック：
-
+	//スティック
 	float nModelRotation = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
-	//printf("%f\n", nModelRotetion);
 	if (fVerticalAxis != 0) {
 
 		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis;
@@ -423,6 +434,7 @@ void Player3D::PlayerBulletsControl()
 	{
 		GetModel()->SetRotation(Rotation);
 		SetPlayerAnimation(ANIMATION_AIMING);
+		CurrentAttackPlaying = nullptr;
 		bSwitcheToAimingState = true;
 
 	}
@@ -578,7 +590,6 @@ void Player3D::Attack(const char * atkInput)
 
 void Player3D::Attack(const char * atkInput, int recursions)
 {
-	//printf("trying: %s\n", atkInput);
 	if (recursions <= 0)
 		return;
 	for (int i = 0; i < MAX_ATTACKS; i++)
@@ -588,9 +599,8 @@ void Player3D::Attack(const char * atkInput, int recursions)
 			continue;
 		if (!strcmp(stAllMoves[i].Input, atkInput))
 		{
-			//printf("i: %s  atk: %s\n", stAllMoves[i].Input, atkInput);
 			fAtkAcceleration = 0;
-			printf("FOUND AT: %d\n", i);
+			//printf("FOUND AT: %d\n", i);
 			CurrentAttackPlaying = &stAllMoves[i];
 			nState = PLAYER_ATTACKING_STATE;
 			if (stAllMoves[i].ResetInputs)
