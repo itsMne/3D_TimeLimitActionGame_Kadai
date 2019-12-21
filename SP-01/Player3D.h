@@ -5,7 +5,7 @@
 #include "Field3D.h"
 #define MAX_BULLETS 40
 #define MAX_PLAYER_INPUT 8
-#define	MAX_EXPLOSIONS	20
+#define	MAX_FLOWERS	20
 enum EPLAYER_STATE
 {
 	PLAYER_IDLE_STATE=0,
@@ -58,7 +58,7 @@ private:
 	char szInputs[MAX_PLAYER_INPUT + 1];
 	int nInputTimer;
 	PLAYER_ATTACK_MOVE* CurrentAttackPlaying;
-	Billboard2D* ExplosionTemp[MAX_EXPLOSIONS];
+	Billboard2D* FlowersTemp[MAX_FLOWERS];
 	ID3D11ShaderResourceView* pFlowerTexture;
 public:
 	Player3D();
@@ -93,7 +93,7 @@ public:
 	void Attack(const char * atkInput, int recursions);
 	void InitFlowers();
 	void UpdateFlowers();
-	void DrawExplosions();
+	void DrawFlowers();
 	void SetFlower(XMFLOAT3 Pos);
 };
 

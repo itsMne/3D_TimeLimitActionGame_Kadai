@@ -283,6 +283,8 @@ void DXWindow3D::Uninit(void)
 
 	// COMI—¹ˆ—
 	CoUninitialize();
+
+	timeEndPeriod(1);
 }
 
 bool DXWindow3D::UpdateDXWindow()
@@ -305,16 +307,17 @@ bool DXWindow3D::UpdateDXWindow()
 			dwFPSLastTime = dwCurrentTime;
 			dwFrameCount = 0;
 		}
-		if ((dwCurrentTime - dwExecLastTime) >= (1000 / 69)) {
+		if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60)) {
 			dwExecLastTime = dwCurrentTime;
 			// XVˆ—
 			Update();
+			// •`‰æˆ—
+			Draw();
+			dwFrameCount++;
 		}
-		// •`‰æˆ—
-		Draw();
-		dwFrameCount++;
+		
 	}
-	timeEndPeriod(1);
+	
 	return true;
 }
 

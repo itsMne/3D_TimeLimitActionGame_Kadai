@@ -13,18 +13,20 @@ Sphere3D::Sphere3D(XMFLOAT3 pos, XMFLOAT3 rot, int nSlice, int nStack, float fRa
 {
 	Init(pos, rot, nSlice, nStack, fRadius, szPath);
 	fRotSpeed = { 0,0,0 };
+	bIsSkybox = false;
 }
 
 Sphere3D::Sphere3D(const char * szPath)
 {
 #if USE_16_SLASHES
-	Init({ 0,50,100 }, { 0,0,3.18f }, 16, 8, SKYBOX_SIZE, szPath);
+	Init({ 0,50,100 }, { 0,0,0 }, 16, 8, SKYBOX_SIZE, szPath);
 #else
-	Init({ 0,50,100 }, { 0,0,3.18f }, 32, 16, SKYBOX_SIZE, szPath);
+	Init({ 0,50,100 }, { 0,0,0 }, 32, 16, SKYBOX_SIZE, szPath);
 #endif
 	bisUnlit = true;
 	bNoCull = true;
 	fRotSpeed = { 0,0.001f,0 };
+	bIsSkybox = true;
 }
 
 
@@ -136,6 +138,8 @@ void Sphere3D::Update(void)
 	Mesh3D::Update();
 	if (!pMesh)
 		return;
+	if (!bIsSkybox)
+		return;
 	pMesh->rot.x += fRotSpeed.x;
 	pMesh->rot.y += fRotSpeed.y;
 	pMesh->rot.z += fRotSpeed.z;
@@ -143,10 +147,15 @@ void Sphere3D::Update(void)
 	if (!pCam)
 		return;
 	pMesh->pos = pCam->GetCameraPos();
+	pMesh->pos.y -= 10;
 }
 
 void Sphere3D::Draw(void)
 {
-
 	Mesh3D::Draw(GetDeviceContext());
+}
+
+void Sphere3D::SetUnlit(bool isUnlit)
+{
+	bisUnlit = isUnlit;
 }

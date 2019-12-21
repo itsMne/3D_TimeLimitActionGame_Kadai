@@ -84,7 +84,7 @@ void Model3D::UninitModel(void)
 //=============================================================================
 void Model3D::UpdateModel(void)
 {
-	AnimationControl();
+	
 }
 
 void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, float AnimationFrameSkip)
@@ -147,7 +147,7 @@ void Model3D::DrawModel(void)
 	XMStoreFloat4x4(&g_mtxWorld, mtxWorld);
 
 
-	
+	AnimationControl();
 	SetZWrite(true);
 	g_pModel->Render(g_mtxWorld, pMainCamera->GetViewMatrix(), pMainCamera->GetProjMatrix(), eOpacityOnly);
 	SetZWrite(false);

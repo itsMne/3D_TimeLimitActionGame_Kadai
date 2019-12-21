@@ -68,6 +68,7 @@ eSceneType SceneInGame3D::Update()
 	
 	 
 	HelloCube->Update();
+
 	return SCENE_IN_GAME;
 }
 
@@ -92,7 +93,9 @@ void SceneInGame3D::Draw()
 	pSkybox->Draw();
 	// フィールド描画
 	HelloField->DrawField();
-	//HelloShadow->Draw();
+	SetCullMode(CULLMODE_NONE);
+	HelloCube->Draw();
+	SetCullMode(CULLMODE_CCW);
 	// Zバッファ無効
 	SetZBuffer(false);
 

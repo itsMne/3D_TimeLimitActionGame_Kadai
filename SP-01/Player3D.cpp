@@ -468,7 +468,7 @@ void Player3D::PlayerBulletsControl()
 
 void Player3D::Draw()
 {
-	DrawExplosions();
+	DrawFlowers();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(1));
 	GameObject3D::Draw();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(2));
@@ -525,7 +525,7 @@ bool Player3D::IsPlayerAiming()
 
 Box Player3D::GetHitboxPlayer(int hb)
 {
-	return { Hitboxes[hb].PositionX + Position.x,Hitboxes[hb].PositionY + Position.y,Hitboxes[hb].PositionZ + Position.z, Hitboxes[hb].SizeX,Hitboxes[hb].SizeY,Hitboxes[hb].SizeZ };
+	return { Hitboxes[hb].PositionX + Position.x, Hitboxes[hb].PositionY + Position.y,Hitboxes[hb].PositionZ + Position.z, Hitboxes[hb].SizeX,Hitboxes[hb].SizeY,Hitboxes[hb].SizeZ };
 }
 
 void Player3D::SetFloor(Field3D * Floor)
@@ -618,55 +618,52 @@ void Player3D::Attack(const char * atkInput, int recursions)
 void Player3D::InitFlowers()
 {
 	CreateTextureFromFile(GetDevice(), "data/texture/Flower.tga", &pFlowerTexture);
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	for (int i = 0; i < MAX_FLOWERS; i++)
 	{
 		
-		ExplosionTemp[i] = new Billboard2D(pFlowerTexture);
-		ExplosionTemp[i]->SetColor({ 1, 1, 1, 1 });
-		ExplosionTemp[i]->SetUVFrames(20, 1);
-		ExplosionTemp[i]->SetColor({ 1, 1, 1, 1 });
-		ExplosionTemp[i]->SetVertex(10/1.5f,11/1.5f);
-		ExplosionTemp[i]->SetUse(false);
-		ExplosionTemp[i]->SetUnusableAfterAnimation(true);
+		FlowersTemp[i] = new Billboard2D(pFlowerTexture);
+		FlowersTemp[i]->SetColor({ 1, 1, 1, 1 });
+		FlowersTemp[i]->SetUVFrames(20, 1);
+		FlowersTemp[i]->SetColor({ 1, 1, 1, 1 });
+		FlowersTemp[i]->SetVertex(10/1.5f,11/1.5f);
+		FlowersTemp[i]->SetUse(false);
+		FlowersTemp[i]->SetUnusableAfterAnimation(true);
 	}
-
 }
 
 void Player3D::UpdateFlowers()
 {
-	static float ScaleAcceleration[MAX_EXPLOSIONS] = { 0 };
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	static float ScaleAcceleration[MAX_FLOWERS] = { 0 };
+	for (int i = 0; i < MAX_FLOWERS; i++)
 	{
-		if (!ExplosionTemp[i])
+		if (!FlowersTemp[i])
 			continue;
-		if (!ExplosionTemp[i]->GetUse()) {
+		if (!FlowersTemp[i]->GetUse()) {
 			ScaleAcceleration[i] = 0;
 			continue;
 		}
-		//ScaleAcceleration[i] += 0.5f;
-		//ExplosionTemp[i]->ScaleUp(ScaleAcceleration[i]);
-		ExplosionTemp[i]->Update();
+		FlowersTemp[i]->Update();
 	}
 }
 
-void Player3D::DrawExplosions()
+void Player3D::DrawFlowers()
 {
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	for (int i = 0; i < MAX_FLOWERS; i++)
 	{
-		if (ExplosionTemp[i])
-			ExplosionTemp[i]->Draw();
+		if (FlowersTemp[i])
+			FlowersTemp[i]->Draw();
 	}
 }
 
 void Player3D::SetFlower(XMFLOAT3 Pos)
 {
-	for (int i = 0; i < MAX_EXPLOSIONS; i++)
+	for (int i = 0; i < MAX_FLOWERS; i++)
 	{
-		if (ExplosionTemp[i]) {
-			if (!ExplosionTemp[i]->GetUse()) {
-				ExplosionTemp[i]->SetPosition(Pos);
-				ExplosionTemp[i]->ResetUV();
-				ExplosionTemp[i]->SetUse(true);
+		if (FlowersTemp[i]) {
+			if (!FlowersTemp[i]->GetUse()) {
+				FlowersTemp[i]->SetPosition(Pos);
+				FlowersTemp[i]->ResetUV();
+				FlowersTemp[i]->SetUse(true);
 				return;
 			}
 		}

@@ -49,7 +49,7 @@ static HRESULT MakeVertexField(ID3D11Device* pDevice);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-ID3D11Buffer* pIndexBuffer = nullptr;
+
 
 Cube3D::Cube3D()
 {
@@ -214,6 +214,7 @@ void Cube3D::Draw(void)
 	UINT stride = sizeof(VERTEX_3D);
 	UINT offset = 0;
 	pDeviceContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+	pDeviceContext->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 	pDeviceContext->PSSetSamplers(0, 1, &g_pSamplerState);
 	pDeviceContext->PSSetShaderResources(0, 1, &g_pTexture);
@@ -248,14 +249,10 @@ void Cube3D::Draw(void)
 	pDeviceContext->PSSetConstantBuffers(1, 1, &g_pConstantBuffer[1]);
 
 	// プリミティブ形状をセット
-	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// ポリゴンの描画
-	//pDeviceContext->DrawIndexed(6, 0, 4);
-	if(bIsPlane)
-		pDeviceContext->Draw(NUM_VERTEX, 0);
-	else
-		pDeviceContext->Draw(NUM_VERTEX_CUBE, 0);
+	pDeviceContext->DrawIndexed(NUM_VERTEX_CUBE, 0,0);
 
 }
 
@@ -385,20 +382,20 @@ HRESULT Cube3D::MakeVertex(ID3D11Device* pDevice)
 			case 0:case 1:case 2:case 3://front
 				g_vertexWk[i].nor = XMFLOAT3(0.0f, 0.0f, 1.0f);
 				break;
-			case 4:case 5:case 6:case 7://Right
-				g_vertexWk[i].nor = XMFLOAT3(1.0f, 0.0f, 0.0f);
-				break;
-			case 8:case 9:case 10:case 11://Back
+			case 4:case 5:case 6:case 7://Back
 				g_vertexWk[i].nor = XMFLOAT3(0.0f, 0.0f, -1.0f);
 				break;
-			case 12:case 13:case 14:case 15://left
-				g_vertexWk[i].nor = XMFLOAT3(-1.0f, 0.0f, 0.0f);
+			case 8:case 9:case 10:case 11://top
+				g_vertexWk[i].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
 				break;
-			case 16:case 17:case 18:case 19://bottom
+			case 12:case 13:case 14:case 15://bottom
 				g_vertexWk[i].nor = XMFLOAT3(0.0f, -1.0f, 0.0f);
 				break;
-			case 20:case 21:case 22:case 23://top
-				g_vertexWk[i].nor = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			case 16:case 17:case 18:case 19://left
+				g_vertexWk[i].nor = XMFLOAT3(-1.0f, 0.0f, 0.0f);
+				break;
+			case 20:case 21:case 22:case 23://Right
+				g_vertexWk[i].nor = XMFLOAT3(1.0f, 0.0f, 0.0f);
 				break;
 			default:
 				break;
@@ -406,10 +403,13 @@ HRESULT Cube3D::MakeVertex(ID3D11Device* pDevice)
 		}
 	}
 	// 拡散反射光の設定
-	g_vertexWk[0].diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	g_vertexWk[1].diffuse = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	g_vertexWk[2].diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-	g_vertexWk[3].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//g_vertexWk[0].diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	//g_vertexWk[1].diffuse = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	//g_vertexWk[2].diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	for (int i = 0; i < NUM_VERTEX_CUBE; i++)
+	{
+		g_vertexWk[i].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
 
 	// テクスチャ座標の設定
 	
@@ -491,8 +491,8 @@ HRESULT Cube3D::MakeVertex(ID3D11Device* pDevice)
 	D3D11_SUBRESOURCE_DATA isd = {};
 	isd.pSysMem = indices;
 	//GetDeviceContext()->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0u);
-	GetDeviceContext()->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
+	//GetDeviceContext()->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	hr = pDevice->CreateBuffer(&ibd, &isd, &pIndexBuffer);
 	return hr;
 }
 

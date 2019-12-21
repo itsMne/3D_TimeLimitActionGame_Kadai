@@ -15,6 +15,7 @@ private:
 	ID3D11VertexShader*			g_pVertexShader;		// 頂点シェーダ
 	ID3D11InputLayout*			g_pInputLayout;			// 頂点フォーマット
 	ID3D11PixelShader*			g_pPixelShader;			// ピクセルシェーダ
+	ID3D11Buffer* pIndexBuffer;
 
 	XMFLOAT4X4					g_mtxWorldField;		// ワールドマトリックス
 	XMFLOAT4X4					g_mtxTexture;			// テクスチャマトリックス
