@@ -3,6 +3,7 @@
 #include "GameObject3D.h"
 #include "Cube3D.h"
 #include "Field3D.h"
+#include "Billboard2D.h"
 #define MAX_BULLETS 40
 #define MAX_PLAYER_INPUT 8
 #define	MAX_FLOWERS	20

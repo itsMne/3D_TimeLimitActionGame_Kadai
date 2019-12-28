@@ -51,14 +51,14 @@ static HRESULT MakeVertexField(ID3D11Device* pDevice);
 //*****************************************************************************
 
 
-Cube3D::Cube3D()
+Cube3D::Cube3D(): GameObject3D()
 {
 	pSceneLight = nullptr;
 	nTextureSubDivisions = 1;
 	bIsPlane = false;
 }
 
-Cube3D::Cube3D(bool IsPlane)
+Cube3D::Cube3D(bool IsPlane) : GameObject3D()
 {
 	pSceneLight = nullptr;
 	nTextureSubDivisions = 1;

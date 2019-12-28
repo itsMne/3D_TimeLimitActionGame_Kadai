@@ -172,7 +172,6 @@ void Field3D::UpdateField(void)
 		if (!pPlayer->IsOnTheFloor()) {
 			if (!IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
 				return;
-			printf("set OnFloor");
 			while (IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
 				pPlayer->TranslateOnY(0.1f);
 			pPlayer->TranslateOnY(-0.1f);

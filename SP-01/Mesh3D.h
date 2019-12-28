@@ -1,5 +1,6 @@
 #pragma once
 #include "DXWindow3D.h"
+#include "GameObject3D.h"
 
 //**************************************
 // 構造体定義
@@ -30,8 +31,8 @@ typedef struct {
 	ID3D11Buffer* pIndexBuffer;				// インデックスバッファインターフェースへのポインタ
 
 	XMFLOAT4X4 mtxWorld;					// ワールドマトリックス
-	XMFLOAT3 pos;							// ポリゴン表示位置の中心座標
-	XMFLOAT3 rot;							// ポリゴンの回転角
+	XMFLOAT3 Position;							// ポリゴン表示位置の中心座標
+	XMFLOAT3 Rotation;							// ポリゴンの回転角
 	int nNumVertex;							// 総頂点数	
 	int nNumIndex;							// 総インデックス数
 
@@ -43,7 +44,7 @@ typedef struct {
 	MATERIAL* pMaterial = nullptr;					// マテリアル
 } MESH;
 
-class Mesh3D
+class Mesh3D: public GameObject3D
 {
 protected:
 
@@ -61,7 +62,7 @@ protected:
 public:
 	Mesh3D();
 	~Mesh3D();
-	virtual HRESULT Init();
+	virtual void Init();
 	virtual void Update();
 	void Draw(ID3D11DeviceContext* pDeviceContext);
 	virtual void Uninit();

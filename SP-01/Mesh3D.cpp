@@ -53,7 +53,7 @@ static MATERIAL						g_material;*/
 //=============================================================================
 
 
-Mesh3D::Mesh3D()
+Mesh3D::Mesh3D() : GameObject3D()
 {
 	pMesh = new MESH();
 	Init();
@@ -64,7 +64,7 @@ Mesh3D::~Mesh3D()
 {
 }
 
-HRESULT Mesh3D::Init()
+void Mesh3D::Init()
 {
 	ID3D11Device* pDevice = GetDevice();
 	HRESULT hr;
@@ -79,7 +79,7 @@ HRESULT Mesh3D::Init()
 	hr = LoadShader("Vertex", "Pixel",
 		&g_pVertexShader, &g_pInputLayout, &g_pPixelShader, layout, _countof(layout));
 	if (FAILED(hr)) {
-		return hr;
+		return;
 	}
 
 	// 定数バッファ生成
@@ -90,10 +90,10 @@ HRESULT Mesh3D::Init()
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	hr = pDevice->CreateBuffer(&bd, nullptr, &g_pConstantBuffer[0]);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) return;
 	bd.ByteWidth = sizeof(SHADER_GLOBAL2);
 	hr = pDevice->CreateBuffer(&bd, nullptr, &g_pConstantBuffer[1]);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) return;
 
 	// テクスチャ サンプラ生成
 	D3D11_SAMPLER_DESC sd;
@@ -104,7 +104,7 @@ HRESULT Mesh3D::Init()
 	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	hr = pDevice->CreateSamplerState(&sd, &g_pSamplerState);
 	if (FAILED(hr)) {
-		return hr;
+		return;
 	}
 
 	// マテリアルの初期設定
@@ -114,7 +114,7 @@ HRESULT Mesh3D::Init()
 	g_material.Power = 0.0f;
 	g_material.Emissive = M_EMISSIVE;
 
-	return hr;
+	//return hr;
 }
 
 void Mesh3D::Update()
@@ -127,11 +127,11 @@ void Mesh3D::Update()
 	xWorld = XMMatrixIdentity();
 
 	// 回転を反映
-	mtxRot = XMMatrixRotationRollPitchYaw(pMesh->rot.x, pMesh->rot.y, pMesh->rot.z);
+	mtxRot = XMMatrixRotationRollPitchYaw(pMesh->Rotation.x, pMesh->Rotation.y, pMesh->Rotation.z);
 	xWorld = XMMatrixMultiply(xWorld, mtxRot);
 
 	// 移動を反映
-	mtxTranslate = XMMatrixTranslation(pMesh->pos.x, pMesh->pos.y, pMesh->pos.z);
+	mtxTranslate = XMMatrixTranslation(pMesh->Position.x, pMesh->Position.y, pMesh->Position.z);
 	xWorld = XMMatrixMultiply(xWorld, mtxTranslate);
 
 	// ワールドマトリックスの設定

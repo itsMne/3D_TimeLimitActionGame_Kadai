@@ -44,8 +44,8 @@ HRESULT Sphere3D::Init(XMFLOAT3 pos, XMFLOAT3 rot, int nSlice, int nStack, float
 	XMStoreFloat4x4(&pMesh->mtxTexture, XMMatrixIdentity());
 
 	// 位置、向きの初期設定
-	pMesh->pos = pos;
-	pMesh->rot = rot;
+	pMesh->Position = pos;
+	pMesh->Rotation = rot;
 
 	// テクスチャの読み込み
 	hr = CreateTextureFromFile(pDevice,					// デバイスへのポインタ
@@ -140,14 +140,14 @@ void Sphere3D::Update(void)
 		return;
 	if (!bIsSkybox)
 		return;
-	pMesh->rot.x += fRotSpeed.x;
-	pMesh->rot.y += fRotSpeed.y;
-	pMesh->rot.z += fRotSpeed.z;
+	pMesh->Rotation.x += fRotSpeed.x;
+	pMesh->Rotation.y += fRotSpeed.y;
+	pMesh->Rotation.z += fRotSpeed.z;
 	Camera3D* pCam = GetMainCamera();
 	if (!pCam)
 		return;
-	pMesh->pos = pCam->GetCameraPos();
-	pMesh->pos.y -= 10;
+	pMesh->Position = pCam->GetCameraPos();
+	pMesh->Position.y -= 10;
 }
 
 void Sphere3D::Draw(void)

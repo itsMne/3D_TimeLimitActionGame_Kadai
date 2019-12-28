@@ -1,6 +1,7 @@
 #include "GameObject3D.h"
+#include "Cube3D.h"
 #define BULLET_SPEED 30
-#define PRINT_HITBOX false
+#define PRINT_HITBOX true
 int nInitedGameObjects = 0;
 
 GameObject3D::GameObject3D()
@@ -23,9 +24,6 @@ GameObject3D::GameObject3D(int Type)
 		break;
 	case GO_BULLET:
 		Model = new Model3D(this, "data/model/Bullet.fbx");
-		/*pEffect2D = new Billboard2D("data/texture/explosion000.png");
-		pEffect2D->SetColor({ 1, 1, 1, 1 });
-		pEffect2D->SetUVFrames(8, 1);*/
 		nCurrentRasterizer = 1;
 		break;
 	default:
@@ -73,15 +71,14 @@ void GameObject3D::Init()
 	nUseCounterFrame = 0;
 	p_goParent = nullptr;
 	Model = nullptr;
-	pEffect2D = nullptr;
 	pVisualHitbox = nullptr;
 	pLight = nullptr;
 	Hitbox = { 0,0,0,0,0,0 };
 #if PRINT_HITBOX
 	pVisualHitbox = new Cube3D();
-	pVisualHitbox->Init("data/texture/hbox.tga");
-	pVisualHitbox->SetScale({ Hitbox.SizeX, Hitbox.SizeY, Hitbox.SizeZ });
-	pVisualHitbox->SetPosition({ Hitbox.PositionX,Hitbox.PositionY,Hitbox.PositionZ });
+	((Cube3D*)pVisualHitbox)->Init("data/texture/hbox.tga");
+	((Cube3D*)pVisualHitbox)->SetScale({ Hitbox.SizeX, Hitbox.SizeY, Hitbox.SizeZ });
+	((Cube3D*)pVisualHitbox)->SetPosition({ Hitbox.PositionX,Hitbox.PositionY,Hitbox.PositionZ });
 #endif
 }
 
@@ -121,8 +118,6 @@ void GameObject3D::Update()
 	default:
 		break;
 	}
-	if(pEffect2D)
-		pEffect2D->Update();
 }
 
 void GameObject3D::Draw()
@@ -134,7 +129,6 @@ void GameObject3D::Draw()
 	case GO_BULLET:
 		if (Model)
 			Model->DrawModel();
-		Draw2DEffect();
 		break;
 	default:
 		if (Model)
@@ -146,25 +140,17 @@ void GameObject3D::Draw()
 #if PRINT_HITBOX
 	if (pVisualHitbox) {
 		Box ThisHitbox = GetHitbox();
-		pVisualHitbox->SetScale({ ThisHitbox.SizeX, ThisHitbox.SizeY, ThisHitbox.SizeZ });
-		pVisualHitbox->SetPosition({ ThisHitbox.PositionX,ThisHitbox.PositionY,ThisHitbox.PositionZ });
-		pVisualHitbox->Draw();
+		((Cube3D*)pVisualHitbox)->SetScale({ ThisHitbox.SizeX, ThisHitbox.SizeY, ThisHitbox.SizeZ });
+		((Cube3D*)pVisualHitbox)->SetPosition({ ThisHitbox.PositionX,ThisHitbox.PositionY,ThisHitbox.PositionZ });
+		((Cube3D*)pVisualHitbox)->Draw();
 	}
 #endif
 }
 
-void GameObject3D::Draw2DEffect()
-{
-	SetCullMode(CULLMODE_NONE);
-	if (pEffect2D)
-		pEffect2D->Draw();
-	SetCullMode(CULLMODE_CCW);
-}
 
 void GameObject3D::End()
 {
 	SAFE_DELETE(Model);
-	SAFE_DELETE(pEffect2D);
 #if PRINT_HITBOX
 	SAFE_DELETE(pVisualHitbox);
 #endif
