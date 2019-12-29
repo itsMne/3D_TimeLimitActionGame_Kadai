@@ -4,6 +4,7 @@
 #include "Cube3D.h"
 #include "Field3D.h"
 #include "Billboard2D.h"
+#include "DebugAim.h"
 #define MAX_BULLETS 40
 #define MAX_PLAYER_INPUT 8
 #define	MAX_FLOWERS	20
@@ -61,6 +62,8 @@ private:
 	PLAYER_ATTACK_MOVE* CurrentAttackPlaying;
 	Billboard2D* FlowersTemp[MAX_FLOWERS];
 	ID3D11ShaderResourceView* pFlowerTexture;
+	DebugAim* pDebugAim;
+	bool DebugAimOn;
 public:
 	Player3D();
 	Player3D(Light3D* Light);
@@ -96,6 +99,8 @@ public:
 	void UpdateFlowers();
 	void DrawFlowers();
 	void SetFlower(XMFLOAT3 Pos);
+	
+	Field3D* GetFloor();
 };
 
 Player3D*  GetMainPlayer3D();

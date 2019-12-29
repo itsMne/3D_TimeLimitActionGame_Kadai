@@ -20,7 +20,7 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	pSkybox = new Sphere3D("data/texture/Skybox.tga");
 	HRESULT	hr;
 	g_pDevice = GetDevice();
-	hr = HelloField->InitField(pSceneLight, "data/texture/field000.jpg");
+	hr = HelloField->Init(pSceneLight, "data/texture/field000.jpg");
 	HelloField->SetTextureSubdivisions(3); 
 	HelloField->SetScale(100);
 	hr = InitDebugProc();

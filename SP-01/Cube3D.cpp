@@ -51,14 +51,14 @@ static HRESULT MakeVertexField(ID3D11Device* pDevice);
 //*****************************************************************************
 
 
-Cube3D::Cube3D(): GameObject3D()
+Cube3D::Cube3D(): GameObject3D(GO_CUBE)
 {
 	pSceneLight = nullptr;
 	nTextureSubDivisions = 1;
 	bIsPlane = false;
 }
 
-Cube3D::Cube3D(bool IsPlane) : GameObject3D()
+Cube3D::Cube3D(bool IsPlane) : GameObject3D(GO_CUBE)
 {
 	pSceneLight = nullptr;
 	nTextureSubDivisions = 1;
@@ -80,7 +80,7 @@ HRESULT Cube3D::Init(const char* TexturePath)
 	SetLight(GetMainLight());
 	ID3D11Device* pDevice = GetDevice();
 	HRESULT hr;
-
+	nType = GO_CUBE;
 	// シェーダ初期化
 	static const D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,                            D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -173,7 +173,7 @@ void Cube3D::End(void)
 //=============================================================================
 void Cube3D::Update(void)
 {
-	
+	GameObject3D::Update();
 }
 
 //=============================================================================

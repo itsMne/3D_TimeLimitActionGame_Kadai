@@ -135,6 +135,7 @@ void Sphere3D::Uninit(void)
 
 void Sphere3D::Update(void)
 {
+	GameObject3D::Update();
 	Mesh3D::Update();
 	if (!pMesh)
 		return;
@@ -152,6 +153,7 @@ void Sphere3D::Update(void)
 
 void Sphere3D::Draw(void)
 {
+	GameObject3D::Draw();
 	Mesh3D::Draw(GetDeviceContext());
 }
 

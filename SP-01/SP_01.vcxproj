@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="Billboard2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
+    <ClCompile Include="DebugAim.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="DXWindow3D.cpp" />
     <ClCompile Include="FbxModel.cpp" />
@@ -189,6 +190,7 @@
   <ItemGroup>
     <ClInclude Include="Billboard2D.h" />
     <ClInclude Include="Camera3D.h" />
+    <ClInclude Include="DebugAim.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="DXWindow3D.h" />
     <ClInclude Include="FbxModel.h" />

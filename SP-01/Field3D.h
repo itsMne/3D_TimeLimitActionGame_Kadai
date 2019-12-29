@@ -37,8 +37,9 @@ private:
 	ID3D11Buffer* mIndexBuffer;
 public:
 	Field3D();
+	Field3D(const char* TexturePath);
 	~Field3D();
-	HRESULT InitField(Light3D* SceneLight, const char* TexturePath);
+	HRESULT Init(Light3D* SceneLight, const char* TexturePath);
 	void UninitField(void);
 	void UpdateField(void);
 	void DrawField(void);
@@ -47,7 +48,7 @@ public:
 	void SetPosition(XMFLOAT3 newPos);
 	void SetRotation(XMFLOAT3 newRot);
 	void SetScale(float newScale);
+	void SetScale(XMFLOAT3 newScale);
 	void SetTextureSubdivisions(int newSubs);
-	Box GetHitbox();
+	//Box GetHitbox();
 };
-

@@ -53,10 +53,17 @@ static HRESULT MakeVertexField(ID3D11Device* pDevice);
 //*****************************************************************************
 
 
-Field3D::Field3D()
+Field3D::Field3D() : GameObject3D(GO_FLOOR)
 {
 	pSceneLight = nullptr;
 	nTextureSubDivisions = 1;
+}
+
+Field3D::Field3D(const char * TexturePath) : GameObject3D(GO_FLOOR)
+{
+	pSceneLight = GetMainLight();
+	nTextureSubDivisions = 1;
+	Init(pSceneLight, TexturePath);
 }
 
 
@@ -69,12 +76,12 @@ Field3D::~Field3D()
 //=============================================================================
 // 初期化処理
 //=============================================================================
-HRESULT Field3D::InitField(Light3D* SceneLight, const char* TexturePath)
+HRESULT Field3D::Init(Light3D* SceneLight, const char* TexturePath)
 {
 	SetFieldLight(SceneLight);
 	ID3D11Device* pDevice = GetDevice();
 	HRESULT hr;
-
+	nType = GO_FLOOR;
 	// シェーダ初期化
 	static const D3D11_INPUT_ELEMENT_DESC layout[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,                            D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -166,6 +173,8 @@ void Field3D::UninitField(void)
 //=============================================================================
 void Field3D::UpdateField(void)
 {
+	GameObject3D::Update();
+	Hitbox = { 0, 0 - 5.0f, 0, Scale.x, 5, Scale.z };
 	Player3D* pPlayer = GetMainPlayer3D();
 	if (pPlayer)
 	{
@@ -173,8 +182,8 @@ void Field3D::UpdateField(void)
 			if (!IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
 				return;
 			while (IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
-				pPlayer->TranslateOnY(0.1f);
-			pPlayer->TranslateOnY(-0.1f);
+				pPlayer->TranslateY(0.1f);
+			pPlayer->TranslateY(-0.1f);
 			pPlayer->SetFloor(this);
 		}
 	}
@@ -185,6 +194,7 @@ void Field3D::UpdateField(void)
 //=============================================================================
 void Field3D::DrawField(void)
 {
+	GameObject3D::Draw();
 	Camera3D* pMainCamera = GetMainCamera();
 	if (!pMainCamera)
 	{
@@ -325,12 +335,14 @@ void Field3D::SetScale(float newScale)
 	Scale = { newScale ,newScale ,newScale };
 }
 
+void Field3D::SetScale(XMFLOAT3 newScale)
+{
+	Scale = newScale;
+}
+
 void Field3D::SetTextureSubdivisions(int newSubs)
 {
 	nTextureSubDivisions = newSubs;
 }
 
-Box Field3D::GetHitbox()
-{
-	return { Position.x, Position.y- 5.0f, Position.z, Scale.x, 5, Scale.z };
-}
+

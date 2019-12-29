@@ -125,7 +125,7 @@ void Player3D::Init()
 	mShadow = new GameObject3D("data/model/Shadow.fbx", GO_SHADOW);
 	mShadow->SetRotation({ 0,0,0 });
 	mShadow->SetParent(this);
-
+	pDebugAim = new DebugAim();
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = new GameObject3D(GO_BULLET);
@@ -151,14 +151,36 @@ void Player3D::InitPlayerHitboxes()
 		pVisualHitboxes[i]->SetPosition({ Hitboxes[i].PositionX,Hitboxes[i].PositionY,Hitboxes[i].PositionZ });
 	}
 #endif
+	DebugAimOn = false;
 }
 void Player3D::Update()
 {
 	GameObject3D::Update();
+	if (!pMainCamera) {
+		pMainCamera = GetMainCamera();
+		return;
+	}
+	if (GetInput(INPUT_DEBUG_AIM_ON))
+	{
+		if (!DebugAimOn) {
+			pMainCamera->SetFocalPointGO(pDebugAim);
+			DebugAimOn = true;
+		}
+		else 
+		{
+			pMainCamera->SetFocalPointGO(this);
+			DebugAimOn = false;
+		}
+	}
+	if (DebugAimOn)
+	{
+		pDebugAim->Update();
+		return;
+	}
+	pDebugAim->SetPosition({ Position.x, Position.y+10, Position.z });
 	AttackInputsControl();
 	GravityControl(true);
-	if (!pMainCamera)
-		pMainCamera = GetMainCamera();
+
 	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
 	{
 		while (IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET)))
@@ -468,6 +490,8 @@ void Player3D::PlayerBulletsControl()
 
 void Player3D::Draw()
 {
+	if(DebugAimOn)
+		pDebugAim->Draw();
 	DrawFlowers();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(1));
 	GameObject3D::Draw();
@@ -668,6 +692,11 @@ void Player3D::SetFlower(XMFLOAT3 Pos)
 			}
 		}
 	}
+}
+
+Field3D * Player3D::GetFloor()
+{
+	return pFloor;
 }
 
 Player3D * GetMainPlayer3D()
