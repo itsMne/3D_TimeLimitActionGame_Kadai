@@ -103,7 +103,7 @@ public:
 	Field3D* GetFloor();
 };
 
-Player3D*  GetMainPlayer3D();
+Player3D*  GetPlayer3D();
 
 
 #endif

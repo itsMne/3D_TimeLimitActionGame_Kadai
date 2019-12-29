@@ -40,6 +40,17 @@ void UpdateInputManager()
 	bInputs[INPUT_ATTACK] = GetMouseTrigger(MOUSEBUTTON_L) || GetKeyTrigger(VK_I) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
 
 	bInputs[INPUT_DEBUG_AIM_ON] = GetKeyTrigger(VK_1);
+	bInputs[INPUT_DEBUG_CONFIRM] = GetKeyTrigger(VK_2);
+	bInputs[INPUT_SCALEUP_X] = GetKeyPress(VK_L);
+	bInputs[INPUT_SCALEDOWN_X] = GetKeyPress(VK_J);
+	bInputs[INPUT_SCALEUP_Y] = GetKeyPress(VK_LSHIFT) && GetKeyPress(VK_I);
+	bInputs[INPUT_SCALEDOWN_Y] = GetKeyPress(VK_LSHIFT) && GetKeyPress(VK_K);
+	bInputs[INPUT_SCALEUP_Z] = !GetKeyPress(VK_LSHIFT) && GetKeyPress(VK_I);
+	bInputs[INPUT_SCALEDOWN_Z] = !GetKeyPress(VK_LSHIFT) && GetKeyPress(VK_K);
+	bInputs[INPUT_SWITCH_DEBUGOBJ] = GetKeyTrigger(VK_O);
+	bInputs[INPUT_SWITCH_DEBUGOBJALT] = GetKeyTrigger(VK_U);
+	bInputs[INPUT_SAVE_LEVEL] = GetKeyPress(VK_LCONTROL) && GetKeyTrigger(VK_S);
+	bInputs[INPUT_DEBUGAIM_DELETE] = GetKeyTrigger(VK_BACK);
 
 	bool bUsingKeyBoard = false;
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);

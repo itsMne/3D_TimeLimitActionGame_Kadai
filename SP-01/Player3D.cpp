@@ -493,7 +493,7 @@ void Player3D::Draw()
 	if(DebugAimOn)
 		pDebugAim->Draw();
 	DrawFlowers();
-	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(1));
+	
 	GameObject3D::Draw();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(2));
 	if (mShadow)
@@ -699,7 +699,7 @@ Field3D * Player3D::GetFloor()
 	return pFloor;
 }
 
-Player3D * GetMainPlayer3D()
+Player3D * GetPlayer3D()
 {
 	return pMainPlayer3D;
 }

@@ -69,7 +69,7 @@ Field3D::Field3D(const char * TexturePath) : GameObject3D(GO_FLOOR)
 
 Field3D::~Field3D()
 {
-	UninitField();
+	End();
 }
 
 
@@ -78,6 +78,8 @@ Field3D::~Field3D()
 //=============================================================================
 HRESULT Field3D::Init(Light3D* SceneLight, const char* TexturePath)
 {
+	strcpy(szTexturePath, TexturePath);
+	SetTextureSubdivisions(10.0f/Scale.x);
 	SetFieldLight(SceneLight);
 	ID3D11Device* pDevice = GetDevice();
 	HRESULT hr;
@@ -148,7 +150,7 @@ HRESULT Field3D::Init(Light3D* SceneLight, const char* TexturePath)
 //=============================================================================
 // 終了処理
 //=============================================================================
-void Field3D::UninitField(void)
+void Field3D::End(void)
 {
 	// テクスチャ解放
 	SAFE_RELEASE(g_pTexture);
@@ -171,11 +173,11 @@ void Field3D::UninitField(void)
 //=============================================================================
 // 更新処理
 //=============================================================================
-void Field3D::UpdateField(void)
+void Field3D::Update(void)
 {
 	GameObject3D::Update();
 	Hitbox = { 0, 0 - 5.0f, 0, Scale.x, 5, Scale.z };
-	Player3D* pPlayer = GetMainPlayer3D();
+	Player3D* pPlayer = GetPlayer3D();
 	if (pPlayer)
 	{
 		if (!pPlayer->IsOnTheFloor()) {
@@ -187,14 +189,16 @@ void Field3D::UpdateField(void)
 			pPlayer->SetFloor(this);
 		}
 	}
+	SetTextureSubdivisions(10.0f / Scale.x);
 }
 
 //=============================================================================
 // 描画処理
 //=============================================================================
-void Field3D::DrawField(void)
+void Field3D::Draw(void)
 {
 	GameObject3D::Draw();
+	GetDeviceContext()->RSSetState(GetMainWindow()->GetRasterizerState(2));
 	Camera3D* pMainCamera = GetMainCamera();
 	if (!pMainCamera)
 	{
@@ -343,6 +347,11 @@ void Field3D::SetScale(XMFLOAT3 newScale)
 void Field3D::SetTextureSubdivisions(int newSubs)
 {
 	nTextureSubDivisions = newSubs;
+}
+
+char * Field3D::GetTexturePath()
+{
+	return szTexturePath;
 }
 
 

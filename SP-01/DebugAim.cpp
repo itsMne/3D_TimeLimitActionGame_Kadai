@@ -1,12 +1,22 @@
 #include "DebugAim.h"
+#include "S_InGame3D.h"
+#include "Field3D.h"
+#include "Light3D.h"
+#include "Player3D.h"
 #include "InputManager.h"
 #define DEBUGAIM_MODEL_PATH "data/model/DebugAim.fbx"
 #define DA_SPEED 1.95f
 #define ROTATION_SPEED	XM_PI*0.02f			// ‰ñ“]‘¬“x
+#define SCALE_VALUE 1
+enum DebugAimType
+{
+	DA_DEBUG_AIM = 0,
+	DA_FLOOR,
+	DA_MAX
+};
 
 DebugAim::DebugAim(): GameObject3D()
 {
-	nType = GO_DEBUGAIM;
 	Init();
 }
 
@@ -21,16 +31,102 @@ void DebugAim::Init()
 	SetScale(0.5f);
 	Model->SetScale(0.25f);
 	Model->SetRotationY(3.14f*0.5f);
+	DA_Obj = nullptr;
+	pPlayer = nullptr;
+	pCGame = nullptr;
+	pFloors = nullptr;
+	nType = GO_DEBUGAIM;
+	nTypeObj = DA_DEBUG_AIM;
+	x3dAScale = { 1,1,1 };
 }
 
 void DebugAim::Update()
 {
 	if (!pMainCamera) {
 		pMainCamera = GetMainCamera();
-		return;
+		if (!pMainCamera)
+			return;
 	}
+	if (!pPlayer)
+		pPlayer = GetPlayer3D();
+	if (!pCGame) {
+		pCGame = GetCurrentGame();
+		if (!pCGame)
+			return;
+	}
+	SceneInGame3D* pGame = (SceneInGame3D*)pCGame;
 	GameObject3D::Update();
 	DebugAimControl();
+	ScaleControl();
+	if (!pFloors)
+		pFloors = pGame->GetList(GO_FLOOR);
+	if (GetInput(INPUT_SAVE_LEVEL))
+	{
+		if(pFloors)
+			pFloors->SaveFields("Level_Floors");
+	}
+	if (GetInput(INPUT_SWITCH_DEBUGOBJ)) {
+		nTypeObj++;
+		SAFE_DELETE(DA_Obj);
+	}
+	if (GetInput(INPUT_SWITCH_DEBUGOBJALT)) {
+		nTypeObj--;
+		SAFE_DELETE(DA_Obj);
+	}
+	if (nTypeObj < 0)
+		nTypeObj = DA_MAX - 1;
+	if (nTypeObj >= DA_MAX)
+		nTypeObj = 0;
+	switch (nTypeObj)
+	{
+	case DA_DEBUG_AIM:
+		if (GetInput(INPUT_DEBUG_CONFIRM) && pPlayer)
+			pPlayer->SetPosition(Position);
+		SetScale(0.5f);
+		break;
+	case DA_FLOOR:
+		if (!DA_Obj)
+		{
+			DA_Obj = new Field3D();
+			((Field3D*)DA_Obj)->Init(GetMainLight(), "data/texture/field000.jpg");
+			x3dAScale = { 10,10,10 };
+		}
+		else {
+			DA_Obj->SetScale(x3dAScale);
+			DA_Obj->SetPosition(Position);
+			if(pFloors && GetInput(INPUT_DEBUG_CONFIRM))
+				pFloors->AddField(Position, x3dAScale, "data/texture/field000.jpg");
+			if (pFloors && GetInput(INPUT_DEBUGAIM_DELETE))
+				pFloors->DeleteLastPosObject();
+		}
+		break;
+	default:
+		break;
+	}
+	if (DA_Obj)
+		DA_Obj->Update();
+}
+
+void DebugAim::ScaleControl()
+{
+	if (GetInput(INPUT_SCALEUP_X))
+		x3dAScale.x += SCALE_VALUE;
+	if (GetInput(INPUT_SCALEDOWN_X))
+		x3dAScale.x -= SCALE_VALUE;
+	if (GetInput(INPUT_SCALEUP_Y))
+		x3dAScale.y += SCALE_VALUE;
+	if (GetInput(INPUT_SCALEDOWN_Y))
+		x3dAScale.y -= SCALE_VALUE;
+	if (GetInput(INPUT_SCALEUP_Z))
+		x3dAScale.z += SCALE_VALUE;
+	if (GetInput(INPUT_SCALEDOWN_Z))
+		x3dAScale.z -= SCALE_VALUE;
+	if (x3dAScale.x <= 0)
+		x3dAScale.x = 0.1f;
+	if (x3dAScale.y <= 0)
+		x3dAScale.y = 0.1f;
+	if (x3dAScale.z <= 0)
+		x3dAScale.z = 0.1f;
 }
 
 void DebugAim::DebugAimControl()
@@ -60,7 +156,11 @@ void DebugAim::DebugAimControl()
 
 void DebugAim::Draw()
 {
-	GameObject3D::Draw();
+	if(!DA_Obj)
+		GameObject3D::Draw();
+	else {
+		DA_Obj->Draw();
+	}
 }
 
 void DebugAim::End()

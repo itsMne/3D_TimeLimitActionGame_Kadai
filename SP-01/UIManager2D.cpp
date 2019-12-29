@@ -74,7 +74,7 @@ void UIObject2D::Update()
 	{
 	case UI_HEART:
 		if (!pPlayer)
-			pPlayer = GetMainPlayer3D();
+			pPlayer = GetPlayer3D();
 		nCurrent_hearts = pPlayer->GetCurrentHealth();
 		nMax_Hearts = pPlayer->GetMaxHealth();
 		RegularUVAnimation();
@@ -129,7 +129,7 @@ void UIObject2D::Draw()
 		break;
 	case UI_AIM:
 		if (!pPlayer) 
-			pPlayer = GetMainPlayer3D();
+			pPlayer = GetPlayer3D();
 		else
 			if(pPlayer->IsPlayerAiming())
 				DrawPolygon(GetDeviceContext());

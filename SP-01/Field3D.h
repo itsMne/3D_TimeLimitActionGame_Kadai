@@ -32,7 +32,7 @@ private:
 	Light3D*					pSceneLight;
 	int							nTextureSubDivisions;
 	ID3D11Buffer* mVertexBuffer;
-
+	char szTexturePath[256];
 	// index buffer, only 6 indexes
 	ID3D11Buffer* mIndexBuffer;
 public:
@@ -40,9 +40,9 @@ public:
 	Field3D(const char* TexturePath);
 	~Field3D();
 	HRESULT Init(Light3D* SceneLight, const char* TexturePath);
-	void UninitField(void);
-	void UpdateField(void);
-	void DrawField(void);
+	void End(void);
+	void Update(void);
+	void Draw(void);
 	void SetFieldLight(Light3D* SceneLight);
 	HRESULT MakeVertexField(ID3D11Device* pDevice);
 	void SetPosition(XMFLOAT3 newPos);
@@ -50,5 +50,6 @@ public:
 	void SetScale(float newScale);
 	void SetScale(XMFLOAT3 newScale);
 	void SetTextureSubdivisions(int newSubs);
+	char* GetTexturePath();
 	//Box GetHitbox();
 };

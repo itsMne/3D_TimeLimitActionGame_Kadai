@@ -14,6 +14,7 @@ private:
 	Player3D* pPlayer;
 	InGameUI2D* pUI;
 	Sphere3D* pSkybox;
+	Go_List* Floors;
 public:
 	SceneInGame3D();
 	~SceneInGame3D();
@@ -21,5 +22,7 @@ public:
 	eSceneType Update();
 	void Draw();
 	void End();
+	Go_List* GetList(int Type);
 };
 
+SceneInGame3D* GetCurrentGame();

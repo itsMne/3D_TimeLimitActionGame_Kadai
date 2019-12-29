@@ -5,24 +5,24 @@
 #include "Billboard2D.h"
 
 
+SceneInGame3D* pCurrentGame = nullptr;
 
-
-Field3D* HelloField;
 Cube3D* HelloCube;
 
 
 SceneInGame3D::SceneInGame3D() :Scene3D(true)
 {
+	pCurrentGame = this;
 	MainWindow = GetMainWindow();
 	MainWindow->SetWindowColor255(150, 71, 89);
 	pPlayer = new Player3D();
-	HelloField = new Field3D();
+	
 	pSkybox = new Sphere3D("data/texture/Skybox.tga");
 	HRESULT	hr;
 	g_pDevice = GetDevice();
-	hr = HelloField->Init(pSceneLight, "data/texture/field000.jpg");
-	HelloField->SetTextureSubdivisions(3); 
-	HelloField->SetScale(100);
+
+	Floors = new Go_List();
+	Floors->Load("Level_Floors", GO_FLOOR);
 	hr = InitDebugProc();
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
@@ -38,6 +38,7 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 SceneInGame3D::~SceneInGame3D()
 {
 	End();
+	pCurrentGame = nullptr;
 }
 
 void SceneInGame3D::Init()
@@ -58,7 +59,7 @@ eSceneType SceneInGame3D::Update()
 	pPlayer->Update();
 
 	// フィールド更新
-	HelloField->UpdateField();
+	Floors->Update();
 
 	//HelloShadow->Update();
 
@@ -78,9 +79,9 @@ void SceneInGame3D::Draw()
 	SetZBuffer(true);
 
 	// 前面カリング (FBXは表裏が反転するため)
-	if(!pDeviceContext)
-		pDeviceContext = MainWindow->GetDeviceContext();
-	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(1));
+	//if(!pDeviceContext)
+	//	pDeviceContext = MainWindow->GetDeviceContext();
+	//pDeviceContext->RSSetState(MainWindow->GetRasterizerState(1));
 
 	SetCullMode(CULLMODE_NONE);
 	// モデル描画
@@ -88,11 +89,11 @@ void SceneInGame3D::Draw()
 	SetCullMode(CULLMODE_CCW);
 
 	// 背面カリング (通常は表面のみ描画)
-	pDeviceContext->RSSetState(MainWindow->GetRasterizerState(2));
+	
 
 	pSkybox->Draw();
 	// フィールド描画
-	HelloField->DrawField();
+	Floors->Draw();
 	SetCullMode(CULLMODE_NONE);
 	HelloCube->Draw();
 	SetCullMode(CULLMODE_CCW);
@@ -110,7 +111,7 @@ void SceneInGame3D::End()
 {
 	Scene3D::End();
 	// フィールド終了処理
-	SAFE_DELETE(HelloField);
+	SAFE_DELETE(Floors);
 	// モデル表示終了処理
 	SAFE_DELETE(pPlayer);
 	// デバッグ文字列表示終了処理
@@ -119,4 +120,21 @@ void SceneInGame3D::End()
 	SAFE_DELETE(pUI);
 
 	//SAFE_DELETE(HelloBill);
+}
+
+Go_List * SceneInGame3D::GetList(int Type)
+{
+	switch (Type)
+	{
+	case GO_FLOOR:
+		return Floors;
+	default:
+		break;
+	}
+	return nullptr;
+}
+
+SceneInGame3D * GetCurrentGame()
+{
+	return pCurrentGame;
 }

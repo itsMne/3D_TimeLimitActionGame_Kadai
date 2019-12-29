@@ -56,6 +56,7 @@ public:
 	XMFLOAT3 GetScale();
 	Model3D* GetModel();
 	void SetScale(float fScale);
+	void SetScale(XMFLOAT3 fScale);
 	void SetRotation(XMFLOAT3 fRot);
 	XMFLOAT4X4* GetModelWorld();
 	void SetPosition(XMFLOAT3 newPos);
@@ -80,6 +81,8 @@ public:
 	XMFLOAT3 GetMoveStartPosition();
 	XMFLOAT3 GetMoveEndPosition();
 	void PauseObject(int pauseFrames);
+	float GetMoveSpeed();
+	int GetDelayFrames();
 };
 
 
@@ -92,6 +95,16 @@ typedef struct go_node {//リストの管理の為に、この構造体が要る
 	go_node *next;
 };
 
+typedef struct GameObjectContainer {
+	XMFLOAT3 Pos;
+	XMFLOAT3 Scale;
+	char texpath[256];
+	bool bMoveable = false;
+	XMFLOAT3 MoveStartPos;
+	XMFLOAT3 MoveEndPos;
+	float Speed; 
+	int DelayFrames;
+};
 
 class Go_List
 {
@@ -122,12 +135,12 @@ public:
 	void Update();
 	void Draw();
 	void End();
-	//void SaveFields(const char* szFilename);
+	void SaveFields(const char* szFilename);
 	//void SaveWalls(const char* szFilename);
 	//void SaveItems(const char* szFilename);
 	//void SaveSpikes(const char* szFilename);
 	//void SaveMisc(const char* szFilename);
 	//void SaveMirrors(const char* szFilename);
 	//void SaveEnemies(const char* szFilename);
-	//void Load(const char* szFilename, int nType);
+	void Load(const char* szFilename, int nType);
 };
