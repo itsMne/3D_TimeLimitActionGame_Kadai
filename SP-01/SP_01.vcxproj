@@ -186,6 +186,7 @@
     <ClCompile Include="UIManager2D.cpp" />
     <ClCompile Include="C_XInput.cpp" />
     <ClCompile Include="UniversalStructures.cpp" />
+    <ClCompile Include="Wall3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Billboard2D.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="UIManager2D.h" />
     <ClInclude Include="UniversalStructures.h" />
     <ClInclude Include="C_XInput.h" />
+    <ClInclude Include="Wall3D.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FbxModelPixel.hlsl">

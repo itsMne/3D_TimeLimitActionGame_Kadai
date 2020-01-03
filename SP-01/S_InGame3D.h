@@ -15,6 +15,7 @@ private:
 	InGameUI2D* pUI;
 	Sphere3D* pSkybox;
 	Go_List* Floors;
+	Go_List* Walls;
 public:
 	SceneInGame3D();
 	~SceneInGame3D();

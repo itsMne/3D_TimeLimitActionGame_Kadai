@@ -12,6 +12,7 @@ enum eGameObjectTypes
 	GO_FLOOR,
 	GO_DEBUGAIM,
 	GO_CUBE,
+	GO_WALL,
 	GO_MAX
 };
 class GameObject3D
@@ -117,8 +118,8 @@ public:
 	int GetNumberOfObjects();
 	GameObject3D* AddField(XMFLOAT3 newPosition, XMFLOAT3 newScale, const char* TexturePath);
 	GameObject3D* AddField(XMFLOAT3 newPosition, XMFLOAT3 newScale, const char* TexturePath, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames);
-	//GameObject3D* AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale);
-	//GameObject3D* AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
+	GameObject3D* AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale);
+	GameObject3D* AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames);
 	//GameObject3D* AddItem(XMFLOAT3 newPosition, int nType);
 	//GameObject3D* AddItem(XMFLOAT3 newPosition, int nType, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
 	//GameObject3D* AddSpike(XMFLOAT3 newPosition, int SpikesX, int SpikesY, bool binvisible);
@@ -136,7 +137,7 @@ public:
 	void Draw();
 	void End();
 	void SaveFields(const char* szFilename);
-	//void SaveWalls(const char* szFilename);
+	void SaveWalls(const char* szFilename);
 	//void SaveItems(const char* szFilename);
 	//void SaveSpikes(const char* szFilename);
 	//void SaveMisc(const char* szFilename);

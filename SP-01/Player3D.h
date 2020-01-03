@@ -18,6 +18,12 @@ enum EPLAYER_STATE
 enum EPLAYER_HITBOXES
 {
 	PLAYER_HB_FEET=0,
+	PLAYER_HB_BODY,
+	PLAYER_HB_HEAD,
+	PLAYER_HB_FRONT,
+	PLAYER_HB_BACK,
+	PLAYER_HB_LEFT,
+	PLAYER_HB_RIGHT,
 	PLAYER_HB_MAX
 };
 enum AirMove
@@ -53,7 +59,7 @@ private:
 	DXWindow3D*			 pCurrentWindow;
 	Box Hitboxes[PLAYER_HB_MAX];
 	Cube3D* pVisualHitboxes[PLAYER_HB_MAX];
-	Field3D* pFloor;
+	GameObject3D* pFloor;
 	float fY_force;
 	//çUåÇÇ…ä÷ÇµÇƒ
 	float fAtkAcceleration;
@@ -88,7 +94,7 @@ public:
 	int GetMaxHealth();
 	bool IsPlayerAiming();
 	Box GetHitboxPlayer(int hb);
-	void SetFloor(Field3D* Floor);
+	void SetFloor(GameObject3D* Floor);
 	bool IsOnTheFloor();
 	void AddInput(char A);
 	char GetLastInputInserted();
@@ -100,7 +106,7 @@ public:
 	void DrawFlowers();
 	void SetFlower(XMFLOAT3 Pos);
 	
-	Field3D* GetFloor();
+	GameObject3D* GetFloor();
 };
 
 Player3D*  GetPlayer3D();

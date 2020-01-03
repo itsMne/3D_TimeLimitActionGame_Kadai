@@ -2,6 +2,7 @@
 #include "S_InGame3D.h"
 #include "Field3D.h"
 #include "Light3D.h"
+#include "Wall3D.h"
 #include "Player3D.h"
 #include "InputManager.h"
 #define DEBUGAIM_MODEL_PATH "data/model/DebugAim.fbx"
@@ -12,6 +13,7 @@ enum DebugAimType
 {
 	DA_DEBUG_AIM = 0,
 	DA_FLOOR,
+	DA_WALL,
 	DA_MAX
 };
 
@@ -35,6 +37,7 @@ void DebugAim::Init()
 	pPlayer = nullptr;
 	pCGame = nullptr;
 	pFloors = nullptr;
+	pWalls = nullptr;
 	nType = GO_DEBUGAIM;
 	nTypeObj = DA_DEBUG_AIM;
 	x3dAScale = { 1,1,1 };
@@ -60,10 +63,14 @@ void DebugAim::Update()
 	ScaleControl();
 	if (!pFloors)
 		pFloors = pGame->GetList(GO_FLOOR);
+	if (!pWalls)
+		pWalls = pGame->GetList(GO_WALL);
 	if (GetInput(INPUT_SAVE_LEVEL))
 	{
 		if(pFloors)
-			pFloors->SaveFields("Level_Floors");
+			pFloors->SaveFields("Level_Floors");		
+		if(pWalls)
+			pWalls->SaveWalls("Level_Walls");
 	}
 	if (GetInput(INPUT_SWITCH_DEBUGOBJ)) {
 		nTypeObj++;
@@ -98,6 +105,21 @@ void DebugAim::Update()
 				pFloors->AddField(Position, x3dAScale, "data/texture/field000.jpg");
 			if (pFloors && GetInput(INPUT_DEBUGAIM_DELETE))
 				pFloors->DeleteLastPosObject();
+		}
+		break;
+	case DA_WALL:
+		if (!DA_Obj)
+		{
+			DA_Obj = new Wall3D();
+			x3dAScale = { 10,10,10 };
+		}
+		else {
+			DA_Obj->SetScale(x3dAScale);
+			DA_Obj->SetPosition(Position);
+			if (pWalls && GetInput(INPUT_DEBUG_CONFIRM))
+				pWalls->AddWall(Position, x3dAScale);
+			if (pWalls && GetInput(INPUT_DEBUGAIM_DELETE))
+				pWalls->DeleteLastPosObject();
 		}
 		break;
 	default:

@@ -15,6 +15,7 @@
 #define MAX_ATTACKS 10
 #define MAX_FLOWER_TIMER 15
 #define DEBUG_ANIMATION_FRAME false
+#define SHOW_PLAYER_HITBOX true
 Player3D* pMainPlayer3D = nullptr;
 
 enum PLAYER_ANIMATIONS
@@ -140,9 +141,16 @@ void Player3D::InitPlayerHitboxes()
 	for (int i = 0; i < PLAYER_HB_MAX; i++)
 	{
 		pVisualHitboxes[i] = nullptr;
+		Hitboxes[i] = { 0 };
 	}
-	Hitboxes[PLAYER_HB_FEET] = { 0,5,0,5,5,5 };
-#if USE_HITBOX
+	Hitboxes[PLAYER_HB_FEET] = { 0,1.5f,0,1.5f,1.5f,1.5f };
+	Hitboxes[PLAYER_HB_BODY] = { 0,9.5f,0,2.5f,7,2.5f };
+	Hitboxes[PLAYER_HB_HEAD] = { 0,18.5f,0,1.5f,1.5f,1.5f };
+	Hitboxes[PLAYER_HB_FRONT] = { 0,9.5f,1.5f, 2.5f,7,1.5f };
+	Hitboxes[PLAYER_HB_BACK] = {  0,9.5f,-1.5f,2.5f,7,1.5f };
+	Hitboxes[PLAYER_HB_LEFT] = { -3,9.5f,0,1.5f,7,1.5f };
+	Hitboxes[PLAYER_HB_RIGHT] = { 3,9.5f,0,1.5f,7,1.5f };
+#if SHOW_HITBOX && SHOW_PLAYER_HITBOX
 	for (int i = 0; i < PLAYER_HB_MAX; i++)
 	{
 		pVisualHitboxes[i] = new Cube3D();
@@ -490,6 +498,18 @@ void Player3D::PlayerBulletsControl()
 
 void Player3D::Draw()
 {
+#if SHOW_HITBOX && SHOW_PLAYER_HITBOX
+	GetMainLight()->SetLightEnable(false);
+	for (int i = 0; i < PLAYER_HB_MAX; i++)
+	{
+		if (!pVisualHitboxes[i])continue;
+		Box pHB = GetHitboxPlayer(i);
+		pVisualHitboxes[i]->SetScale({ pHB.SizeX, pHB.SizeY, pHB.SizeZ });
+		pVisualHitboxes[i]->SetPosition({ pHB.PositionX, pHB.PositionY, pHB.PositionZ });
+		pVisualHitboxes[i]->Draw();
+	}
+	GetMainLight()->SetLightEnable(true);
+#endif
 	if(DebugAimOn)
 		pDebugAim->Draw();
 	DrawFlowers();
@@ -506,18 +526,7 @@ void Player3D::Draw()
 		goBullets[i]->Draw();
 	}
 	pLight->SetLightEnable(true);
-#if USE_HITBOX
-	GetMainLight()->SetLightEnable(false);
-	for (int i = 0; i < PLAYER_HB_MAX; i++)
-	{
-		if (!pVisualHitboxes[i])continue;
-		Box pHB = GetHitboxPlayer(i);
-		pVisualHitboxes[i]->SetScale({ pHB.SizeX, pHB.SizeY, pHB.SizeZ });
-		pVisualHitboxes[i]->SetPosition({ pHB.PositionX, pHB.PositionY, pHB.PositionZ });
-		pVisualHitboxes[i]->Draw();
-	}
-	GetMainLight()->SetLightEnable(true);
-#endif
+
 	
 }
 
@@ -552,7 +561,7 @@ Box Player3D::GetHitboxPlayer(int hb)
 	return { Hitboxes[hb].PositionX + Position.x, Hitboxes[hb].PositionY + Position.y,Hitboxes[hb].PositionZ + Position.z, Hitboxes[hb].SizeX,Hitboxes[hb].SizeY,Hitboxes[hb].SizeZ };
 }
 
-void Player3D::SetFloor(Field3D * Floor)
+void Player3D::SetFloor(GameObject3D* Floor)
 {
 	pFloor = Floor;
 }
@@ -694,7 +703,7 @@ void Player3D::SetFlower(XMFLOAT3 Pos)
 	}
 }
 
-Field3D * Player3D::GetFloor()
+GameObject3D * Player3D::GetFloor()
 {
 	return pFloor;
 }

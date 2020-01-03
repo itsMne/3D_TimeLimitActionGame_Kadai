@@ -19,7 +19,7 @@
 #ifndef SAFE_DELETE_ARRAY
 #define SAFE_DELETE_ARRAY(x) {if(x){delete[](x);x=nullptr;}}
 #endif
-#define USE_HITBOX false
+#define SHOW_HITBOX true
 #define SCREEN_WIDTH	(1280)				// ウインドウの幅
 #define SCREEN_HEIGHT	(720)				// ウインドウの高さ
 #define SCREEN_CENTER_X	(SCREEN_WIDTH/2)	// ウインドウの中心Ｘ座標

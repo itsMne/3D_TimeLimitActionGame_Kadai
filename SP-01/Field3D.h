@@ -3,6 +3,7 @@
 #include "UniversalStructures.h"
 #include "GameObject3D.h"
 #include "Light3D.h"
+#include "Wall3D.h"
 
 class Field3D: public GameObject3D
 {
@@ -35,6 +36,7 @@ private:
 	char szTexturePath[256];
 	// index buffer, only 6 indexes
 	ID3D11Buffer* mIndexBuffer;
+	Wall3D* pWallBelow;
 public:
 	Field3D();
 	Field3D(const char* TexturePath);

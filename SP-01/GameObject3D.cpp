@@ -123,6 +123,14 @@ void GameObject3D::Update()
 
 void GameObject3D::Draw()
 {
+#if PRINT_HITBOX
+	if (pVisualHitbox) {
+		Box ThisHitbox = GetHitbox();
+		((Cube3D*)pVisualHitbox)->SetScale({ ThisHitbox.SizeX, ThisHitbox.SizeY, ThisHitbox.SizeZ });
+		((Cube3D*)pVisualHitbox)->SetPosition({ ThisHitbox.PositionX,ThisHitbox.PositionY,ThisHitbox.PositionZ });
+		((Cube3D*)pVisualHitbox)->Draw();
+	}
+#endif
 	GetDeviceContext()->RSSetState(GetMainWindow()->GetRasterizerState(1));
 	if (!bUse)
 		return;
@@ -135,7 +143,6 @@ void GameObject3D::Draw()
 	case GO_DEBUGAIM:
 		if (Model)
 			Model->DrawModel();
-		printf("a");
 		break;
 	default:
 		if (Model)
@@ -144,14 +151,7 @@ void GameObject3D::Draw()
 	}
 	
 
-#if PRINT_HITBOX
-	if (pVisualHitbox) {
-		Box ThisHitbox = GetHitbox();
-		((Cube3D*)pVisualHitbox)->SetScale({ ThisHitbox.SizeX, ThisHitbox.SizeY, ThisHitbox.SizeZ });
-		((Cube3D*)pVisualHitbox)->SetPosition({ ThisHitbox.PositionX,ThisHitbox.PositionY,ThisHitbox.PositionZ });
-		((Cube3D*)pVisualHitbox)->Draw();
-	}
-#endif
+
 }
 
 
@@ -490,6 +490,44 @@ GameObject3D * Go_List::AddField(XMFLOAT3 newPosition, XMFLOAT3 newScale, const 
 	}
 }
 
+GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale)
+{
+	return AddWall(newPosition, newScale, false, { 0,0,0 }, { 0,0,0 },0,0);
+}
+
+GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames)
+{
+	go_node* pPositionList = HeadNode;
+	if (HeadNode != nullptr) {
+		while (pPositionList->next != nullptr) {
+			pPositionList = pPositionList->next;
+		}
+		go_node* pWorkList = new go_node();
+		pWorkList->Object = new Wall3D();
+		Wall3D* thisWall = (Wall3D*)(pWorkList->Object);
+		thisWall->SetScale(newScale);
+		thisWall->SetPosition(newPosition);
+		if (Moveable)
+			thisWall->SetMovement(Start, End, Speed, DelayFrames);
+		pWorkList->next = nullptr;
+		pPositionList->next = pWorkList;
+		nObjectCount++;
+		return pWorkList->Object;
+	}
+	else {
+		HeadNode = new go_node();
+		HeadNode->Object = new Wall3D();
+		Wall3D* thisWall = (Wall3D*)(HeadNode->Object);
+		thisWall->SetScale(newScale);
+		thisWall->SetPosition(newPosition);
+		if (Moveable)
+			thisWall->SetMovement(Start, End, Speed, DelayFrames);
+		HeadNode->next = nullptr;
+		nObjectCount++;
+		return HeadNode->Object;
+	}
+}
+
 void Go_List::DeleteLastPosObject()
 {
 	if (HeadNode == nullptr)
@@ -667,6 +705,48 @@ void Go_List::SaveFields(const char * szFilename)
 	fclose(pFile);
 }
 
+void Go_List::SaveWalls(const char * szFilename)
+{
+	FILE *pFile;
+	char szFinalfilename[256] = "data/levels/";
+	strcat(szFinalfilename, szFilename);
+	strcat(szFinalfilename, ".bin");
+	if (strcmp(szFilename, "") == 0)
+	{
+		strcpy(szFinalfilename, "Default.bin");
+	}
+	pFile = fopen(szFinalfilename, "wb");
+	if (HeadNode == nullptr)
+		return;
+	go_node* pPositionList = HeadNode;
+	while (true) {
+
+		if (pPositionList == nullptr)
+			break;
+
+		if (pPositionList->Object != nullptr)
+		{
+			if (pPositionList->Object->GetType() == GO_WALL)
+			{
+				GameObjectContainer field;
+				Wall3D* thisWall = (Wall3D*)pPositionList->Object;
+				field.Pos = thisWall->GetPosition();
+				field.Scale = thisWall->GetScale();
+				field.bMoveable = thisWall->IsMoveableObject();
+				field.MoveStartPos = thisWall->GetMoveStartPosition();
+				field.MoveEndPos = thisWall->GetMoveEndPosition();
+				field.Speed = thisWall->GetMoveSpeed();
+				field.DelayFrames = thisWall->GetDelayFrames();
+				strcpy(field.texpath, thisWall->GetTexturePath());
+				fwrite(&field, sizeof(GameObjectContainer), 1, pFile);
+			}
+		}
+		pPositionList = pPositionList->next;
+	}
+	printf("SAVED OK: %s\n", szFinalfilename);
+	fclose(pFile);
+}
+
 void Go_List::Load(const char * szFilename, int nType)
 {
 	FILE *pFile;
@@ -684,6 +764,10 @@ void Go_List::Load(const char * szFilename, int nType)
 	case GO_FLOOR:
 		while ((fread(go_container, sizeof(GameObjectContainer), 1, pFile)))
 			AddField(go_container->Pos, go_container->Scale, go_container->texpath, go_container->bMoveable, go_container->MoveStartPos, go_container->MoveEndPos, go_container->Speed, go_container->DelayFrames);
+		break;
+	case GO_WALL:
+		while ((fread(go_container, sizeof(GameObjectContainer), 1, pFile)))
+			AddWall(go_container->Pos, go_container->Scale, go_container->bMoveable, go_container->MoveStartPos, go_container->MoveEndPos, go_container->Speed, go_container->DelayFrames);
 		break;
 	default:
 		break;

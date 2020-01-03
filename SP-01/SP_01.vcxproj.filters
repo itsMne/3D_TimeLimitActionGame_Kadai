@@ -98,6 +98,7 @@
       <Filter>CPPファイル\シーンCPP</Filter>
     </ClCompile>
     <ClCompile Include="DebugAim.cpp" />
+    <ClCompile Include="Wall3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -179,6 +180,7 @@
       <Filter>Hファイル\シーンH</Filter>
     </ClInclude>
     <ClInclude Include="DebugAim.h" />
+    <ClInclude Include="Wall3D.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

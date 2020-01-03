@@ -2,6 +2,7 @@
 #include "debugproc.h"
 #include "Field3D.h"
 #include "Cube3D.h"
+#include "Wall3D.h"
 #include "Billboard2D.h"
 
 
@@ -22,7 +23,9 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	g_pDevice = GetDevice();
 
 	Floors = new Go_List();
+	Walls = new Go_List();
 	Floors->Load("Level_Floors", GO_FLOOR);
+	Walls->Load("Level_Walls", GO_WALL);
 	hr = InitDebugProc();
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
@@ -32,6 +35,8 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	HelloCube = new Cube3D();
 	HelloCube->Init("data/texture/hbox.tga");
 	HelloCube->SetScale(10);
+
+	//Walls->AddWall({ 0,0,0 }, { 5,5,5 });
 }
 
 
@@ -69,6 +74,7 @@ eSceneType SceneInGame3D::Update()
 	
 	 
 	HelloCube->Update();
+	Walls->Update();
 
 	return SCENE_IN_GAME;
 }
@@ -95,7 +101,8 @@ void SceneInGame3D::Draw()
 	// フィールド描画
 	Floors->Draw();
 	SetCullMode(CULLMODE_NONE);
-	HelloCube->Draw();
+	//HelloCube->Draw();
+	Walls->Draw();
 	SetCullMode(CULLMODE_CCW);
 	// Zバッファ無効
 	SetZBuffer(false);
@@ -112,6 +119,7 @@ void SceneInGame3D::End()
 	Scene3D::End();
 	// フィールド終了処理
 	SAFE_DELETE(Floors);
+	SAFE_DELETE(Walls);
 	// モデル表示終了処理
 	SAFE_DELETE(pPlayer);
 	// デバッグ文字列表示終了処理
@@ -128,6 +136,8 @@ Go_List * SceneInGame3D::GetList(int Type)
 	{
 	case GO_FLOOR:
 		return Floors;
+	case GO_WALL:
+		return Walls;
 	default:
 		break;
 	}

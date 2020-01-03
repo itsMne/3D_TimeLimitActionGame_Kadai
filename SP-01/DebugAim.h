@@ -11,6 +11,7 @@ private:
 	XMFLOAT3 x3dAScale;
 	void* pCGame;
 	Go_List* pFloors;
+	Go_List* pWalls;
 public:
 	DebugAim();
 	~DebugAim();

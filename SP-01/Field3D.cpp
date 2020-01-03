@@ -56,11 +56,13 @@ static HRESULT MakeVertexField(ID3D11Device* pDevice);
 Field3D::Field3D() : GameObject3D(GO_FLOOR)
 {
 	pSceneLight = nullptr;
+	pWallBelow = nullptr;
 	nTextureSubDivisions = 1;
 }
 
 Field3D::Field3D(const char * TexturePath) : GameObject3D(GO_FLOOR)
 {
+	pWallBelow = nullptr;
 	pSceneLight = GetMainLight();
 	nTextureSubDivisions = 1;
 	Init(pSceneLight, TexturePath);
@@ -176,7 +178,7 @@ void Field3D::End(void)
 void Field3D::Update(void)
 {
 	GameObject3D::Update();
-	Hitbox = { 0, 0 - 5.0f, 0, Scale.x, 5, Scale.z };
+	Hitbox = { 0, 0 - 1.5f, 0, Scale.x, 1.5f, Scale.z };
 	Player3D* pPlayer = GetPlayer3D();
 	if (pPlayer)
 	{
