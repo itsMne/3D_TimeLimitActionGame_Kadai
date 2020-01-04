@@ -99,11 +99,11 @@ void SceneInGame3D::Draw()
 
 	pSkybox->Draw();
 	// フィールド描画
-	Floors->Draw();
-	SetCullMode(CULLMODE_NONE);
-	//HelloCube->Draw();
 	Walls->Draw();
+	SetCullMode(CULLMODE_NONE);
+	Floors->Draw();
 	SetCullMode(CULLMODE_CCW);
+	
 	// Zバッファ無効
 	SetZBuffer(false);
 

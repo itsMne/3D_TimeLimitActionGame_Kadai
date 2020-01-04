@@ -18,7 +18,7 @@
 #define VIEW_FAR			(1000.0f)
 #define VALUE_MOVE_CAMERA	(2.0f)	
 #define VALUE_ROTATE_CAMERA	(XM_PI*0.01f)	
-#define REGULAR_OBJECT_DISTANCE {0, 25, -122}
+#define REGULAR_OBJECT_DISTANCE {0, 25, -142}
 #define AIM_OBJECT_DISTANCE {20, 35, -40}
 #define AIM_OBJECT_DISTANCE {10, 35, -40}
 Camera3D* MainCamera = nullptr;
@@ -49,6 +49,8 @@ HRESULT Camera3D::Init()
 	g_vecCameraU = XMFLOAT3(0, 1, 0);
 	g_rotCamera = XMFLOAT3(0, 0, 0);
 	vEye = REGULAR_OBJECT_DISTANCE;
+	vEye = REGULAR_OBJECT_DISTANCE;
+	vsOffset = { 0,0,0 };
 	float fVecX, fVecZ;
 	fVecX = g_posCameraP.x - g_posCameraR.x;
 	fVecZ = g_posCameraP.z - g_posCameraR.z;
@@ -119,7 +121,15 @@ void Camera3D::Update()
 				fAcceleration = 0;
 			
 		}
+		if(!FocusPoint->GetType() == GO_PLAYER)
+			vEye = REGULAR_OBJECT_DISTANCE;
 		XMMATRIX mtxWorld = XMLoadFloat4x4(FocusPoint->GetModelWorld());
+		vEye.x += vsOffset.x;
+		vEye.y += vsOffset.y;
+		vEye.z += vsOffset.z;
+
+		vLookAt.x += vsOffset.x;
+		vLookAt.y += vsOffset.y;
 
 		//Ž‹“_
 		XMStoreFloat3(&g_posCameraP, XMVector3TransformCoord(XMLoadFloat3(&vEye), mtxWorld));
@@ -252,6 +262,16 @@ void Camera3D::SetFocalPointGO(void * newFocalPoint)
 {
 	FocalPoint = newFocalPoint;
 	bFocalPointIsGameObject = true;
+}
+
+void Camera3D::ZoomIn(float inc)
+{
+	vsOffset.z += inc;
+}
+
+void Camera3D::ResetOffset()
+{
+	vsOffset = { 0,0,0 };
 }
 
 Camera3D * GetMainCamera()

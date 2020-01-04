@@ -51,6 +51,8 @@ void UpdateInputManager()
 	bInputs[INPUT_SWITCH_DEBUGOBJALT] = GetKeyTrigger(VK_U);
 	bInputs[INPUT_SAVE_LEVEL] = GetKeyPress(VK_LCONTROL) && GetKeyTrigger(VK_S);
 	bInputs[INPUT_DEBUGAIM_DELETE] = GetKeyTrigger(VK_BACK);
+	bInputs[INPUT_DEBUGAIM_ZOOMIN] = GetKeyPress(VK_NUMPAD8);
+	bInputs[INPUT_DEBUGAIM_ZOOMOUT] = GetKeyPress(VK_NUMPAD2);
 
 	bool bUsingKeyBoard = false;
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);

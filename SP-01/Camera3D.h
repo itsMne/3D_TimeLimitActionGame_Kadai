@@ -14,6 +14,7 @@ private:
 	 XMFLOAT4X4			g_mtxView;
 	 void*				FocalPoint;
 	 XMFLOAT3			vEye;
+	 XMFLOAT3			vsOffset;
 	 float				fAcceleration;
 public:
 	Camera3D();
@@ -30,6 +31,8 @@ public:
 	XMFLOAT3 GetForwardCameraVector();
 	void SetFocalPoint(void* newFocalPoint);
 	void SetFocalPointGO(void* newFocalPoint);
+	void ZoomIn(float inc);
+	void ResetOffset();
 };
 
 Camera3D* GetMainCamera();

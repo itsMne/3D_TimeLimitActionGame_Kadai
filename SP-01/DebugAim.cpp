@@ -4,11 +4,14 @@
 #include "Light3D.h"
 #include "Wall3D.h"
 #include "Player3D.h"
+#include "Camera3D.h"
 #include "InputManager.h"
 #define DEBUGAIM_MODEL_PATH "data/model/DebugAim.fbx"
 #define DA_SPEED 1.95f
 #define ROTATION_SPEED	XM_PI*0.02f			// ‰ñ“]‘¬“x
 #define SCALE_VALUE 1
+#define ZOOM_VALUE 1
+Camera3D* MainCam = nullptr;
 enum DebugAimType
 {
 	DA_DEBUG_AIM = 0,
@@ -41,6 +44,7 @@ void DebugAim::Init()
 	nType = GO_DEBUGAIM;
 	nTypeObj = DA_DEBUG_AIM;
 	x3dAScale = { 1,1,1 };
+	MainCam = GetMainCamera();
 }
 
 void DebugAim::Update()
@@ -149,6 +153,16 @@ void DebugAim::ScaleControl()
 		x3dAScale.y = 0.1f;
 	if (x3dAScale.z <= 0)
 		x3dAScale.z = 0.1f;
+	if (!MainCam) {
+		MainCam = GetMainCamera();
+		if (!MainCam)
+			return;
+	}
+	if (GetInput(INPUT_DEBUGAIM_ZOOMIN))
+		MainCam->ZoomIn(ZOOM_VALUE);
+	if (GetInput(INPUT_DEBUGAIM_ZOOMOUT))
+		MainCam->ZoomIn(-ZOOM_VALUE);
+
 }
 
 void DebugAim::DebugAimControl()

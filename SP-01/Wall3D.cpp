@@ -1,6 +1,6 @@
 #include "Wall3D.h"
 #include "Player3D.h"
-#define MODEL_PATH "data/model/Wall.fbx"
+#define MODEL_PATH "data/model/Cube2.fbx"
 Player3D* pPlayer = nullptr;
 Wall3D::Wall3D(): GameObject3D()
 {

@@ -178,6 +178,7 @@ void Player3D::Update()
 		{
 			pMainCamera->SetFocalPointGO(this);
 			DebugAimOn = false;
+			pMainCamera->ResetOffset();
 		}
 	}
 	if (DebugAimOn)
