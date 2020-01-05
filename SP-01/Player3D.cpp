@@ -90,8 +90,8 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1},
 	{1},//SLOWWALK
 	{1},//FALLING
-	{3},//DODGEUP
-	{3},//DODGEDOWN
+	{3.5f},//DODGEUP
+	{3.5f},//DODGEDOWN
 	{1},
 	{1},
 	{1},
@@ -205,7 +205,7 @@ void Player3D::Update()
 	pDebugAim->SetPosition({ Position.x, Position.y+10, Position.z });
 	AttackInputsControl();
 	GravityControl(true);
-	if (!IsPlayerAiming())
+	if (!IsPlayerAiming() && nState != PLAYER_DODGE_UP && nState != PLAYER_DODGE_DOWN)
 	{
 		if (GetAxis(CAMERA_AXIS_VERTICAL) == 1)
 			nState = PLAYER_DODGE_UP;
@@ -247,9 +247,9 @@ void Player3D::Update()
 		break;
 	case PLAYER_DODGE_DOWN:
 		SetPlayerAnimation(DODGEDOWN);
-		if (GetAxis(CAMERA_AXIS_VERTICAL) != 0)
+		if (GetAxis(CAMERA_AXIS_VERTICAL) == -1)
 		{
-			if (Model->GetCurrentFrameOfAnimation() > 2893)
+			if (Model->GetCurrentFrameOfAnimation() > 2893 && Model->GetCurrentFrameOfAnimation() < 2900)
 				Model->SetFrameOfAnimation(2890);
 			break;
 		}
@@ -258,7 +258,7 @@ void Player3D::Update()
 		break;
 	case PLAYER_DODGE_UP:
 		SetPlayerAnimation(DODGEUP);
-		if (GetAxis(CAMERA_AXIS_VERTICAL) != 0)
+		if (GetAxis(CAMERA_AXIS_VERTICAL) == 1 && Model->GetCurrentFrameOfAnimation() < 2780)
 		{
 			if (Model->GetCurrentFrameOfAnimation() > 2775)
 				Model->SetFrameOfAnimation(2771);
@@ -327,7 +327,7 @@ void Player3D::PlayerAttackingControl()
 	{
 	case BASIC_CHAIN_A:
 		GravityControl(false);
-		AttackDistanceAcceleration = 0.5f;
+		AttackDistanceAcceleration = 0.125f;
 		if (nCurrentFrame > 430 && nCurrentFrame < 460) {
 			if (fAtkAcceleration<2.5f)
 				fAtkAcceleration += AttackDistanceAcceleration;
@@ -343,7 +343,7 @@ void Player3D::PlayerAttackingControl()
 		break;
 	case BASIC_CHAIN_B:
 		GravityControl(false);
-		AttackDistanceAcceleration = 0.5f;
+		AttackDistanceAcceleration = 0.125f;
 		if (nCurrentFrame > 576 && nCurrentFrame < 590) {
 			if (fAtkAcceleration < 4.5f)
 				fAtkAcceleration += AttackDistanceAcceleration;
@@ -359,7 +359,7 @@ void Player3D::PlayerAttackingControl()
 		break;
 	case BASIC_CHAIN_C:
 		GravityControl(false);
-		AttackDistanceAcceleration = 0.75f;
+		AttackDistanceAcceleration = 0.125f;
 		if (nCurrentFrame > 755 && nCurrentFrame < 775) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
@@ -372,7 +372,38 @@ void Player3D::PlayerAttackingControl()
 		}
 		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
-	
+		break;
+	case BASIC_CHAIN_D:
+		GravityControl(false);
+		AttackDistanceAcceleration = 0.0625f;
+		if (nCurrentFrame > 855 && nCurrentFrame < 894) {
+			if (fAtkAcceleration < 5.0f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case BASIC_CHAIN_E:
+		GravityControl(false);
+		AttackDistanceAcceleration = 0.0625f;
+		if (nCurrentFrame > 1008 && nCurrentFrame < 1018) {
+			if (fAtkAcceleration < 5.0f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	default:
 		break;
