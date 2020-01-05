@@ -25,6 +25,7 @@ public:
 	void Draw();
 	void End();
 	Go_List* GetList(int Type);
+	void SetAtkEffect(int frames);
 };
 
 SceneInGame3D* GetCurrentGame();

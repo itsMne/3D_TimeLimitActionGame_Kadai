@@ -154,6 +154,7 @@ void Enemy3D::PlayerAttackCollision()
 		return;
 	}
 	nState = ENEMY_DAMAGED;
+	GetCurrentGame()->SetAtkEffect(30);
 	XMFLOAT3 modelRot;
 	switch (pLastAttackPlaying->Animation)
 	{
@@ -168,10 +169,9 @@ void Enemy3D::PlayerAttackCollision()
 		}
 		nFaceCooldown = 0;
 		FacePlayer();
-		Position = pPlayer->GetPosition();
-		modelRot = Model->GetRotation();
-		Position.x += sinf(XM_PI + modelRot.y) * 15;
-		Position.z += cosf(XM_PI + modelRot.y) * 15;
+		modelRot = pPlayer->GetModel()->GetRotation();
+		Position.x -= sinf(XM_PI + modelRot.y) * 15;
+		Position.z -= cosf(XM_PI + modelRot.y) * 15;
 		break;
 	}
 }

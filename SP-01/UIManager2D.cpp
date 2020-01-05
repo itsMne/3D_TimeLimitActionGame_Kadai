@@ -45,6 +45,18 @@ UIObject2D::UIObject2D(int nUI_Type)
 		SetPolygonSize(768, 432);
 		SetTexture(gpTexture);
 		break;
+	case UI_ATKZOOM:
+		CreateTextureFromFile(GetDevice(), "data/texture/AtkEffect.tga", &gpTexture);
+		Position.x = 0;
+		Position.y = 0;
+		x2Frame.x = 1.0f / 1.0f;
+		x2Frame.y = 1.0f / 1.0f;
+		uv.U = 0;
+		uv.V = 0;
+		SetPolygonSize(1280, 1280);
+		SetPolygonAlpha(0.5f);
+		SetTexture(gpTexture);
+		break;
 	default:
 		break;
 	}
@@ -65,6 +77,7 @@ void UIObject2D::Init()
 	nCurrent_hearts = 1;
 	nMax_Hearts = 1;
 	pPlayer = nullptr;
+	nFramesActive = 0;
 }
 
 void UIObject2D::Update()
@@ -98,6 +111,11 @@ void UIObject2D::Update()
 		}
 		if (uv.V == 6)
 			nAnimationSpeed = 3;
+		break;
+	case UI_ATKZOOM:
+		if (nFramesActive > 0)
+			nFramesActive--;
+		Rotation.z+=20;
 		break;
 	default:
 		break;
@@ -139,6 +157,10 @@ void UIObject2D::Draw()
 		SetPolygonUV(uv.U / 8.0f, uv.V / 8.0f);
 		DrawPolygon(GetDeviceContext());
 		break;
+	case UI_ATKZOOM:
+		if (nFramesActive > 0)
+			DrawPolygon(GetDeviceContext());
+		break;
 	default:
 		DrawPolygon(GetDeviceContext());
 		break;
@@ -179,6 +201,10 @@ void UIObject2D::UIHeartDrawControl()
 void UIObject2D::End()
 {
 }
+void UIObject2D::SetActiveFrames(int Frames)
+{
+	nFramesActive=Frames;
+}
  //UIマネージャー
 InGameUI2D::InGameUI2D()
 {
@@ -194,6 +220,7 @@ void InGameUI2D::Init()
 {
 	pPlayerHealth = new UIObject2D(UI_AIM);
 	pPlayerAim = new UIObject2D(UI_HEART);
+	pAtkEffect = new UIObject2D(UI_ATKZOOM);
 }
 
 void InGameUI2D::Update()
@@ -202,6 +229,8 @@ void InGameUI2D::Update()
 		pPlayerHealth->Update();
 	if (pPlayerAim)
 		pPlayerAim->Update();
+	if (pAtkEffect)
+		pAtkEffect->Update();
 }
 
 void InGameUI2D::Draw()
@@ -210,10 +239,19 @@ void InGameUI2D::Draw()
 		pPlayerHealth->Draw();
 	if (pPlayerAim)
 		pPlayerAim->Draw();
+	if (pAtkEffect)
+		pAtkEffect->Draw();
 }
 
 void InGameUI2D::End()
 {
 	SAFE_DELETE(pPlayerHealth);
 	SAFE_DELETE(pPlayerAim);
+	SAFE_DELETE(pAtkEffect);
+}
+
+void InGameUI2D::ActivateAtkEffect(int Frames)
+{
+	if (pAtkEffect)
+		pAtkEffect->SetActiveFrames(Frames);
 }

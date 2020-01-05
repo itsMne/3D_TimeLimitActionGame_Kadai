@@ -142,6 +142,11 @@ Go_List * SceneInGame3D::GetList(int Type)
 	return nullptr;
 }
 
+void SceneInGame3D::SetAtkEffect(int frames)
+{
+	pUI->ActivateAtkEffect(frames);
+}
+
 SceneInGame3D * GetCurrentGame()
 {
 	return pCurrentGame;

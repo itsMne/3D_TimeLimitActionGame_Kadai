@@ -7,6 +7,7 @@ enum UI_TYPE
 	UI_HEART,
 	UI_AIM,
 	UI_LOGO,
+	UI_ATKZOOM,
 	UI_TYPE_MAX
 };
 class UIObject2D :
@@ -21,6 +22,7 @@ private:
 	bool bHeartActive;
 	Player3D* pPlayer;
 	UV uv;
+	int nFramesActive;
 public:
 	UIObject2D();
 	UIObject2D(int nUI_Type);
@@ -32,6 +34,7 @@ public:
 	void Draw();
 	void UIHeartDrawControl();
 	void End();
+	void SetActiveFrames(int Frames);
 };
 
 class InGameUI2D
@@ -39,6 +42,7 @@ class InGameUI2D
 private:
 	UIObject2D* pPlayerHealth;
 	UIObject2D* pPlayerAim;
+	UIObject2D* pAtkEffect;
 public:
 	InGameUI2D();
 	~InGameUI2D();
@@ -46,5 +50,6 @@ public:
 	void Update();
 	void Draw();
 	void End();
+	void ActivateAtkEffect(int Frames);
 };
 #endif
