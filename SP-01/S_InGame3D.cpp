@@ -3,13 +3,12 @@
 #include "Field3D.h"
 #include "Cube3D.h"
 #include "Wall3D.h"
+#include "Enemy3D.h"
 #include "Billboard2D.h"
 
 
 SceneInGame3D* pCurrentGame = nullptr;
-
-Cube3D* HelloCube;
-
+Enemy3D* HelloEnemy = nullptr;
 
 SceneInGame3D::SceneInGame3D() :Scene3D(true)
 {
@@ -30,13 +29,7 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
 
-	
-
-	HelloCube = new Cube3D();
-	HelloCube->Init("data/texture/hbox.tga");
-	HelloCube->SetScale(10);
-
-	//Walls->AddWall({ 0,0,0 }, { 5,5,5 });
+	HelloEnemy = new Enemy3D();
 }
 
 
@@ -72,10 +65,9 @@ eSceneType SceneInGame3D::Update()
 
 	pSkybox->Update();
 	
-	 
-	HelloCube->Update();
 	Walls->Update();
 
+	HelloEnemy->Update();
 	return SCENE_IN_GAME;
 }
 
@@ -91,19 +83,21 @@ void SceneInGame3D::Draw()
 
 	SetCullMode(CULLMODE_NONE);
 	// モデル描画
+	
 	pPlayer->Draw();
 	SetCullMode(CULLMODE_CCW);
-
+	HelloEnemy->Draw();
 	// 背面カリング (通常は表面のみ描画)
 	
+	SetCullMode(CULLMODE_NONE);
+	Walls->Draw();
+	SetCullMode(CULLMODE_CCW);
 
 	pSkybox->Draw();
 	// フィールド描画
-	Walls->Draw();
 	SetCullMode(CULLMODE_NONE);
 	Floors->Draw();
 	SetCullMode(CULLMODE_CCW);
-	
 	// Zバッファ無効
 	SetZBuffer(false);
 

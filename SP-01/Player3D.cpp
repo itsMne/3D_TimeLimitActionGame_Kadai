@@ -8,14 +8,13 @@
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
 #define INITIAL_HEALTH 3
-#define GRAVITY_FORCE  0.35f
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
 #define MAX_INPUT_TIMER 25
-#define MAX_ATTACKS 14
+#define MAX_ATTACKS 16
 #define MAX_FLOWER_TIMER 15
 #define DEBUG_ANIMATION_FRAME false
-#define SHOW_PLAYER_HITBOX false
+#define SHOW_PLAYER_HITBOX true
 Player3D* pMainPlayer3D = nullptr;
 
 enum PLAYER_ANIMATIONS
@@ -69,7 +68,9 @@ PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 	{"K"  ,  KICKA,      false, GROUND_MOVE,	  2981	},
 	{"KK" ,  KICKB,      false, GROUND_MOVE,	  3041	},
 	{"KKK",  KICKC,      true,  GROUND_MOVE,	  3102	},
-	{"K",  KICK_DOWN,      true,  AIR_MOVE,	  3176	},
+	{"AAAK",  KICKC,      true,     GROUND_MOVE,  3102	},
+	{"AAK",  SLIDEKICK,      true,  GROUND_MOVE,  3102	},
+	{"K",  KICK_DOWN,      true,  AIR_MOVE,	      3176	},
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
@@ -82,7 +83,7 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{3.25f},//BASIC_CHAIN_D
 	{3.25f},//BASIC_CHAIN_E
 	{1},//SLIDE,
-	{1},//SLIDEKICK,
+	{2.5f},//SLIDEKICK,
 	{2.2f},//AIRCOMBOA,
 	{2.3f},//AIRCOMBOB,
 	{2.3f},//AIRCOMBOC,
@@ -165,6 +166,7 @@ void Player3D::InitPlayerHitboxes()
 		Hitboxes[i] = { 0 };
 	}
 	Hitboxes[PLAYER_HB_FEET] = { 0,1.5f,0,1.5f,1.5f,1.5f };
+	Hitboxes[PLAYER_HB_ATTACK] = { 0,0,0,0,0,0 };
 	Hitboxes[PLAYER_HB_BODY] = { 0,9.5f,0,2.5f,7,2.5f };
 	Hitboxes[PLAYER_HB_HEAD] = { 0,18.5f,0,1.5f,1.5f,1.5f };
 	Hitboxes[PLAYER_HB_FRONT] = { 0,9.5f,1.5f, 2.5f,7,1.5f };
@@ -225,6 +227,7 @@ void Player3D::Update()
 		Jump(JUMP_FORCE);
 	}
 	static int NumTest = 0;
+	Hitboxes[PLAYER_HB_ATTACK] = { 0,0,0,0,0,0 };
 	switch (nState)
 	{
 	case PLAYER_IDLE_STATE:
@@ -334,6 +337,7 @@ void Player3D::PlayerAttackingControl()
 	int nCurrentFrame = Model->GetCurrentFrame();
 	static float AttackDistanceAcceleration = 0;
 	static int nCountFrame = 0;
+	float AttackHitboxDistance = 10;
 	switch (CurrentAttackPlaying->Animation)
 	{
 	case BASIC_CHAIN_A:
@@ -342,6 +346,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 430 && nCurrentFrame < 460) {
 			if (fAtkAcceleration<2.5f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -358,6 +363,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 576 && nCurrentFrame < 590) {
 			if (fAtkAcceleration < 4.5f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -374,6 +380,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 755 && nCurrentFrame < 775) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -390,6 +397,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 855 && nCurrentFrame < 894) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -406,6 +414,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 1008 && nCurrentFrame < 1018) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -422,6 +431,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 2966 && nCurrentFrame < 2973) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -438,6 +448,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 3014 && nCurrentFrame < 3030) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -454,6 +465,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 3075 && nCurrentFrame < 3088) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		}
 		else
 		{
@@ -465,6 +477,7 @@ void Player3D::PlayerAttackingControl()
 		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	case KICK_DOWN:
+		Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		if (++nCountFrame>8)
 			GravityControl(false);
 		else
@@ -483,6 +496,26 @@ void Player3D::PlayerAttackingControl()
 		}
 		//Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		//Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case AIRCOMBOA:
+		if (nCurrentFrame > 1394 && nCurrentFrame < 1412)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
+		break;
+	case AIRCOMBOB:
+		if (nCurrentFrame > 1520 && nCurrentFrame < 1538)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
+		break;
+	case AIRCOMBOC:
+		if (nCurrentFrame > 1647 && nCurrentFrame < 1664)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
+		break;
+	case AIRCOMBOD:
+		if (nCurrentFrame > 1792 && nCurrentFrame < 1806)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
+		break;
+	case AIRCOMBOE:
+		if (nCurrentFrame > 1954 && nCurrentFrame < 1973)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,4.5f,7,4.5f };
 		break;
 	default:
 		break;

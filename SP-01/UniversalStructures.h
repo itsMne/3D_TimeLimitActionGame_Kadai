@@ -20,6 +20,7 @@
 #define SAFE_DELETE_ARRAY(x) {if(x){delete[](x);x=nullptr;}}
 #endif
 #define SHOW_HITBOX true
+#define GRAVITY_FORCE  0.35f
 #define SCREEN_WIDTH	(1280)				// ウインドウの幅
 #define SCREEN_HEIGHT	(720)				// ウインドウの高さ
 #define SCREEN_CENTER_X	(SCREEN_WIDTH/2)	// ウインドウの中心Ｘ座標
@@ -53,6 +54,10 @@ typedef struct Box
 };
 
 bool IsInCollision3D(Box a, Box b);
+float GetAngle(XMFLOAT3, XMFLOAT3);
+XMFLOAT3 GetForwardVector(XMFLOAT3 Rot);
+XMFLOAT3 GetVectorDifference(XMFLOAT3 a, XMFLOAT3 b);
+XMFLOAT3 NormalizeVector(XMFLOAT3 v);
 // 頂点フォーマット( 頂点座標[3D] / 法線ベクトル / 反射光 / テクスチャ座標 )
 typedef struct {
 	XMFLOAT3 vtx;		// 頂点座標
@@ -60,3 +65,4 @@ typedef struct {
 	XMFLOAT4 diffuse;	// 拡散反射光
 	XMFLOAT2 tex;		// テクスチャ座標
 } VERTEX_3D;
+

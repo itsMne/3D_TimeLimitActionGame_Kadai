@@ -421,6 +421,18 @@ XMFLOAT3 GameObject3D::GetMoveEndPosition()
 	return x3MoveEndPos;
 }
 
+XMFLOAT3 GameObject3D::GetForward()
+{
+	return GetForwardVector(Rotation);
+}
+
+XMFLOAT3 GameObject3D::GetModelForward()
+{
+	if (!Model)
+		return{ 0,0,0 };
+	return GetForwardVector(Model->GetRotation());
+}
+
 void GameObject3D::PauseObject(int pauseFrames)
 {
 	nPauseFrames = pauseFrames;
@@ -526,6 +538,24 @@ GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Mo
 		nObjectCount++;
 		return HeadNode->Object;
 	}
+}
+
+GameObject3D * Go_List::CheckCollision(Box hb)
+{
+	if (HeadNode == nullptr)
+		return nullptr;
+	go_node* pPositionList = HeadNode;
+	while (true) {
+		if (pPositionList == nullptr)
+			break;
+		if (pPositionList->Object != nullptr)
+		{
+			if (IsInCollision3D(pPositionList->Object->GetHitbox(), hb))
+				return pPositionList->Object;
+		}
+		pPositionList = pPositionList->next;
+	}
+	return nullptr;
 }
 
 void Go_List::DeleteLastPosObject()

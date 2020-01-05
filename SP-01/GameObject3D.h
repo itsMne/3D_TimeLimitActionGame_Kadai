@@ -81,6 +81,8 @@ public:
 	bool IsMoveableObject();
 	XMFLOAT3 GetMoveStartPosition();
 	XMFLOAT3 GetMoveEndPosition();
+	XMFLOAT3 GetForward();
+	XMFLOAT3 GetModelForward();
 	void PauseObject(int pauseFrames);
 	float GetMoveSpeed();
 	int GetDelayFrames();
@@ -130,7 +132,7 @@ public:
 	//GameObject3D* AddMirror(XMFLOAT3 newPosition, XMFLOAT3 Destination, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
 	//GameObject3D* AddEnemy(XMFLOAT3 newPosition, int EnemyType);
 	//GameObject3D* AddEnemy(XMFLOAT3 newPosition, int EnemyType, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
-	//GameObject3D* CheckCollision(Hitbox3D hb);
+	GameObject3D* CheckCollision(Box hb);
 	void DeleteLastPosObject();
 	void DeleteObject(GameObject3D*);
 	void Update();

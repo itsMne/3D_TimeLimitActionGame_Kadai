@@ -212,7 +212,7 @@ void Model3D::RotateAroundY(float y)
 {
 	Rotation.y -= y;
 	if (Rotation.y < -XM_PI) {
-		Rotation.y += XM_2PI;
+		Rotation.y = XM_2PI;
 	}
 	//printf("%f\n", g_rotModel.y);
 }
