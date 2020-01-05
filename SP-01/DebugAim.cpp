@@ -4,6 +4,7 @@
 #include "Light3D.h"
 #include "Wall3D.h"
 #include "Player3D.h"
+#include "Enemy3D.h"
 #include "Camera3D.h"
 #include "InputManager.h"
 #define DEBUGAIM_MODEL_PATH "data/model/DebugAim.fbx"
@@ -17,6 +18,7 @@ enum DebugAimType
 	DA_DEBUG_AIM = 0,
 	DA_FLOOR,
 	DA_WALL,
+	DA_ENEMIES,
 	DA_MAX
 };
 
@@ -41,6 +43,7 @@ void DebugAim::Init()
 	pCGame = nullptr;
 	pFloors = nullptr;
 	pWalls = nullptr;
+	pEnemies = nullptr;
 	nType = GO_DEBUGAIM;
 	nTypeObj = DA_DEBUG_AIM;
 	x3dAScale = { 1,1,1 };
@@ -69,12 +72,16 @@ void DebugAim::Update()
 		pFloors = pGame->GetList(GO_FLOOR);
 	if (!pWalls)
 		pWalls = pGame->GetList(GO_WALL);
+	if (!pEnemies)
+		pEnemies = pGame->GetList(GO_ENEMY);
 	if (GetInput(INPUT_SAVE_LEVEL))
 	{
 		if(pFloors)
 			pFloors->SaveFields("Level_Floors");		
 		if(pWalls)
 			pWalls->SaveWalls("Level_Walls");
+		if (pEnemies)
+			pEnemies->SaveEnemies("Level_Enemies");
 	}
 	if (GetInput(INPUT_SWITCH_DEBUGOBJ)) {
 		nTypeObj++;
@@ -124,6 +131,19 @@ void DebugAim::Update()
 				pWalls->AddWall(Position, x3dAScale);
 			if (pWalls && GetInput(INPUT_DEBUGAIM_DELETE))
 				pWalls->DeleteLastPosObject();
+		}
+		break;
+	case DA_ENEMIES:
+		if (!DA_Obj)
+		{
+			DA_Obj = new Enemy3D();
+		}
+		else {
+			DA_Obj->SetPosition(Position);
+			if (pEnemies && GetInput(INPUT_DEBUG_CONFIRM))
+				pEnemies->AddEnemy(Position);
+			if (pEnemies && GetInput(INPUT_DEBUGAIM_DELETE))
+				pEnemies->DeleteLastPosObject();
 		}
 		break;
 	default:

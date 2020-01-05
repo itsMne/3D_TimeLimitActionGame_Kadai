@@ -8,7 +8,6 @@
 
 
 SceneInGame3D* pCurrentGame = nullptr;
-Enemy3D* HelloEnemy = nullptr;
 
 SceneInGame3D::SceneInGame3D() :Scene3D(true)
 {
@@ -23,13 +22,15 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 
 	Floors = new Go_List();
 	Walls = new Go_List();
+	Enemies = new Go_List();
 	Floors->Load("Level_Floors", GO_FLOOR);
 	Walls->Load("Level_Walls", GO_WALL);
+	Enemies->Load("Level_Enemies", GO_ENEMY);
 	hr = InitDebugProc();
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
 
-	HelloEnemy = new Enemy3D();
+	//Enemies->AddEnemy({ 0,0,0 });
 }
 
 
@@ -67,7 +68,7 @@ eSceneType SceneInGame3D::Update()
 	
 	Walls->Update();
 
-	HelloEnemy->Update();
+	Enemies->Update();
 	return SCENE_IN_GAME;
 }
 
@@ -85,8 +86,9 @@ void SceneInGame3D::Draw()
 	// ƒ‚ƒfƒ‹•`‰æ
 	
 	pPlayer->Draw();
+	Enemies->Draw();
 	SetCullMode(CULLMODE_CCW);
-	HelloEnemy->Draw();
+	
 	// ”w–ÊƒJƒŠƒ“ƒO (’Êí‚Í•\–Ê‚Ì‚İ•`‰æ)
 	
 	SetCullMode(CULLMODE_NONE);
@@ -132,6 +134,8 @@ Go_List * SceneInGame3D::GetList(int Type)
 		return Floors;
 	case GO_WALL:
 		return Walls;
+	case GO_ENEMY:
+		return Enemies;
 	default:
 		break;
 	}

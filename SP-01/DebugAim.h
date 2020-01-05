@@ -12,6 +12,7 @@ private:
 	void* pCGame;
 	Go_List* pFloors;
 	Go_List* pWalls;
+	Go_List* pEnemies;
 public:
 	DebugAim();
 	~DebugAim();

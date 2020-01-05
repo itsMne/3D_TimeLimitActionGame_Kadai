@@ -68,7 +68,7 @@ private:
 	float fAtkAcceleration;
 	char szInputs[MAX_PLAYER_INPUT + 1];
 	int nInputTimer;
-	PLAYER_ATTACK_MOVE* CurrentAttackPlaying;
+	PLAYER_ATTACK_MOVE* pCurrentAttackPlaying;
 	Billboard2D* FlowersTemp[MAX_FLOWERS];
 	ID3D11ShaderResourceView* pFlowerTexture;
 	DebugAim* pDebugAim;
@@ -110,6 +110,7 @@ public:
 	void SetFlower(XMFLOAT3 Pos);
 	float GetYForce();
 	GameObject3D* GetFloor();
+	PLAYER_ATTACK_MOVE* GetCurrentAttack();
 };
 
 Player3D*  GetPlayer3D();

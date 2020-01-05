@@ -13,6 +13,7 @@ enum eGameObjectTypes
 	GO_DEBUGAIM,
 	GO_CUBE,
 	GO_WALL,
+	GO_ENEMY,
 	GO_MAX
 };
 class GameObject3D
@@ -83,6 +84,7 @@ public:
 	XMFLOAT3 GetMoveEndPosition();
 	XMFLOAT3 GetForward();
 	XMFLOAT3 GetModelForward();
+	bool MoveTowardPos(XMFLOAT3 Destination, float Speed);
 	void PauseObject(int pauseFrames);
 	float GetMoveSpeed();
 	int GetDelayFrames();
@@ -130,8 +132,8 @@ public:
 	//GameObject3D* AddMisc(XMFLOAT3 newPosition, int nType, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
 	//GameObject3D* AddMirror(XMFLOAT3 newPosition, XMFLOAT3 Destination);
 	//GameObject3D* AddMirror(XMFLOAT3 newPosition, XMFLOAT3 Destination, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
-	//GameObject3D* AddEnemy(XMFLOAT3 newPosition, int EnemyType);
-	//GameObject3D* AddEnemy(XMFLOAT3 newPosition, int EnemyType, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End);
+	GameObject3D* AddEnemy(XMFLOAT3 newPosition);
+	GameObject3D* AddEnemy(XMFLOAT3 newPosition, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames);
 	GameObject3D* CheckCollision(Box hb);
 	void DeleteLastPosObject();
 	void DeleteObject(GameObject3D*);
@@ -140,6 +142,7 @@ public:
 	void End();
 	void SaveFields(const char* szFilename);
 	void SaveWalls(const char* szFilename);
+	void SaveEnemies(const char* szFilename);
 	//void SaveItems(const char* szFilename);
 	//void SaveSpikes(const char* szFilename);
 	//void SaveMisc(const char* szFilename);

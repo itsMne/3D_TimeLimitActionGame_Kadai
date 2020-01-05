@@ -1,5 +1,6 @@
 #include "GameObject3D.h"
 #include "Cube3D.h"
+#include "Enemy3D.h"
 #include "Field3D.h"
 #include "Player3D.h"
 #define BULLET_SPEED 30
@@ -433,6 +434,52 @@ XMFLOAT3 GameObject3D::GetModelForward()
 	return GetForwardVector(Model->GetRotation());
 }
 
+bool GameObject3D::MoveTowardPos(XMFLOAT3 Destination, float Speed)
+{
+	if (Position.x < Destination.x)
+	{
+		Position.x += Speed;
+		if (Position.x > Destination.x)
+			Position.x = Destination.x;
+	}
+
+	if (Position.x > Destination.x)
+	{
+		Position.x -= Speed;
+		if (Position.x < Destination.x)
+			Position.x = Destination.x;
+	}
+
+	if (Position.y < Destination.y)
+	{
+		Position.y += Speed;
+		if (Position.y > Destination.y)
+			Position.y = Destination.y;
+	}
+
+	if (Position.y > Destination.y)
+	{
+		Position.y -= Speed;
+		if (Position.y < Destination.y)
+			Position.y = Destination.y;
+	}
+
+	if (Position.z < Destination.z)
+	{
+		Position.z += Speed;
+		if (Position.z > Destination.z)
+			Position.z = Destination.z;
+	}
+
+	if (Position.z > Destination.z)
+	{
+		Position.z -= Speed;
+		if (Position.z < Destination.z)
+			Position.z = Destination.z;
+	}
+	return Position.z == Destination.z && Position.y == Destination.y && Position.x == Destination.x;
+}
+
 void GameObject3D::PauseObject(int pauseFrames)
 {
 	nPauseFrames = pauseFrames;
@@ -531,6 +578,42 @@ GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Mo
 		HeadNode->Object = new Wall3D();
 		Wall3D* thisWall = (Wall3D*)(HeadNode->Object);
 		thisWall->SetScale(newScale);
+		thisWall->SetPosition(newPosition);
+		if (Moveable)
+			thisWall->SetMovement(Start, End, Speed, DelayFrames);
+		HeadNode->next = nullptr;
+		nObjectCount++;
+		return HeadNode->Object;
+	}
+}
+
+GameObject3D * Go_List::AddEnemy(XMFLOAT3 newPosition)
+{
+	return AddEnemy(newPosition,false, { 0,0,0 }, { 0,0,0 }, 0, 0);
+}
+
+GameObject3D * Go_List::AddEnemy(XMFLOAT3 newPosition, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames)
+{
+	go_node* pPositionList = HeadNode;
+	if (HeadNode != nullptr) {
+		while (pPositionList->next != nullptr) {
+			pPositionList = pPositionList->next;
+		}
+		go_node* pWorkList = new go_node();
+		pWorkList->Object = new Enemy3D();
+		Enemy3D* thisWall = (Enemy3D*)(pWorkList->Object);
+		thisWall->SetPosition(newPosition);
+		if (Moveable)
+			thisWall->SetMovement(Start, End, Speed, DelayFrames);
+		pWorkList->next = nullptr;
+		pPositionList->next = pWorkList;
+		nObjectCount++;
+		return pWorkList->Object;
+	}
+	else {
+		HeadNode = new go_node();
+		HeadNode->Object = new Enemy3D();
+		Enemy3D* thisWall = (Enemy3D*)(HeadNode->Object);
 		thisWall->SetPosition(newPosition);
 		if (Moveable)
 			thisWall->SetMovement(Start, End, Speed, DelayFrames);
@@ -777,6 +860,48 @@ void Go_List::SaveWalls(const char * szFilename)
 	fclose(pFile);
 }
 
+void Go_List::SaveEnemies(const char * szFilename)
+{
+	FILE *pFile;
+	char szFinalfilename[256] = "data/levels/";
+	strcat(szFinalfilename, szFilename);
+	strcat(szFinalfilename, ".bin");
+	if (strcmp(szFilename, "") == 0)
+	{
+		strcpy(szFinalfilename, "Default.bin");
+	}
+	pFile = fopen(szFinalfilename, "wb");
+	if (HeadNode == nullptr)
+		return;
+	go_node* pPositionList = HeadNode;
+	while (true) {
+
+		if (pPositionList == nullptr)
+			break;
+
+		if (pPositionList->Object != nullptr)
+		{
+			if (pPositionList->Object->GetType() == GO_ENEMY)
+			{
+				GameObjectContainer field;
+				Enemy3D* thisWall = (Enemy3D*)pPositionList->Object;
+				field.Pos = thisWall->GetPosition();
+				field.Scale = thisWall->GetScale();
+				field.bMoveable = thisWall->IsMoveableObject();
+				field.MoveStartPos = thisWall->GetMoveStartPosition();
+				field.MoveEndPos = thisWall->GetMoveEndPosition();
+				field.Speed = thisWall->GetMoveSpeed();
+				field.DelayFrames = thisWall->GetDelayFrames();
+				strcpy(field.texpath, "nt");
+				fwrite(&field, sizeof(GameObjectContainer), 1, pFile);
+			}
+		}
+		pPositionList = pPositionList->next;
+	}
+	printf("SAVED OK: %s\n", szFinalfilename);
+	fclose(pFile);
+}
+
 void Go_List::Load(const char * szFilename, int nType)
 {
 	FILE *pFile;
@@ -798,6 +923,10 @@ void Go_List::Load(const char * szFilename, int nType)
 	case GO_WALL:
 		while ((fread(go_container, sizeof(GameObjectContainer), 1, pFile)))
 			AddWall(go_container->Pos, go_container->Scale, go_container->bMoveable, go_container->MoveStartPos, go_container->MoveEndPos, go_container->Speed, go_container->DelayFrames);
+		break;
+	case GO_ENEMY:
+		while ((fread(go_container, sizeof(GameObjectContainer), 1, pFile)))
+			AddEnemy(go_container->Pos, go_container->bMoveable, go_container->MoveStartPos, go_container->MoveEndPos, go_container->Speed, go_container->DelayFrames);
 		break;
 	default:
 		break;

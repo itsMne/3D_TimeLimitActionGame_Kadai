@@ -16,6 +16,7 @@ private:
 	Sphere3D* pSkybox;
 	Go_List* Floors;
 	Go_List* Walls;
+	Go_List* Enemies;
 public:
 	SceneInGame3D();
 	~SceneInGame3D();
