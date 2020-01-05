@@ -37,7 +37,8 @@ void UpdateInputManager()
 	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || GetKeyPress(VK_J) ||
 							(bXinputConnected && Player1->GetState().Gamepad.bRightTrigger>0);
 
-	bInputs[INPUT_ATTACK] = GetMouseTrigger(MOUSEBUTTON_L) || GetKeyTrigger(VK_I) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_ATTACK]);
+	bInputs[INPUT_SWORD] = GetMouseTrigger(MOUSEBUTTON_L) || GetKeyTrigger(VK_I) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_SWORD]);
+	bInputs[INPUT_KICK] = GetMouseTrigger(MOUSEBUTTON_M) || GetKeyTrigger(VK_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B && !bHoldingXinput[INPUT_KICK]);
 
 	bInputs[INPUT_DEBUG_AIM_ON] = GetKeyTrigger(VK_1);
 	bInputs[INPUT_DEBUG_CONFIRM] = GetKeyTrigger(VK_2);
@@ -140,12 +141,14 @@ void VibrateXinput(float vivbrationL, float VibrationR)
 void XinputTriggerControl(bool BeforeInputs)
 {
 	if (BeforeInputs) {
-		if (bHoldingXinput[INPUT_ATTACK] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y)) bHoldingXinput[INPUT_ATTACK] = false;
+		if (bHoldingXinput[INPUT_SWORD] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y)) bHoldingXinput[INPUT_SWORD] = false;
+		if (bHoldingXinput[INPUT_KICK] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) bHoldingXinput[INPUT_SWORD] = false;
 		if (bHoldingXinput[INPUT_JUMP] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)) bHoldingXinput[INPUT_JUMP] = false;
 
 	}
 	else {
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y) bHoldingXinput[INPUT_ATTACK] = true;
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y) bHoldingXinput[INPUT_SWORD] = true;
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B) bHoldingXinput[INPUT_KICK] = true;
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A) bHoldingXinput[INPUT_JUMP] = true;
 	}
 }

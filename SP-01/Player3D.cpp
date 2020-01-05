@@ -12,7 +12,7 @@
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
 #define MAX_INPUT_TIMER 25
-#define MAX_ATTACKS 10
+#define MAX_ATTACKS 14
 #define MAX_FLOWER_TIMER 15
 #define DEBUG_ANIMATION_FRAME false
 #define SHOW_PLAYER_HITBOX false
@@ -65,6 +65,11 @@ PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 	{"AAA",	 AIRCOMBOC,       false, AIR_MOVE,	  1669	},
 	{"AAAA", AIRCOMBOD,       false, AIR_MOVE,	  1820	},
 	{"AAAAA",AIRCOMBOE,       true, AIR_MOVE,	  2000	},
+
+	{"K"  ,  KICKA,      false, GROUND_MOVE,	  2981	},
+	{"KK" ,  KICKB,      false, GROUND_MOVE,	  3041	},
+	{"KKK",  KICKC,      true,  GROUND_MOVE,	  3102	},
+	{"K",  KICK_DOWN,      true,  AIR_MOVE,	  3176	},
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
@@ -92,10 +97,10 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1},//FALLING
 	{3.5f},//DODGEUP
 	{3.5f},//DODGEDOWN
-	{1},
-	{1},
-	{1},
-	{1},
+	{0.85f},//KICK
+	{0.85f},//KICK
+	{0.85f},//KICK
+	{1},//KICKDOWN
 	{1},
 	{1},
 };
@@ -307,10 +312,16 @@ void Player3D::AttackInputsControl()
 		}
 	}
 
-	if (GetInput(INPUT_ATTACK) && !IsPlayerAiming())
+	if (GetInput(INPUT_SWORD) && !IsPlayerAiming())
 	{
 		nInputTimer = 0;
 		AddInput('A');
+		Attack(szInputs);
+	}
+	if (GetInput(INPUT_KICK) && !IsPlayerAiming())
+	{
+		nInputTimer = 0;
+		AddInput('K');
 		Attack(szInputs);
 	}
 }
@@ -322,7 +333,7 @@ void Player3D::PlayerAttackingControl()
 	SetPlayerAnimation(CurrentAttackPlaying->Animation);
 	int nCurrentFrame = Model->GetCurrentFrame();
 	static float AttackDistanceAcceleration = 0;
-	
+	static int nCountFrame = 0;
 	switch (CurrentAttackPlaying->Animation)
 	{
 	case BASIC_CHAIN_A:
@@ -404,6 +415,74 @@ void Player3D::PlayerAttackingControl()
 		}
 		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case KICKA:
+		GravityControl(false);
+		AttackDistanceAcceleration = 0.125f;
+		if (nCurrentFrame > 2966 && nCurrentFrame < 2973) {
+			if (fAtkAcceleration < 5.0f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case KICKB:
+		GravityControl(false);
+		AttackDistanceAcceleration = 0.0625f;
+		if (nCurrentFrame > 3014 && nCurrentFrame < 3030) {
+			if (fAtkAcceleration < 5.0f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case KICKC:
+		GravityControl(false);
+		AttackDistanceAcceleration = 0.125f;
+		if (nCurrentFrame > 3075 && nCurrentFrame < 3088) {
+			if (fAtkAcceleration < 5.0f)
+				fAtkAcceleration += AttackDistanceAcceleration;
+		}
+		else
+		{
+			if (fAtkAcceleration > 0)
+				fAtkAcceleration -= AttackDistanceAcceleration;
+			AttackDistanceAcceleration = 0;
+		}
+		Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		break;
+	case KICK_DOWN:
+		if (++nCountFrame>8)
+			GravityControl(false);
+		else
+			fY_force = JUMP_FORCE;
+		AttackDistanceAcceleration = 0.125f;
+		if (nCurrentFrame > 3166) {
+			Model->SetFrameOfAnimation(3116);
+		}
+		if (pFloor)
+		{
+			CurrentAttackPlaying = nullptr;
+			nState = PLAYER_IDLE_STATE;
+			nCountFrame = 0;
+			Update();
+			return;
+		}
+		//Position.x -= sinf(XM_PI + ModelRot.y) * fAtkAcceleration;
+		//Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	default:
 		break;
