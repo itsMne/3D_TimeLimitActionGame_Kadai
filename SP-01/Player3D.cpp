@@ -42,6 +42,14 @@ enum PLAYER_ANIMATIONS
 	AIR_STAB_BLOCK,
 	SLOWWALK,
 	FALLING,
+	DODGEUP,
+	DODGEDOWN,
+	KICKA,
+	KICKB,
+	KICKC,
+	KICK_DOWN,
+	DAMAGEA,
+	DAMAGEB,
 	MAX_ANIMATIONS
 };
 
@@ -381,10 +389,15 @@ void Player3D::GravityControl(bool bCountAttackState)
 
 void Player3D::PlayerCameraControl()
 {
-	if (GetAxis(CAMERA_AXIS_HORIZONTAL) != 0)
-		RotateAroundY(-ROTATION_SPEED * GetAxis(CAMERA_AXIS_HORIZONTAL));
-	if (GetAxis(CAMERA_AXIS_VERTICAL) != 0)
+	if (GetAxis(CAMERA_AXIS_HORIZONTAL) != 0)RotateAroundY(-ROTATION_SPEED * GetAxis(CAMERA_AXIS_HORIZONTAL));
+	if (GetAxis(CAMERA_AXIS_VERTICAL) != 0 && IsPlayerAiming())
+	{
 		RotateAroundX(ROTATION_SPEED * GetAxis(CAMERA_AXIS_VERTICAL));
+		if (Rotation.x > 0.816814f)
+			Rotation.x = 0.816814f;
+		if (Rotation.x < -0.628319f)
+			Rotation.x = -0.628319f;
+	}
 
 }
 
