@@ -25,6 +25,7 @@ Model3D::Model3D(void* pParent, const char*ModelPath)
 	GameObjectParent = nullptr;
 	GameObjectParent = pParent;
 	InitModel(ModelPath);
+	bLoop = true;
 }
 
 
@@ -162,7 +163,8 @@ void Model3D::AnimationControl()
 		if (fFrame >= g_pModel->GetMaxAnimFrame()) {
 			if (++nCountLoop > MAX_LOOPS)
 				nCountLoop = MAX_LOOPS;
-			fFrame = g_pModel->GetInitialAnimFrame();
+			if(bLoop)
+				fFrame = g_pModel->GetInitialAnimFrame();
 		}
 		g_pModel->SetAnimFrame((int)fFrame);
 	}
@@ -275,5 +277,15 @@ int Model3D::GetCurrentFrame()
 int Model3D::GetLoops()
 {
 	return nCountLoop;
+}
+
+void Model3D::SetFrameOfAnimation(float Frame)
+{
+	fFrame=Frame;
+}
+
+void Model3D::SetLoop(bool loopable)
+{
+	bLoop = loopable;
 }
 

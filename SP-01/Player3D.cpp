@@ -15,7 +15,7 @@
 #define MAX_ATTACKS 10
 #define MAX_FLOWER_TIMER 15
 #define DEBUG_ANIMATION_FRAME false
-#define SHOW_PLAYER_HITBOX true
+#define SHOW_PLAYER_HITBOX false
 Player3D* pMainPlayer3D = nullptr;
 
 enum PLAYER_ANIMATIONS
@@ -90,6 +90,14 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1},
 	{1},//SLOWWALK
 	{1},//FALLING
+	{3},//DODGEUP
+	{3},//DODGEDOWN
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
+	{1},
 };
 
 Player3D::Player3D() :GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
@@ -197,7 +205,13 @@ void Player3D::Update()
 	pDebugAim->SetPosition({ Position.x, Position.y+10, Position.z });
 	AttackInputsControl();
 	GravityControl(true);
-
+	if (!IsPlayerAiming())
+	{
+		if (GetAxis(CAMERA_AXIS_VERTICAL) == 1)
+			nState = PLAYER_DODGE_UP;
+		if (GetAxis(CAMERA_AXIS_VERTICAL) == -1)
+			nState = PLAYER_DODGE_DOWN;
+	}
 	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
 	{
 		while (IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET)))
@@ -230,6 +244,28 @@ void Player3D::Update()
 			break;
 		}
 		PlayerAttackingControl();
+		break;
+	case PLAYER_DODGE_DOWN:
+		SetPlayerAnimation(DODGEDOWN);
+		if (GetAxis(CAMERA_AXIS_VERTICAL) != 0)
+		{
+			if (Model->GetCurrentFrameOfAnimation() > 2893)
+				Model->SetFrameOfAnimation(2890);
+			break;
+		}
+		if(Model->GetLoops() > 0)
+			nState = PLAYER_IDLE_STATE;
+		break;
+	case PLAYER_DODGE_UP:
+		SetPlayerAnimation(DODGEUP);
+		if (GetAxis(CAMERA_AXIS_VERTICAL) != 0)
+		{
+			if (Model->GetCurrentFrameOfAnimation() > 2775)
+				Model->SetFrameOfAnimation(2771);
+			break;
+		}
+		if (Model->GetLoops() > 0)
+			nState = PLAYER_IDLE_STATE;
 		break;
 	default:
 		break;
@@ -715,6 +751,11 @@ void Player3D::SetFlower(XMFLOAT3 Pos)
 			}
 		}
 	}
+}
+
+float Player3D::GetYForce()
+{
+	return fY_force;
 }
 
 GameObject3D * Player3D::GetFloor()

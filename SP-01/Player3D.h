@@ -24,6 +24,8 @@ enum EPLAYER_HITBOXES
 	PLAYER_HB_BACK,
 	PLAYER_HB_LEFT,
 	PLAYER_HB_RIGHT,
+	PLAYER_DODGE_DOWN,
+	PLAYER_DODGE_UP,
 	PLAYER_HB_MAX
 };
 enum AirMove
@@ -105,7 +107,7 @@ public:
 	void UpdateFlowers();
 	void DrawFlowers();
 	void SetFlower(XMFLOAT3 Pos);
-	
+	float GetYForce();
 	GameObject3D* GetFloor();
 };
 

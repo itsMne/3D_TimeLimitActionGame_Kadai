@@ -22,6 +22,7 @@ private:
 	void* GameObjectParent;
 	Light3D* pLight;
 	int nCountLoop;
+	bool bLoop;
 public:
 	Model3D(void* Parent, const char*ModelPath);
 	~Model3D();
@@ -50,5 +51,7 @@ public:
 	int GetEndFrameOfCurrentAnimation();
 	int GetCurrentFrame();
 	int GetLoops();
+	void SetFrameOfAnimation(float Frame);
+	void SetLoop(bool loopable);
 };
 #endif
