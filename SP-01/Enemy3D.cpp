@@ -3,12 +3,14 @@
 #include "UniversalStructures.h"
 #define MODEL_PATH "data/model/Enemy.fbx"
 #define MAX_GRAVITY_FORCE 5.5f
+#define ATTACK_HIT_DAMAGE 1
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
 	ENEMY_MOVING,
 	ENEMY_ATTACKING_UP,
 	ENEMY_ATTACKING_DOWN,
+	ENEMY_DIZZY_STATE,
 	ENEMY_DAMAGED
 };
 enum ENEMY_ANIMATIONS
@@ -23,19 +25,21 @@ enum ENEMY_ANIMATIONS
 	FALLDAMAGE_ANIM,
 	DEAD_ANIM,
 	SENDOFF_ANIM,
+	DIZZY,
 	MAX_ANIM
 };
 float nEnemyAnimationSpeed[MAX_ANIM] = {
 	1,//IDLE_ANIM,
-	2.5f,//ATTACKA_ANIM,
-	2.5f,//ATTACKB_ANIM,
+	2.75f,//ATTACKA_ANIM,
+	2.75f,//ATTACKB_ANIM,
 	1,//DASHING_ANIM,
 	5,//DAMAGEDA_ANIM,
 	5,//DAMAGEDB_ANIM,
 	1,//DAMAGEDUP_ANIM,
 	1,//FALLDAMAGE_ANIM
 	1,//DEAD_ANIM,
-	1 //SENDOFF_ANIM,
+	1, //SENDOFF_ANIM,
+	3,//DIZZY
 };		
 SceneInGame3D* pGame = nullptr;
 Enemy3D::Enemy3D(): GameObject3D(GO_ENEMY)
@@ -52,6 +56,9 @@ Enemy3D::~Enemy3D()
 
 void Enemy3D::Init()
 {
+	Position = { 0,0,0 };
+	Scale = { 1,1,1 };
+	Rotation = { 0,0,0 };
 	pGameFloors = nullptr;
 	pLastAttackPlaying = nullptr;
 	pPlayerPointer = nullptr;
@@ -63,6 +70,8 @@ void Enemy3D::Init()
 	nFaceCooldown = 0;
 	nIdleFramesCount=nIdleFramesWait = 60;
 	fSpeed = 1;
+	fY_force = 0;
+	nSendOffFrames = 0;
 	//fSpeed = 0;//del
 	bSetDamageA = true;
 }
@@ -76,6 +85,7 @@ void Enemy3D::Update()
 		if (!pGame)
 			return;	
 	}
+	printf("%f\n", Scale.z);
 	if (!pPlayerPointer)
 		pPlayerPointer = GetPlayer3D();
 	if (!pGameFloors)
@@ -84,6 +94,8 @@ void Enemy3D::Update()
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
 	XMFLOAT3 xm3PlayerRotation = pPlayer->GetRotation();
 	XMFLOAT3 xm3PlayerPosition = pPlayer->GetRotation();
+	float AttackHitboxDistance;
+	int nAttackFrame = 0;
 	if (nState != ENEMY_IDLE)
 		nIdleFramesCount = 0;
 	int atkState=0;
@@ -110,12 +122,46 @@ void Enemy3D::Update()
 	case ENEMY_ATTACKING_UP:
 		FacePlayer();
 		SetEnemyAnimation(ATTACKA_ANIM);
+		AttackHitboxDistance = 10;
+		hbAttackHitbox = { Position.x-sinf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,Position.y+9.5f,Position.z-cosf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,7.5f,7,12.5f };
+		nAttackFrame = Model->GetCurrentFrame();
+		if (nAttackFrame > 450 && nAttackFrame < 486) {
+			if (IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_BODY), hbAttackHitbox))
+			{
+				if (pPlayer->GetState() == PLAYER_DODGE_DOWN)
+				{
+					if(nAttackFrame > 478)
+						nState = ENEMY_DIZZY_STATE;
+				}
+				else
+				{
+					pPlayer->SetDamage(ATTACK_HIT_DAMAGE);
+				}
+			}
+		}
 		if (Model->GetLoops() > 0)
 			nState = ENEMY_IDLE;
 		break;
 	case ENEMY_ATTACKING_DOWN:
 		FacePlayer();
 		SetEnemyAnimation(ATTACKB_ANIM);
+		AttackHitboxDistance = 10;
+		hbAttackHitbox = { Position.x - sinf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,Position.y + 9.5f,Position.z - cosf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,7.5f,7,12.5f };
+		nAttackFrame = Model->GetCurrentFrame();
+		if (nAttackFrame > 716 && nAttackFrame < 740) {
+			if (IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_BODY), hbAttackHitbox))
+			{
+				if (pPlayer->GetState() == PLAYER_DODGE_UP)
+				{
+					if (nAttackFrame > 729)
+						nState = ENEMY_DIZZY_STATE;
+				}
+				else
+				{
+					pPlayer->SetDamage(ATTACK_HIT_DAMAGE);
+				}
+			}
+		}
 		if (Model->GetLoops() > 0)
 			nState = ENEMY_IDLE;
 		break;
@@ -125,6 +171,9 @@ void Enemy3D::Update()
 			nState = ENEMY_IDLE;
 			pLastAttackPlaying = nullptr;
 		}
+		break;
+	case ENEMY_DIZZY_STATE:
+		SetEnemyAnimation(DIZZY);
 		break;
 	default:
 		break;
@@ -149,6 +198,7 @@ void Enemy3D::PlayerAttackCollision()
 				return;
 		}
 		pLastAttackPlaying = pCurrentAtk;
+		pPlayer->LockModelToObject(this);
 	}
 	else {
 		return;
@@ -158,6 +208,21 @@ void Enemy3D::PlayerAttackCollision()
 	XMFLOAT3 modelRot;
 	switch (pLastAttackPlaying->Animation)
 	{
+	case BASIC_CHAIN_E:
+		if (bSetDamageA) {
+			SetEnemyAnimation(DAMAGEDA_ANIM);
+			bSetDamageA = false;
+		}
+		else {
+			SetEnemyAnimation(DAMAGEDB_ANIM);
+			bSetDamageA = true;
+		}
+		nFaceCooldown = 0;
+		FacePlayer();
+		modelRot = pPlayer->GetModel()->GetRotation();
+		Position.x -= sinf(XM_PI + modelRot.y) * 5;
+		Position.z -= cosf(XM_PI + modelRot.y) * 5;
+		break;
 	default:
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -170,8 +235,8 @@ void Enemy3D::PlayerAttackCollision()
 		nFaceCooldown = 0;
 		FacePlayer();
 		modelRot = pPlayer->GetModel()->GetRotation();
-		Position.x -= sinf(XM_PI + modelRot.y) * 15;
-		Position.z -= cosf(XM_PI + modelRot.y) * 15;
+		Position.x -= sinf(XM_PI + modelRot.y) * 5;
+		Position.z -= cosf(XM_PI + modelRot.y) * 5;
 		break;
 	}
 }
@@ -290,4 +355,30 @@ void Enemy3D::GravityControl()
 	if (fY_force > MAX_GRAVITY_FORCE)
 		fY_force = MAX_GRAVITY_FORCE;
 	Position.y -= fY_force;
+}
+
+void Enemy3D::LockEnemyToObject(GameObject3D * lock)
+{
+	if (!lock)
+		return;
+	XMFLOAT3 a;
+	XMFLOAT3 calc = GetVectorDifference(lock->GetPosition(), Position);
+	a.x = sin(GetRotation().y);
+	a.y = sin(GetRotation().x);
+	a.z = cos(GetRotation().y);
+	XMFLOAT3 b = NormalizeVector(calc);
+	XMVECTOR dot = XMVector3Dot(XMLoadFloat3(&a), XMLoadFloat3(&b));
+
+
+	float rotationAngle = (float)acos(XMVectorGetX(dot));
+	rotationAngle = ceilf(rotationAngle * 10) / 10;
+	Rotation.y = -rotationAngle;
+	if (lock->GetPosition().x < Position.x) {
+		Rotation.y = rotationAngle;
+		//Rotation = Model->GetRotation();
+	}
+	else {
+		Rotation.y = -rotationAngle;
+		//Rotation = Model->GetRotation();
+	}
 }

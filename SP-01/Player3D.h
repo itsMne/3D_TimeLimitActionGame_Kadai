@@ -8,6 +8,43 @@
 #define MAX_BULLETS 40
 #define MAX_PLAYER_INPUT 8
 #define	MAX_FLOWERS	20
+
+enum PLAYER_ANIMATIONS
+{
+	ANIMATION_IDLE = 0,//ƒAƒCƒhƒ‹
+	ANIMATION_WALKING,//“®‚­ 
+	ANIMATION_AIMING,//‘_‚¤
+	BASIC_CHAIN_A,
+	BASIC_CHAIN_B,
+	BASIC_CHAIN_C,
+	BASIC_CHAIN_D,
+	BASIC_CHAIN_E,
+	SLIDE,
+	SLIDEKICK,
+	AIRCOMBOA,
+	AIRCOMBOB,
+	AIRCOMBOC,
+	AIRCOMBOD,
+	AIRCOMBOE,
+	JUMP,
+	AIR_IDLE,
+	ROULETTE,
+	STAB_BLOCK,
+	AIR_STAB_BLOCK,
+	SLOWWALK,
+	FALLING,
+	DODGEUP,
+	DODGEDOWN,
+	KICKA,
+	KICKB,
+	KICKC,
+	KICK_DOWN,
+	DAMAGEA,
+	DAMAGEB,
+	DAMAGEC,
+	MAX_ANIMATIONS
+};
+
 enum EPLAYER_STATE
 {
 	PLAYER_IDLE_STATE=0,
@@ -15,6 +52,7 @@ enum EPLAYER_STATE
 	PLAYER_ATTACKING_STATE,
 	PLAYER_DODGE_DOWN,
 	PLAYER_DODGE_UP,
+	PLAYER_DAMAGED,
 	MAX_PLAYER_STATE
 };
 enum EPLAYER_HITBOXES
@@ -27,6 +65,7 @@ enum EPLAYER_HITBOXES
 	PLAYER_HB_LEFT,
 	PLAYER_HB_RIGHT,
 	PLAYER_HB_ATTACK,
+	PLAYER_HB_LOCK,
 	PLAYER_HB_MAX
 };
 enum AirMove
@@ -73,6 +112,9 @@ private:
 	ID3D11ShaderResourceView* pFlowerTexture;
 	DebugAim* pDebugAim;
 	bool DebugAimOn;
+	void* pCurrentGame;
+	GameObject3D* pLockedOnEnemy;
+	int nRecoveryFrames;
 public:
 	Player3D();
 	Player3D(Light3D* Light);
@@ -109,8 +151,12 @@ public:
 	void DrawFlowers();
 	void SetFlower(XMFLOAT3 Pos);
 	float GetYForce();
+	void LockModelToObject(GameObject3D* lock);
+	void LockPlayerToObject(GameObject3D* lock);
 	GameObject3D* GetFloor();
 	PLAYER_ATTACK_MOVE* GetCurrentAttack();
+	int GetState();
+	void SetDamage(int nDamage);
 };
 
 Player3D*  GetPlayer3D();

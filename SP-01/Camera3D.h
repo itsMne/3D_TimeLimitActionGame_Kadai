@@ -16,6 +16,8 @@ private:
 	 XMFLOAT3			vEye;
 	 XMFLOAT3			vsOffset;
 	 float				fAcceleration;
+	 float				fLockOnZoom;
+	 float				fLockOnYOffset;
 public:
 	Camera3D();
 	Camera3D(bool bisMainCamera);
@@ -33,6 +35,8 @@ public:
 	void SetFocalPointGO(void* newFocalPoint);
 	void ZoomIn(float inc);
 	void ResetOffset();
+	void SetZoomLock(float flock);
+	void SetYOffsetLock(float OffsetLockOnY);
 };
 
 Camera3D* GetMainCamera();

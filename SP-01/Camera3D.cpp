@@ -23,6 +23,7 @@
 #define AIM_OBJECT_DISTANCE {10, 35, -40}
 Camera3D* MainCamera = nullptr;
 bool bFocalPointIsGameObject = false;
+
 Camera3D::Camera3D(): FocalPoint(nullptr)
 {
 	MainCamera = this;
@@ -56,6 +57,8 @@ HRESULT Camera3D::Init()
 	fVecZ = g_posCameraP.z - g_posCameraR.z;
 	g_fLengthInterval = sqrtf(fVecX * fVecX + fVecZ * fVecZ);
 	fAcceleration = 0;
+	fLockOnZoom = 0;
+	fLockOnYOffset = 0;
 	return S_OK;
 }
 
@@ -125,11 +128,11 @@ void Camera3D::Update()
 			vEye = REGULAR_OBJECT_DISTANCE;
 		XMMATRIX mtxWorld = XMLoadFloat4x4(FocusPoint->GetModelWorld());
 		vEye.x += vsOffset.x;
-		vEye.y += vsOffset.y;
-		vEye.z += vsOffset.z;
+		vEye.y += vsOffset.y + fLockOnYOffset;
+		vEye.z += vsOffset.z + fLockOnZoom;
 
 		vLookAt.x += vsOffset.x;
-		vLookAt.y += vsOffset.y;
+		vLookAt.y += vsOffset.y;// +fLockOnYOffset;
 
 		//Ž‹“_
 		XMStoreFloat3(&g_posCameraP, XMVector3TransformCoord(XMLoadFloat3(&vEye), mtxWorld));
@@ -272,6 +275,16 @@ void Camera3D::ZoomIn(float inc)
 void Camera3D::ResetOffset()
 {
 	vsOffset = { 0,0,0 };
+}
+
+void Camera3D::SetZoomLock(float flock)
+{
+	fLockOnZoom = flock;
+}
+
+void Camera3D::SetYOffsetLock(float OffsetLockOnY)
+{
+	fLockOnYOffset = OffsetLockOnY;
 }
 
 Camera3D * GetMainCamera()

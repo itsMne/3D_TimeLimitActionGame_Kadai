@@ -9,13 +9,15 @@ private:
 	float fY_force;
 	Go_List* pGameFloors;
 	void* pPlayerPointer;
-	int nState;
-	int nFaceCooldown;
-	int nIdleFramesCount;
-	int nIdleFramesWait;
+	int   nState;
+	int   nFaceCooldown;
+	int   nIdleFramesCount;
+	int   nIdleFramesWait;
 	float fSpeed;
 	PLAYER_ATTACK_MOVE* pLastAttackPlaying;
 	bool bSetDamageA;
+	int nSendOffFrames;
+	Box hbAttackHitbox;
 public:
 	Enemy3D();
 	~Enemy3D();
@@ -28,5 +30,6 @@ public:
 	void Draw();
 	void End();
 	void GravityControl();
+	void LockEnemyToObject(GameObject3D * lock);
 };
 

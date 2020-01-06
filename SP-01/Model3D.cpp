@@ -93,6 +93,8 @@ void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, float Animatio
 	if (g_pModel->GetCurrentAnimation() == nNewAnimNum) {
 		if(nAnimationFrameSlowness != FrameSlowness)
 			nAnimationFrameSlowness = FrameSlowness;
+		if (fAnimationSkipFrame != AnimationFrameSkip)
+			fAnimationSkipFrame = AnimationFrameSkip;
 		return;
 	}
 	nCountLoop = 0;

@@ -4,7 +4,7 @@
 #include "Field3D.h"
 #include "Player3D.h"
 #define BULLET_SPEED 30
-#define PRINT_HITBOX true
+#define PRINT_HITBOX false
 int nInitedGameObjects = 0;
 
 GameObject3D::GameObject3D()

@@ -30,15 +30,17 @@ void UpdateInputManager()
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
 
-	bInputs[INPUT_JUMP] = GetKeyTrigger(VK_K) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);
+	bInputs[INPUT_LOCKON] = GetKeyPress(VK_SHIFT);
 
-	bInputs[INPUT_SHOOT] =  GetMouseButton(MOUSEBUTTON_L) || GetKeyPress(VK_J) ||
+	bInputs[INPUT_JUMP] = GetKeyTrigger(VK_K) || GetKeyTrigger(VK_SPACE) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);
+
+	bInputs[INPUT_SHOOT] = GetMouseButton(MOUSEBUTTON_L) || GetKeyPress(VK_J) ||
 		(bXinputConnected && Player1->GetState().Gamepad.bLeftTrigger > 0);
-	bInputs[INPUT_AIM] =  GetMouseButton(MOUSEBUTTON_R) || GetKeyPress(VK_J) ||
+	bInputs[INPUT_AIM] = GetKeyPress(VK_CONTROL) || GetKeyPress(VK_J) ||
 							(bXinputConnected && Player1->GetState().Gamepad.bRightTrigger>0);
 
 	bInputs[INPUT_SWORD] = GetMouseTrigger(MOUSEBUTTON_L) || GetKeyTrigger(VK_I) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y && !bHoldingXinput[INPUT_SWORD]);
-	bInputs[INPUT_KICK] = GetMouseTrigger(MOUSEBUTTON_M) || GetKeyTrigger(VK_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B && !bHoldingXinput[INPUT_KICK]);
+	bInputs[INPUT_KICK] = GetMouseTrigger(MOUSEBUTTON_R) || GetKeyTrigger(VK_L) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B && !bHoldingXinput[INPUT_KICK]);
 
 	bInputs[INPUT_DEBUG_AIM_ON] = GetKeyTrigger(VK_1);
 	bInputs[INPUT_DEBUG_CONFIRM] = GetKeyTrigger(VK_2);
