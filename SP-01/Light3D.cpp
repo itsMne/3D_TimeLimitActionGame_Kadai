@@ -5,8 +5,11 @@
 // É}ÉNÉçíËã`
 //*****************************************************************************
 #define LIGHT0_DIFFUSE XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
+#define LIGHT0_DIFFUSE XMFLOAT4(1.0f, 0, 0, 1.0f)
 #define LIGHT0_AMBIENT XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
+#define LIGHT0_AMBIENT XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f)
 #define LIGHT0_SPECULAR XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
+#define LIGHT0_SPECULAR XMFLOAT4(1.0f, .0.0f, 0.0f, 1.0f)
 #define LIGHT0_DIR XMFLOAT3(0.0f, -1.0f, 1.0f)
 
 Light3D* MainLightSource = nullptr;

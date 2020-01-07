@@ -12,6 +12,7 @@ enum ENEMY_STATES
 	ENEMY_ATTACKING_UP,
 	ENEMY_ATTACKING_DOWN,
 	ENEMY_DIZZY_STATE,
+	ENEMY_SENDOFF,
 	ENEMY_DAMAGED
 };
 enum ENEMY_ANIMATIONS
@@ -77,6 +78,9 @@ void Enemy3D::Init()
 	//fSpeed = 0;//del
 	bSetDamageA = true;
 	nDizzyFrames = 0;
+	fSendOffPower = 0;
+	fSendOffAcceleration = 0;
+	nSendOffFrames = 0;
 	SkullMark = new GameObject3D(GO_SKULLWARNING);
 }
 
@@ -146,7 +150,9 @@ void Enemy3D::Update()
 				if (pPlayer->GetState() == PLAYER_DODGE_DOWN)
 				{
 					if (nAttackFrame > 478) {
+						SetEnemyAnimation(DIZZY_ANIM);
 						nState = ENEMY_DIZZY_STATE;
+						GetMainCamera()->SetAttackZoom(40, 40);
 						if (pUIManager)
 							pUIManager->SetAura();
 					}
@@ -176,7 +182,9 @@ void Enemy3D::Update()
 				if (pPlayer->GetState() == PLAYER_DODGE_UP)
 				{
 					if (nAttackFrame > 729) {
+						SetEnemyAnimation(DIZZY_ANIM);
 						nState = ENEMY_DIZZY_STATE;
+						GetMainCamera()->SetAttackZoom(40, 40);
 						if (pUIManager)
 							pUIManager->SetAura();
 					}
@@ -198,9 +206,21 @@ void Enemy3D::Update()
 		}
 		break;
 	case ENEMY_DIZZY_STATE:
-		SetEnemyAnimation(DIZZY_ANIM);
+		if (Model->GetLoops() > 0)
+			SetEnemyAnimation(DIZZY_ANIM);
 		if (++nDizzyFrames > MAX_DIZZY_FRAMES)
 			nState = ENEMY_IDLE;
+		break;
+	case ENEMY_SENDOFF:
+		if (fSendOffAcceleration < fSendOffPower)
+			fSendOffAcceleration+=3;
+		else {
+			fSendOffAcceleration = fSendOffPower;
+			if (--nSendOffFrames <= 0)
+				nState = ENEMY_IDLE;
+		}
+		Position.x -= -sinf(XM_PI + Model->GetRotation().y) * fSendOffAcceleration; 
+		Position.z -= -cosf(XM_PI + Model->GetRotation().y) * fSendOffAcceleration;
 		break;
 	default:
 		break;
@@ -229,11 +249,46 @@ void Enemy3D::PlayerAttackCollision()
 	else {
 		return;
 	}
-	nState = ENEMY_DAMAGED;
+	if (nState != ENEMY_DIZZY_STATE)
+		nState = ENEMY_DAMAGED;
+	else
+		nDizzyFrames -= 10;
+
+	GetMainCamera()->SetAttackZoom(30, 40);
+	GetMainCamera()->SetShake(2.5f, 8);
 	GetCurrentGame()->SetAtkEffect(30);
 	XMFLOAT3 modelRot;
 	switch (pLastAttackPlaying->Animation)
 	{
+	case KICKC:
+		if (bSetDamageA) {
+			SetEnemyAnimation(DAMAGEDA_ANIM);
+			bSetDamageA = false;
+		}
+		else {
+			SetEnemyAnimation(DAMAGEDB_ANIM);
+			bSetDamageA = true;
+		}
+		nFaceCooldown = 0;
+		FacePlayer();
+
+		if (nState == ENEMY_DIZZY_STATE)
+		{
+			fSendOffPower = 20;
+			fSendOffAcceleration = 0;
+			nSendOffFrames = 20;
+			SetEnemyAnimation(SENDOFF_ANIM);
+		}
+		else {
+			fSendOffPower = 20;
+			fSendOffAcceleration = 0;
+			nSendOffFrames = 2;
+		}
+		nState = ENEMY_SENDOFF;
+		modelRot = pPlayer->GetModel()->GetRotation();
+		Position.x -= sinf(XM_PI + modelRot.y) * 5;
+		Position.z -= cosf(XM_PI + modelRot.y) * 5;
+		break;
 	case BASIC_CHAIN_E:
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -246,8 +301,21 @@ void Enemy3D::PlayerAttackCollision()
 		nFaceCooldown = 0;
 		FacePlayer();
 		modelRot = pPlayer->GetModel()->GetRotation();
-		Position.x -= sinf(XM_PI + modelRot.y) * 5;
-		Position.z -= cosf(XM_PI + modelRot.y) * 5;
+
+		if (nState == ENEMY_DIZZY_STATE)
+		{
+			fSendOffPower = 20;
+			fSendOffAcceleration = 0;
+			nSendOffFrames = 10;
+			SetEnemyAnimation(SENDOFF_ANIM);
+		}
+		else {
+			fSendOffPower = 20;
+			fSendOffAcceleration = 0;
+			nSendOffFrames = 2;
+		}
+		nState = ENEMY_SENDOFF;
+
 		break;
 	default:
 		if (bSetDamageA) {

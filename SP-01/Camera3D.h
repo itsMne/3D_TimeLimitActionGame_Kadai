@@ -15,9 +15,14 @@ private:
 	 void*				FocalPoint;
 	 XMFLOAT3			vEye;
 	 XMFLOAT3			vsOffset;
+	 XMFLOAT2			ShakeForce;
 	 float				fAcceleration;
 	 float				fLockOnZoom;
 	 float				fLockOnYOffset;
+	 float				fAttackZoom;
+	 float				fMaxAttackZoom;
+	 float				fAttackZoomFrames;
+	 int				nShakeFrames;
 public:
 	Camera3D();
 	Camera3D(bool bisMainCamera);
@@ -37,6 +42,8 @@ public:
 	void ResetOffset();
 	void SetZoomLock(float flock);
 	void SetYOffsetLock(float OffsetLockOnY);
+	void SetAttackZoom(float Zoom, float AttackZoomFrames);
+	void SetShake(float ShakeForce, float Frames);
 };
 
 Camera3D* GetMainCamera();

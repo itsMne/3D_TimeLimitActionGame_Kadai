@@ -104,6 +104,7 @@
     <ClCompile Include="Wall3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
+    <ClCompile Include="Sound.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -189,6 +190,7 @@
     <ClInclude Include="Wall3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
+    <ClInclude Include="Sound.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

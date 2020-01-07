@@ -49,6 +49,7 @@ HRESULT Camera3D::Init()
 	g_posCameraR = XMFLOAT3(POS_CAMERA_R_X, POS_CAMERA_R_Y, POS_CAMERA_R_Z);
 	g_vecCameraU = XMFLOAT3(0, 1, 0);
 	g_rotCamera = XMFLOAT3(0, 0, 0);
+	ShakeForce = XMFLOAT2(0, 0);
 	vEye = REGULAR_OBJECT_DISTANCE;
 	vEye = REGULAR_OBJECT_DISTANCE;
 	vsOffset = { 0,0,0 };
@@ -57,6 +58,7 @@ HRESULT Camera3D::Init()
 	fVecZ = g_posCameraP.z - g_posCameraR.z;
 	g_fLengthInterval = sqrtf(fVecX * fVecX + fVecZ * fVecZ);
 	fAcceleration = 0;
+	fAttackZoom = 0;
 	fLockOnZoom = 0;
 	fLockOnYOffset = 0;
 	return S_OK;
@@ -64,8 +66,21 @@ HRESULT Camera3D::Init()
 
 void Camera3D::Update()
 {
-	
-	
+	if (fAttackZoom < 0)
+		fAttackZoom = 0;
+	//printf("ZOOMFRAMES %f\n", fAttackZoom);
+	if (fAttackZoomFrames <= 0) {
+		if (fAttackZoom > 0)
+			fAttackZoom-=2;
+	}
+	else {
+		if(fAttackZoom == fMaxAttackZoom)
+			fAttackZoomFrames--;
+		if (fAttackZoom < fMaxAttackZoom)
+			fAttackZoom+=2;
+		if (fAttackZoom > fMaxAttackZoom)
+			fAttackZoom = fMaxAttackZoom;
+	}
 	if (FocalPoint && !bFocalPointIsGameObject) {
 		Model3D* FocusPoint = (Model3D*)FocalPoint;
 		//Ž‹“_
@@ -134,8 +149,26 @@ void Camera3D::Update()
 		vLookAt.x += vsOffset.x;
 		vLookAt.y += vsOffset.y;// +fLockOnYOffset;
 
+		
+
+		XMFLOAT3 vFinalEye = vEye;
+		if (--nShakeFrames <= 0)
+		{
+			ShakeForce = { 0,0 };
+			nShakeFrames = 0;
+		}
+		else {
+			if (nShakeFrames % 4 == 0)
+			{
+				ShakeForce.x*=-1;
+				ShakeForce.y*=-1;
+			}
+		}
+		vFinalEye.x += ShakeForce.x;
+		vFinalEye.y += ShakeForce.y;
+		vFinalEye.z += fAttackZoom;
 		//Ž‹“_
-		XMStoreFloat3(&g_posCameraP, XMVector3TransformCoord(XMLoadFloat3(&vEye), mtxWorld));
+		XMStoreFloat3(&g_posCameraP, XMVector3TransformCoord(XMLoadFloat3(&vFinalEye), mtxWorld));
 
 		//’Ž‹“_
 		XMStoreFloat3(&g_posCameraR, XMVector3TransformCoord(XMLoadFloat3(&vLookAt), mtxWorld));
@@ -285,6 +318,18 @@ void Camera3D::SetZoomLock(float flock)
 void Camera3D::SetYOffsetLock(float OffsetLockOnY)
 {
 	fLockOnYOffset = OffsetLockOnY;
+}
+
+void Camera3D::SetAttackZoom(float Zoom, float AttackZoomFrames)
+{
+	fAttackZoomFrames = AttackZoomFrames;
+	fMaxAttackZoom = Zoom;
+}
+
+void Camera3D::SetShake(float fShakeForce, float Frames)
+{
+	ShakeForce = {fShakeForce, fShakeForce};
+	nShakeFrames = Frames;
 }
 
 Camera3D * GetMainCamera()

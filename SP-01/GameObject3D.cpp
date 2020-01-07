@@ -135,7 +135,7 @@ void GameObject3D::Update()
 			Scale.x += 0.0125f;
 			Scale.y += 0.0125f;
 			Scale.z += 0.0125f;
-			if (Scale.x > 0.20f)
+			if (Scale.x > 0.17f)
 				ScaleUp = false;
 		}
 		else {
@@ -143,7 +143,7 @@ void GameObject3D::Update()
 			Scale.y -= 0.0125f;
 			Scale.z -= 0.0125f;
 
-			if (Scale.x < 0.10f)
+			if (Scale.x < 0.07f)
 				ScaleUp = true;
 		}
 		break;

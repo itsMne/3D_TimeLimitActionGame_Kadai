@@ -22,6 +22,8 @@ private:
 	Box hbAttackHitbox;
 	InGameUI2D* pUIManager;
 	GameObject3D* SkullMark;
+	float fSendOffPower;
+	float fSendOffAcceleration;
 public:
 	Enemy3D();
 	~Enemy3D();
