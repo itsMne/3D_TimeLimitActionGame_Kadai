@@ -5,6 +5,7 @@
 #include "Player3D.h"
 #define BULLET_SPEED 30
 #define PRINT_HITBOX false
+#define SKULLTEXTURE_PATH "data/model/SkullV2.fbx"
 int nInitedGameObjects = 0;
 
 GameObject3D::GameObject3D()
@@ -29,6 +30,12 @@ GameObject3D::GameObject3D(int Type)
 	case GO_BULLET:
 		Model = new Model3D(this, "data/model/Bullet.fbx");
 		nCurrentRasterizer = 1;
+		break;
+	case GO_SKULLWARNING:
+		Model = new Model3D(this, SKULLTEXTURE_PATH);
+		Model->SetScale(2);
+		SetScale(0.25f);
+		bIsUnlit = true;
 		break;
 	default:
 		break;
@@ -68,6 +75,8 @@ void GameObject3D::Init()
 	Scale = { 1,1,1 };
 	pMainCamera = GetMainCamera();
 	bUse = true;
+	ScaleUp = true;
+	bIsUnlit = false;
 	nUseCounterFrame = 0;
 	p_goParent = nullptr;
 	Model = nullptr;
@@ -117,6 +126,27 @@ void GameObject3D::Update()
 		if (Model->GetCurrentAnimation() == 0 && Model->GetCurrentFrameOfAnimation() == 148)
 			Model->SwitchAnimation(1, 0, 1);
 		break;
+	case GO_SKULLWARNING:
+		Model->SetRotation(GetMainCamera()->GetCameraAngle());
+		Model->RotateAroundY(XM_PI/2);
+		
+		if (ScaleUp)
+		{
+			Scale.x += 0.0125f;
+			Scale.y += 0.0125f;
+			Scale.z += 0.0125f;
+			if (Scale.x > 0.20f)
+				ScaleUp = false;
+		}
+		else {
+			Scale.x -= 0.0125f;
+			Scale.y -= 0.0125f;
+			Scale.z -= 0.0125f;
+
+			if (Scale.x < 0.10f)
+				ScaleUp = true;
+		}
+		break;
 	default:
 		break;
 	}
@@ -135,6 +165,8 @@ void GameObject3D::Draw()
 	GetDeviceContext()->RSSetState(GetMainWindow()->GetRasterizerState(1));
 	if (!bUse)
 		return;
+	if (bIsUnlit)
+		GetMainLight()->SetLightEnable(false);
 	switch (nType)
 	{
 	case GO_BULLET:
@@ -150,7 +182,7 @@ void GameObject3D::Draw()
 			Model->DrawModel();
 		break;
 	}
-	
+	GetMainLight()->SetLightEnable(true);
 
 
 }

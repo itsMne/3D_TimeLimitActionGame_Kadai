@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject3D.h"
 #include "Player3D.h"
+#include "UIManager2D.h"
 class Enemy3D :
 	public GameObject3D
 {
@@ -17,7 +18,10 @@ private:
 	PLAYER_ATTACK_MOVE* pLastAttackPlaying;
 	bool bSetDamageA;
 	int nSendOffFrames;
+	int nDizzyFrames;
 	Box hbAttackHitbox;
+	InGameUI2D* pUIManager;
+	GameObject3D* SkullMark;
 public:
 	Enemy3D();
 	~Enemy3D();

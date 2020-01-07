@@ -26,6 +26,7 @@ public:
 	void End();
 	Go_List* GetList(int Type);
 	void SetAtkEffect(int frames);
+	InGameUI2D* GetUIManager();
 };
 
 SceneInGame3D* GetCurrentGame();

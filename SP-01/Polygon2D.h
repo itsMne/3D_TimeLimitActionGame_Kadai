@@ -29,7 +29,7 @@ protected:
 
 	XMFLOAT3						Position;			// ポリゴンの移動量
 	XMFLOAT3						Rotation;			// ポリゴンの回転量
-	XMFLOAT3						g_sizPolygon;			// ポリゴンのサイズ
+	XMFLOAT3						Scale;			// ポリゴンのサイズ
 	XMFLOAT4						g_colPolygon;			// ポリゴンの頂点カラー
 	bool							g_bInvalidate;			// 頂点データ更新フラグ
 

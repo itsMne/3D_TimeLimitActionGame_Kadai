@@ -4,6 +4,7 @@
 #define MODEL_PATH "data/model/Enemy.fbx"
 #define MAX_GRAVITY_FORCE 5.5f
 #define ATTACK_HIT_DAMAGE 1
+#define MAX_DIZZY_FRAMES 60*3
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
@@ -25,7 +26,7 @@ enum ENEMY_ANIMATIONS
 	FALLDAMAGE_ANIM,
 	DEAD_ANIM,
 	SENDOFF_ANIM,
-	DIZZY,
+	DIZZY_ANIM,
 	MAX_ANIM
 };
 float nEnemyAnimationSpeed[MAX_ANIM] = {
@@ -62,6 +63,7 @@ void Enemy3D::Init()
 	pGameFloors = nullptr;
 	pLastAttackPlaying = nullptr;
 	pPlayerPointer = nullptr;
+	pUIManager = nullptr;
 	pFloor = nullptr;
 	InitModel(MODEL_PATH);
 	Model->SetScale(0.79f);
@@ -74,6 +76,8 @@ void Enemy3D::Init()
 	nSendOffFrames = 0;
 	//fSpeed = 0;//del
 	bSetDamageA = true;
+	nDizzyFrames = 0;
+	SkullMark = new GameObject3D(GO_SKULLWARNING);
 }
 
 void Enemy3D::Update()
@@ -85,7 +89,7 @@ void Enemy3D::Update()
 		if (!pGame)
 			return;	
 	}
-	printf("%f\n", Scale.z);
+
 	if (!pPlayerPointer)
 		pPlayerPointer = GetPlayer3D();
 	if (!pGameFloors)
@@ -99,6 +103,13 @@ void Enemy3D::Update()
 	if (nState != ENEMY_IDLE)
 		nIdleFramesCount = 0;
 	int atkState=0;
+	if (nState != ENEMY_DIZZY_STATE)
+		nDizzyFrames = 0;
+	if (!pUIManager)
+	{
+		if (pGame)
+			pUIManager = pGame->GetUIManager();
+	}
 	switch (nState)
 	{
 	case ENEMY_IDLE:
@@ -121,6 +132,10 @@ void Enemy3D::Update()
 		break;
 	case ENEMY_ATTACKING_UP:
 		FacePlayer();
+		if (SkullMark) {
+			SkullMark->SetPosition({ Position.x - sinf(XM_PI + Model->GetRotation().y) * 10, Position.y+12.5f,  Position.z - cosf(XM_PI + Model->GetRotation().y) * 10 });
+			SkullMark->Update();
+		}
 		SetEnemyAnimation(ATTACKA_ANIM);
 		AttackHitboxDistance = 10;
 		hbAttackHitbox = { Position.x-sinf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,Position.y+9.5f,Position.z-cosf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,7.5f,7,12.5f };
@@ -130,8 +145,11 @@ void Enemy3D::Update()
 			{
 				if (pPlayer->GetState() == PLAYER_DODGE_DOWN)
 				{
-					if(nAttackFrame > 478)
+					if (nAttackFrame > 478) {
 						nState = ENEMY_DIZZY_STATE;
+						if (pUIManager)
+							pUIManager->SetAura();
+					}
 				}
 				else
 				{
@@ -144,6 +162,10 @@ void Enemy3D::Update()
 		break;
 	case ENEMY_ATTACKING_DOWN:
 		FacePlayer();
+		if (SkullMark) {
+			SkullMark->SetPosition({ Position.x - sinf(XM_PI + Model->GetRotation().y) * 10, Position.y,  Position.z - cosf(XM_PI + Model->GetRotation().y) * 10 });
+			SkullMark->Update();
+		}
 		SetEnemyAnimation(ATTACKB_ANIM);
 		AttackHitboxDistance = 10;
 		hbAttackHitbox = { Position.x - sinf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,Position.y + 9.5f,Position.z - cosf(XM_PI + Model->GetRotation().y) * AttackHitboxDistance,7.5f,7,12.5f };
@@ -153,8 +175,11 @@ void Enemy3D::Update()
 			{
 				if (pPlayer->GetState() == PLAYER_DODGE_UP)
 				{
-					if (nAttackFrame > 729)
+					if (nAttackFrame > 729) {
 						nState = ENEMY_DIZZY_STATE;
+						if (pUIManager)
+							pUIManager->SetAura();
+					}
 				}
 				else
 				{
@@ -173,13 +198,14 @@ void Enemy3D::Update()
 		}
 		break;
 	case ENEMY_DIZZY_STATE:
-		SetEnemyAnimation(DIZZY);
+		SetEnemyAnimation(DIZZY_ANIM);
+		if (++nDizzyFrames > MAX_DIZZY_FRAMES)
+			nState = ENEMY_IDLE;
 		break;
 	default:
 		break;
 	}
 	PlayerCollision();
-
 	PlayerAttackCollision();
 }
 
@@ -319,7 +345,13 @@ void Enemy3D::FacePlayer()
 
 void Enemy3D::Draw()
 {
+
+
 	GameObject3D::Draw();
+	SetCullMode(CULLMODE_CW);
+	if (SkullMark && (nState == ENEMY_ATTACKING_UP || nState == ENEMY_ATTACKING_DOWN))
+		SkullMark->Draw();
+
 }
 
 void Enemy3D::End()

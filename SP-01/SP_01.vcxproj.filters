@@ -75,7 +75,6 @@
     <ClCompile Include="Mesh3D.cpp">
       <Filter>CPPファイル</Filter>
     </ClCompile>
-    <ClCompile Include="UniversalStructures.cpp" />
     <ClCompile Include="Cube3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
@@ -98,8 +97,13 @@
       <Filter>CPPファイル\シーンCPP</Filter>
     </ClCompile>
     <ClCompile Include="DebugAim.cpp" />
-    <ClCompile Include="Wall3D.cpp" />
     <ClCompile Include="Enemy3D.cpp" />
+    <ClCompile Include="UniversalStructures.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Wall3D.cpp">
+      <Filter>CPPファイル\ゲームCPP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -181,8 +185,10 @@
       <Filter>Hファイル\シーンH</Filter>
     </ClInclude>
     <ClInclude Include="DebugAim.h" />
-    <ClInclude Include="Wall3D.h" />
     <ClInclude Include="Enemy3D.h" />
+    <ClInclude Include="Wall3D.h">
+      <Filter>Hファイル\ゲームH</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

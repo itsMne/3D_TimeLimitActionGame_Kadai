@@ -14,6 +14,7 @@ enum eGameObjectTypes
 	GO_CUBE,
 	GO_WALL,
 	GO_ENEMY,
+	GO_SKULLWARNING,
 	GO_MAX
 };
 class GameObject3D
@@ -36,6 +37,7 @@ protected:
 	XMFLOAT4X4 WorldMatrix;
 	int nType;
 	bool bUse;
+	bool bIsUnlit;
 	//‰e‚ÉŠÖ‚·‚é
 	GameObject3D* p_goParent;
 	int nUseCounterFrame;
@@ -43,6 +45,7 @@ protected:
 	void* pVisualHitbox;
 	int nCurrentRasterizer;
 	Light3D* pLight;
+	bool ScaleUp;
 public:
 	GameObject3D();
 	GameObject3D(int nType);

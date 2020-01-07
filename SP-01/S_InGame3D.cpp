@@ -147,6 +147,11 @@ void SceneInGame3D::SetAtkEffect(int frames)
 	pUI->ActivateAtkEffect(frames);
 }
 
+InGameUI2D * SceneInGame3D::GetUIManager()
+{
+	return pUI;
+}
+
 SceneInGame3D * GetCurrentGame()
 {
 	return pCurrentGame;

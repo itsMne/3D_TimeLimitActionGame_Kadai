@@ -57,6 +57,13 @@ UIObject2D::UIObject2D(int nUI_Type)
 		SetPolygonAlpha(0.5f);
 		SetTexture(gpTexture);
 		break;
+	case UI_AURA:
+		CreateTextureFromFile(GetDevice(), "data/texture/AuraEffect.tga", &gpTexture);
+		Position.x = 0;
+		Position.y = 0;
+		SetPolygonSize(0, 0);
+		SetTexture(gpTexture);
+		break;
 	default:
 		break;
 	}
@@ -72,8 +79,10 @@ void UIObject2D::Init()
 {
 	nType = UI_TYPE_MAX;
 	nAnimationTimer = 0;
+	fAcceleration = 0;
 	nAnimationSpeed = 0;
 	bHeartActive = true;
+	bIsInUse = false;
 	nCurrent_hearts = 1;
 	nMax_Hearts = 1;
 	pPlayer = nullptr;
@@ -116,6 +125,16 @@ void UIObject2D::Update()
 		if (nFramesActive > 0)
 			nFramesActive--;
 		Rotation.z+=20;
+		break;
+	case UI_AURA:
+		if (!bIsInUse)
+			return;
+		fAcceleration+=7.5f;
+		Scale.x+=fAcceleration;
+		Scale.y+=fAcceleration;
+		Rotation.z += 5;
+		if (Scale.x > 1500)
+			bIsInUse = false;
 		break;
 	default:
 		break;
@@ -161,6 +180,11 @@ void UIObject2D::Draw()
 		if (nFramesActive > 0)
 			DrawPolygon(GetDeviceContext());
 		break;
+	case UI_AURA:
+		if (!bIsInUse)
+			return;
+		DrawPolygon(GetDeviceContext());
+		break;
 	default:
 		DrawPolygon(GetDeviceContext());
 		break;
@@ -205,6 +229,16 @@ void UIObject2D::SetActiveFrames(int Frames)
 {
 	nFramesActive=Frames;
 }
+bool UIObject2D::GetUse()
+{
+	return bIsInUse;
+}
+void UIObject2D::SetAura()
+{
+	bIsInUse = true;
+	Scale = { 0,0,0 };
+	fAcceleration = 0;
+}
  //UIマネージャー
 InGameUI2D::InGameUI2D()
 {
@@ -221,6 +255,9 @@ void InGameUI2D::Init()
 	pPlayerHealth = new UIObject2D(UI_AIM);
 	pPlayerAim = new UIObject2D(UI_HEART);
 	pAtkEffect = new UIObject2D(UI_ATKZOOM);
+	for (int i = 0; i < MAX_AURA; i++)
+		pAuraEffects[i]=new UIObject2D(UI_AURA);
+	
 }
 
 void InGameUI2D::Update()
@@ -231,6 +268,8 @@ void InGameUI2D::Update()
 		pPlayerAim->Update();
 	if (pAtkEffect)
 		pAtkEffect->Update();
+	for (int i = 0; i < MAX_AURA; i++)
+		if(pAuraEffects[i])pAuraEffects[i]->Update();
 }
 
 void InGameUI2D::Draw()
@@ -241,6 +280,8 @@ void InGameUI2D::Draw()
 		pPlayerAim->Draw();
 	if (pAtkEffect)
 		pAtkEffect->Draw();
+	for (int i = 0; i < MAX_AURA; i++)
+		if (pAuraEffects[i])pAuraEffects[i]->Draw();
 }
 
 void InGameUI2D::End()
@@ -254,4 +295,16 @@ void InGameUI2D::ActivateAtkEffect(int Frames)
 {
 	if (pAtkEffect)
 		pAtkEffect->SetActiveFrames(Frames);
+}
+
+void InGameUI2D::SetAura()
+{
+	for (int i = 0; i < MAX_AURA; i++)
+	{
+		if (!pAuraEffects[i])
+			continue;
+		if (pAuraEffects[i]->GetUse())
+			continue;
+		pAuraEffects[i]->SetAura();
+	}
 }
