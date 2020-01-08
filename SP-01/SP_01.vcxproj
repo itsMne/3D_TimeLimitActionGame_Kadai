@@ -179,6 +179,7 @@
     <ClCompile Include="Polygon2D.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sphere3D.cpp" />
+    <ClCompile Include="S_Menu.cpp" />
     <ClCompile Include="S_Scene3D.cpp" />
     <ClCompile Include="S_InGame3D.cpp" />
     <ClCompile Include="SceneManager.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="Polygon2D.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Sphere3D.h" />
+    <ClInclude Include="S_Menu.h" />
     <ClInclude Include="S_Scene3D.h" />
     <ClInclude Include="S_InGame3D.h" />
     <ClInclude Include="SceneManager.h" />

@@ -5,6 +5,7 @@
 enum eSceneType
 {
 	SCENE_TITLE_SCREEN = 0,
+	SCENE_MENU,
 	SCENE_IN_GAME,
 	MAX_SCENES
 };

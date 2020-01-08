@@ -64,7 +64,7 @@ void DebugAim::Update()
 		if (!pCGame)
 			return;
 	}
-	SceneInGame3D* pGame = (SceneInGame3D*)pCGame;
+	S_InGame3D* pGame = (S_InGame3D*)pCGame;
 	GameObject3D::Update();
 	DebugAimControl();
 	ScaleControl();

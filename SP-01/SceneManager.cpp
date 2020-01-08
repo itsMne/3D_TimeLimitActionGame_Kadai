@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "S_InGame3D.h"
+#include "S_Menu.h"
 #include "S_TitleScreen3D.h"
 #include "TransitionControl.h"
 Scene3D* pCurrentScene = nullptr;
@@ -12,10 +13,13 @@ HRESULT InitScene()
 	switch (nCurrentScene)
 	{
 	case SCENE_TITLE_SCREEN:
-		pCurrentScene = new SceneTitleScreen3D();
+		pCurrentScene = new S_TitleScreen3D();
+		break;
+	case SCENE_MENU:
+		pCurrentScene = new S_Menu();
 		break;
 	case SCENE_IN_GAME:
-		pCurrentScene = new SceneInGame3D();
+		pCurrentScene = new S_InGame3D();
 		break;
 	default:
 		break;
@@ -59,6 +63,18 @@ void EndScene()
 
 void TransitionForNewScene(bool bTransitionIn)
 {
-	SetTransition(bTransitionIn, STICKER_TRANSITION);
-	nTransitionInUse = STICKER_TRANSITION;
+	switch (nNextScene)
+	{
+	case SCENE_TITLE_SCREEN: case SCENE_IN_GAME:
+		SetTransition(bTransitionIn, STICKER_TRANSITION);
+		nTransitionInUse = STICKER_TRANSITION;
+		break;
+	case SCENE_MENU:
+		SetTransition(bTransitionIn, SLASH_TRANSITION);
+		nTransitionInUse = STICKER_TRANSITION;
+		break;
+	default:
+		break;
+	}
+
 }

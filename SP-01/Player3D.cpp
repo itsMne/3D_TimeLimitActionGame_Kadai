@@ -207,7 +207,7 @@ void Player3D::Update()
 	}
 	if (!pCurrentGame)
 		pCurrentGame = GetCurrentGame();
-	SceneInGame3D* pGame = (SceneInGame3D*)pCurrentGame;
+	S_InGame3D* pGame = (S_InGame3D*)pCurrentGame;
 	if (GetInput(INPUT_LOCKON) && !pLockedOnEnemy && pGame)
 	{
 		XMFLOAT3 ModelRot = Model->GetRotation();

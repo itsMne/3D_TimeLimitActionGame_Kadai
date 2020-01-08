@@ -33,7 +33,7 @@ protected:
 	XMFLOAT4						g_colPolygon;			// ポリゴンの頂点カラー
 	bool							g_bInvalidate;			// 頂点データ更新フラグ
 
-	XMFLOAT2						x2UV;			// UV座標
+	
 	XMFLOAT2						x2Frame;			// テクスチャ抽出サイズ
 
 	ID3D11Buffer*				g_pConstantBuffer;		// 定数バッファ
@@ -49,7 +49,8 @@ protected:
 	XMFLOAT4X4					g_mTex;					// テクスチャ変換行列
 
 public:
-	ID3D11ShaderResourceView * gpTexture;
+	ID3D11ShaderResourceView *	gpTexture;
+	XMFLOAT2					x2UV;			// UV座標
 	Polygon2D();
 	Polygon2D(const char * TexturePath);
 	~Polygon2D();

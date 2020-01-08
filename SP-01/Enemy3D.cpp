@@ -44,7 +44,7 @@ float nEnemyAnimationSpeed[MAX_ANIM] = {
 	1, //SENDOFF_ANIM,
 	3,//DIZZY
 };		
-SceneInGame3D* pGame = nullptr;
+S_InGame3D* pGame = nullptr;
 Enemy3D::Enemy3D(): GameObject3D(GO_ENEMY)
 {
 	Init();

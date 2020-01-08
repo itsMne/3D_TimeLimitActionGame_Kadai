@@ -5,7 +5,7 @@
 #include "UIManager2D.h"
 #include "Sphere3D.h"
 
-class SceneInGame3D :
+class S_InGame3D :
 	public Scene3D
 {
 private:
@@ -18,8 +18,8 @@ private:
 	Go_List* Walls;
 	Go_List* Enemies;
 public:
-	SceneInGame3D();
-	~SceneInGame3D();
+	S_InGame3D();
+	~S_InGame3D();
 	void Init();
 	eSceneType Update();
 	void Draw();
@@ -29,4 +29,4 @@ public:
 	InGameUI2D* GetUIManager();
 };
 
-SceneInGame3D* GetCurrentGame();
+S_InGame3D* GetCurrentGame();

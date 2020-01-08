@@ -106,6 +106,7 @@
     </ClCompile>
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TransitionControl.cpp" />
+    <ClCompile Include="S_Menu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -193,6 +194,7 @@
     </ClInclude>
     <ClInclude Include="Sound.h" />
     <ClInclude Include="TransitionControl.h" />
+    <ClInclude Include="S_Menu.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

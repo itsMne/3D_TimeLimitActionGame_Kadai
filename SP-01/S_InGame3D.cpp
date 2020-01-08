@@ -7,9 +7,9 @@
 #include "Billboard2D.h"
 
 
-SceneInGame3D* pCurrentGame = nullptr;
+S_InGame3D* pCurrentGame = nullptr;
 
-SceneInGame3D::SceneInGame3D() :Scene3D(true)
+S_InGame3D::S_InGame3D() :Scene3D(true)
 {
 	pCurrentGame = this;
 	MainWindow = GetMainWindow();
@@ -34,17 +34,17 @@ SceneInGame3D::SceneInGame3D() :Scene3D(true)
 }
 
 
-SceneInGame3D::~SceneInGame3D()
+S_InGame3D::~S_InGame3D()
 {
 	End();
 	pCurrentGame = nullptr;
 }
 
-void SceneInGame3D::Init()
+void S_InGame3D::Init()
 {
 }
 
-eSceneType SceneInGame3D::Update()
+eSceneType S_InGame3D::Update()
 {
 	Scene3D::Update();
 	// デバッグ文字列表示更新
@@ -72,7 +72,7 @@ eSceneType SceneInGame3D::Update()
 	return SCENE_IN_GAME;
 }
 
-void SceneInGame3D::Draw()
+void S_InGame3D::Draw()
 {
 	// Zバッファ有効
 	SetZBuffer(true);
@@ -110,7 +110,7 @@ void SceneInGame3D::Draw()
 	pUI->Draw();
 }
 
-void SceneInGame3D::End()
+void S_InGame3D::End()
 {
 	Scene3D::End();
 	// フィールド終了処理
@@ -126,7 +126,7 @@ void SceneInGame3D::End()
 	//SAFE_DELETE(HelloBill);
 }
 
-Go_List * SceneInGame3D::GetList(int Type)
+Go_List * S_InGame3D::GetList(int Type)
 {
 	switch (Type)
 	{
@@ -142,17 +142,17 @@ Go_List * SceneInGame3D::GetList(int Type)
 	return nullptr;
 }
 
-void SceneInGame3D::SetAtkEffect(int frames)
+void S_InGame3D::SetAtkEffect(int frames)
 {
 	pUI->ActivateAtkEffect(frames);
 }
 
-InGameUI2D * SceneInGame3D::GetUIManager()
+InGameUI2D * S_InGame3D::GetUIManager()
 {
 	return pUI;
 }
 
-SceneInGame3D * GetCurrentGame()
+S_InGame3D * GetCurrentGame()
 {
 	return pCurrentGame;
 }
