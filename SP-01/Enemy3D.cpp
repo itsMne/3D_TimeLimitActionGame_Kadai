@@ -13,6 +13,7 @@ enum ENEMY_STATES
 	ENEMY_ATTACKING_DOWN,
 	ENEMY_DIZZY_STATE,
 	ENEMY_SENDOFF,
+	ENEMY_SENDUP,
 	ENEMY_DAMAGED
 };
 enum ENEMY_ANIMATIONS
@@ -81,6 +82,7 @@ void Enemy3D::Init()
 	fSendOffPower = 0;
 	fSendOffAcceleration = 0;
 	nSendOffFrames = 0;
+	nSendUpGravityCancelling = 0;
 	SkullMark = new GameObject3D(GO_SKULLWARNING);
 }
 
@@ -109,6 +111,8 @@ void Enemy3D::Update()
 	int atkState=0;
 	if (nState != ENEMY_DIZZY_STATE)
 		nDizzyFrames = 0;
+	if (nState != ENEMY_SENDUP)
+		nSendUpGravityCancelling = 0;
 	if (!pUIManager)
 	{
 		if (pGame)
@@ -118,6 +122,12 @@ void Enemy3D::Update()
 	{
 	case ENEMY_IDLE:
 		SetEnemyAnimation(IDLE_ANIM);
+		if (pFloor) {
+			fY_force = 0;
+			while (IsInCollision3D(pFloor->GetHitbox(), GetHitbox()))
+				Position.y += 0.1f;
+			Position.y -= 0.1f;
+		}
 		if (pPlayer->GetFloor() == pFloor && ++nIdleFramesCount> nIdleFramesWait)
 			nState = ENEMY_MOVING;
 		break;
@@ -133,6 +143,21 @@ void Enemy3D::Update()
 			else
 				nState = ENEMY_ATTACKING_DOWN;
 		}
+		break;
+	case ENEMY_SENDUP:
+		if (fY_force > 0 && nSendUpGravityCancelling < 40)
+		{
+			fY_force = 0;
+			pLastAttackPlaying = nullptr;
+			nSendUpGravityCancelling++;
+		}
+		if (pFloor) {
+			while (IsInCollision3D(pFloor->GetHitbox(), GetHitbox()))
+				Position.y += 0.1f;
+			Position.y -= 0.1f;
+		}
+		if (pFloor)
+			nState = ENEMY_IDLE;
 		break;
 	case ENEMY_ATTACKING_UP:
 		FacePlayer();
@@ -260,6 +285,50 @@ void Enemy3D::PlayerAttackCollision()
 	XMFLOAT3 modelRot;
 	switch (pLastAttackPlaying->Animation)
 	{
+	case AIRCOMBOE:
+		SetEnemyAnimation(DAMAGEDUP_ANIM);
+		modelRot = pPlayer->GetModel()->GetRotation();
+		nGravityCancellingFrames = 0;
+		fY_force -= -12;
+		nState = ENEMY_SENDOFF;
+		if (nState == ENEMY_DIZZY_STATE)
+		{
+			fSendOffPower = 20;
+			fSendOffAcceleration = 0;
+			nSendOffFrames = 10;
+			SetEnemyAnimation(SENDOFF_ANIM);
+		}
+		else {
+			fSendOffPower = 20;
+			fSendOffAcceleration = 0;
+			nSendOffFrames = 2;
+		}
+		pLastAttackPlaying = nullptr;
+		break;
+	case KICK_DOWN:
+		SetEnemyAnimation(DAMAGEDUP_ANIM);
+		nFaceCooldown = 0;
+		FacePlayer();
+		nState = ENEMY_SENDUP;
+		modelRot = pPlayer->GetModel()->GetRotation();
+		Position.x -= sinf(XM_PI + modelRot.y) * 5;
+		Position.z -= cosf(XM_PI + modelRot.y) * 5;
+		if (pFloor) {
+			while (IsInCollision3D(pFloor->GetHitbox(), GetHitbox()))
+				Position.y += 0.1f;
+			pFloor = nullptr;
+			Position.y += 5;
+			fY_force += -6;
+		}
+		else {
+			nGravityCancellingFrames = 0;
+			fY_force -= -12;
+			nState = ENEMY_IDLE;
+			Position.x -= sinf(XM_PI + modelRot.y) * 1.5f;
+			Position.z -= cosf(XM_PI + modelRot.y) * 1.5f;
+			pLastAttackPlaying = nullptr;
+		}
+		break;
 	case KICKC:
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -329,8 +398,15 @@ void Enemy3D::PlayerAttackCollision()
 		nFaceCooldown = 0;
 		FacePlayer();
 		modelRot = pPlayer->GetModel()->GetRotation();
-		Position.x -= sinf(XM_PI + modelRot.y) * 5;
-		Position.z -= cosf(XM_PI + modelRot.y) * 5;
+		if (pFloor) {
+			Position.x -= sinf(XM_PI + modelRot.y) * 5.0f;
+			Position.z -= cosf(XM_PI + modelRot.y) * 5.0f;
+		}
+		else {
+			nGravityCancellingFrames = 15;
+			Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
+			Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
+		}
 		break;
 	}
 }
@@ -433,6 +509,9 @@ void Enemy3D::GravityControl()
 		return;
 	if (nState == ENEMY_DAMAGED)
 		return;
+	if (--nGravityCancellingFrames > 0)
+		return;
+	nGravityCancellingFrames = 0;
 	if (pFloor) {
 		bool bCurrentfloorcol = IsInCollision3D(pFloor->GetHitbox(), GetHitbox());
 		if (!bCurrentfloorcol) {

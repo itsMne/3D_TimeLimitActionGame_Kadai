@@ -24,6 +24,8 @@ private:
 	GameObject3D* SkullMark;
 	float fSendOffPower;
 	float fSendOffAcceleration;
+	int nSendUpGravityCancelling;
+	int nGravityCancellingFrames;
 public:
 	Enemy3D();
 	~Enemy3D();
