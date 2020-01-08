@@ -242,9 +242,9 @@ void Player3D::Update()
 	GravityControl(true);
 	if (!IsPlayerAiming() && nState != PLAYER_DODGE_UP && nState != PLAYER_DODGE_DOWN)
 	{
-		if (GetAxis(CAMERA_AXIS_VERTICAL) == 1)
+		if (GetAxis(CAMERA_AXIS_VERTICAL) >= 0.7f)
 			nState = PLAYER_DODGE_UP;
-		if (GetAxis(CAMERA_AXIS_VERTICAL) == -1)
+		if (GetAxis(CAMERA_AXIS_VERTICAL) <= -0.7)
 			nState = PLAYER_DODGE_DOWN;
 	}
 	if (GetInput(INPUT_JUMP) && IsOnTheFloor())
@@ -283,7 +283,7 @@ void Player3D::Update()
 		break;
 	case PLAYER_DODGE_DOWN:
 		SetPlayerAnimation(DODGEDOWN);
-		if (GetAxis(CAMERA_AXIS_VERTICAL) == -1)
+		if (GetAxis(CAMERA_AXIS_VERTICAL) <= -0.7f)
 		{
 			if (Model->GetCurrentFrameOfAnimation() > 2893 && Model->GetCurrentFrameOfAnimation() < 2900)
 				Model->SetFrameOfAnimation(2890);
@@ -294,7 +294,7 @@ void Player3D::Update()
 		break;
 	case PLAYER_DODGE_UP:
 		SetPlayerAnimation(DODGEUP);
-		if (GetAxis(CAMERA_AXIS_VERTICAL) == 1 && Model->GetCurrentFrameOfAnimation() < 2780)
+		if (GetAxis(CAMERA_AXIS_VERTICAL) >= 0.7f && Model->GetCurrentFrameOfAnimation() < 2780)
 		{
 			if (Model->GetCurrentFrameOfAnimation() > 2775)
 				Model->SetFrameOfAnimation(2771);

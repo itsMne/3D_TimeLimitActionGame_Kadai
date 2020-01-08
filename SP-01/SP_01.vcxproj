@@ -185,6 +185,7 @@
     <ClCompile Include="S_TitleScreen3D.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TransitionControl.cpp" />
     <ClCompile Include="UIManager2D.cpp" />
     <ClCompile Include="C_XInput.cpp" />
     <ClCompile Include="UniversalStructures.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="S_TitleScreen3D.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TransitionControl.h" />
     <ClInclude Include="UIManager2D.h" />
     <ClInclude Include="UniversalStructures.h" />
     <ClInclude Include="C_XInput.h" />

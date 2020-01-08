@@ -1,5 +1,5 @@
 #include "S_TitleScreen3D.h"
-
+#include "InputManager.h"
 
 SceneTitleScreen3D::SceneTitleScreen3D() :Scene3D(true)
 {
@@ -23,6 +23,8 @@ eSceneType SceneTitleScreen3D::Update()
 	Scene3D::Update();
 	if (Logo)
 		Logo->Update();
+	if (GetInput(INPUT_JUMP))
+		return SCENE_IN_GAME;
 	return SCENE_TITLE_SCREEN;
 }
 

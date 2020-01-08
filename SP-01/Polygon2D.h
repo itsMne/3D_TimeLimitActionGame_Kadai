@@ -68,5 +68,8 @@ public:
 	void SetPolygonAlpha(float fAlpha);
 	HRESULT MakeVertexPolygon(ID3D11Device* pDevice);
 	void SetVertexPolygon(void);
+	void Translate(XMFLOAT2);
+	XMFLOAT2 GetPolygonSize();
+	XMFLOAT2 GetPolygonPos();
 };
 #endif

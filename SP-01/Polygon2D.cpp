@@ -44,7 +44,9 @@ Polygon2D::Polygon2D(const char * TexturePath)
 	g_pInputLayout = nullptr;
 	g_pVertexShader = nullptr;
 	InitPolygon(GetDevice());
-	CreateTextureFromFile(GetDevice(), TexturePath, &gpTexture);
+	HRESULT hr = CreateTextureFromFile(GetDevice(), TexturePath, &gpTexture);
+	if (FAILED(hr))
+		printf("Ž¸”s‚µ‚½\n");
 	SetTexture(gpTexture);
 	InitedPolygons++;
 }
@@ -272,6 +274,22 @@ void Polygon2D::SetVertexPolygon(void)
 			g_bInvalidate = false;
 		}
 	}
+}
+
+void Polygon2D::Translate(XMFLOAT2 tr)
+{
+	Position.x += tr.x;
+	Position.y += tr.y;
+}
+
+XMFLOAT2 Polygon2D::GetPolygonSize()
+{
+	return { Scale.x, Scale.y };
+}
+
+XMFLOAT2 Polygon2D::GetPolygonPos()
+{
+	return { Position.x,Position.y };
 }
 
 //=============================================================================
