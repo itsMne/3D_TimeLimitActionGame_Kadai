@@ -91,7 +91,7 @@ eSceneType S_Menu::Update()
 		fScale+=0.5f;
 	else
 		fScale-=0.5f;
-	if (fScale > 10)
+	if (fScale > 20)
 		ScaleUp = false;
 	else if (fScale < 0)
 		ScaleUp = true;

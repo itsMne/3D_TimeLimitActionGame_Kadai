@@ -54,10 +54,19 @@ typedef struct Box
 };
 
 bool IsInCollision3D(Box a, Box b);
+bool CompareXmfloat3(XMFLOAT3 a, XMFLOAT3 b);
 float GetAngle(XMFLOAT3, XMFLOAT3);
+float DotProduct(XMFLOAT3, XMFLOAT3);
+XMFLOAT3 MultiplyVector(XMFLOAT3, XMFLOAT3);
+XMFLOAT3 SumVector(XMFLOAT3, XMFLOAT3);
+
 XMFLOAT3 GetForwardVector(XMFLOAT3 Rot);
 XMFLOAT3 GetVectorDifference(XMFLOAT3 a, XMFLOAT3 b);
 XMFLOAT3 NormalizeVector(XMFLOAT3 v);
+
+//XMFLOAT3 GetLookRotation(XMFLOAT3 dir, XMFLOAT3 up);
+
+XMFLOAT3 MultiplyVectorByFloat(XMFLOAT3 a, float flot);
 // 頂点フォーマット( 頂点座標[3D] / 法線ベクトル / 反射光 / テクスチャ座標 )
 typedef struct {
 	XMFLOAT3 vtx;		// 頂点座標

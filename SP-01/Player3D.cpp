@@ -47,18 +47,18 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{2},//IDLE
 	{3},//WALKING
 	{1},//AIMING
-	{3.8f},//BASIC_CHAIN_A
-	{3.15f},//BASIC_CHAIN_B
-	{3.25f},//BASIC_CHAIN_C
-	{3.25f},//BASIC_CHAIN_D
-	{3.25f},//BASIC_CHAIN_E
+	{4.2f},//BASIC_CHAIN_A
+	{3.55f},//BASIC_CHAIN_B
+	{3.75f},//BASIC_CHAIN_C
+	{3.75f},//BASIC_CHAIN_D
+	{3.75f},//BASIC_CHAIN_E
 	{1},//SLIDE,
-	{2.5f},//SLIDEKICK,
-	{2.2f},//AIRCOMBOA,
-	{2.3f},//AIRCOMBOB,
-	{2.3f},//AIRCOMBOC,
-	{2.3f},//AIRCOMBOD,
-	{2.8f},//AIRCOMBOE,
+	{2.95f},//SLIDEKICK,
+	{2.7f},//AIRCOMBOA,
+	{2.7f},//AIRCOMBOB,
+	{2.7f},//AIRCOMBOC,
+	{2.7f},//AIRCOMBOD,
+	{3.2f},//AIRCOMBOE,
 	{2},//JUMP
 	{1},
 	{1},
@@ -216,24 +216,27 @@ void Player3D::Update()
 		while (++Hitboxes[PLAYER_HB_LOCK].SizeZ < 150) {
 			pLockedOnEnemy = pGame->GetList(GO_ENEMY)->CheckCollision(GetHitboxPlayer(PLAYER_HB_LOCK));
 			if (pLockedOnEnemy) {
-				((Enemy3D*)pLockedOnEnemy)->LockEnemyToObject(this);
+				//((Enemy3D*)pLockedOnEnemy)->LockEnemyToObject(this);
 				break;
 			}
 		}
 		Hitboxes[PLAYER_HB_LOCK].SizeZ = 1;
 	}
+
 	if (!GetInput(INPUT_LOCKON) && pLockedOnEnemy) {
 		pLockedOnEnemy = nullptr;
-		pMainCamera->SetFocalPointGO(this);
-		pMainCamera->SetZoomLock(0);
-		pMainCamera->SetYOffsetLock(0);
+		//pMainCamera->SetFocalPointGO(this);
+		//pMainCamera->SetZoomLock(0);
+		//pMainCamera->SetYOffsetLock(0);
 	}
 	LockModelToObject(pLockedOnEnemy);
 	if (pLockedOnEnemy)
 	{
-		pMainCamera->SetFocalPointGO(pLockedOnEnemy);
-		pMainCamera->SetYOffsetLock(-10);
-		pMainCamera->SetZoomLock(80 - (pLockedOnEnemy->GetPosition().z - Position.z) - -(pLockedOnEnemy->GetPosition().y - Position.y));
+		
+		
+		//pMainCamera->SetFocalPointGO(pLockedOnEnemy);
+		//pMainCamera->SetYOffsetLock(-10);
+		//pMainCamera->SetZoomLock(80 - (pLockedOnEnemy->GetPosition().z - Position.z) - -(pLockedOnEnemy->GetPosition().y - Position.y));
 	}
 
 
@@ -612,7 +615,6 @@ void Player3D::PlayerCameraControl()
 
 void Player3D::MoveControl()
 {
-	
 	XMFLOAT3 rotCamera;
 	float fHorizontalAxis = GetAxis(MOVEMENT_AXIS_HORIZONTAL);
 	float fVerticalAxis = GetAxis(MOVEMENT_AXIS_VERTICAL);
@@ -630,7 +632,7 @@ void Player3D::MoveControl()
 			fVerticalAxis = 0.19f;
 		else if (fVerticalAxis < -0.19f && pLockedOnEnemy->GetPosition().z>Position.z)
 			fVerticalAxis = -0.19f;
-
+	
 		if (fHorizontalAxis > 0.19f)
 			fHorizontalAxis = 0.19f;
 		else if (fHorizontalAxis < -0.19f)
@@ -644,21 +646,20 @@ void Player3D::MoveControl()
 			fVerticalAxis = -0.19f;
 	}
 	if (fVerticalAxis != 0) {
-
 		Position.x -= sinf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis;
 		Position.z -= cosf(XM_PI + rotCamera.y) * PLAYER_SPEED * fVerticalAxis; 
 	}
 	if (fHorizontalAxis != 0) {
-
 		Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * fHorizontalAxis;
 		Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * fHorizontalAxis;
 		//if (pLockedOnEnemy)
-		//	pLockedOnEnemy->RotateAroundY(-fHorizontalAxis*0.0625f);
+		//	RotateAroundY(-fHorizontalAxis*0.0625f);
 	}
 	if (fVerticalAxis != 0 || fHorizontalAxis != 0)
 	{
 		XMFLOAT3 x3CurrentModelRot = Model->GetRotation();
-		Model->SetRotationY(nModelRotation + Rotation.y);
+		if (!pLockedOnEnemy)
+			Model->SetRotationY(nModelRotation + Rotation.y);
 		if (!GetInput(INPUT_AIM)) {
 			if (IsOnTheFloor()) {
 				if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
@@ -985,19 +986,25 @@ void Player3D::LockModelToObject(GameObject3D * lock)
 void Player3D::LockPlayerToObject(GameObject3D * lock)
 {
 	if (!lock)
-		return;
+	//XMFLOAT3 direction = GetVectorDifference(lock->GetPosition(), Position);
+
+	///////////
+	return;
 	XMFLOAT3 a;
 	XMFLOAT3 calc = GetVectorDifference(lock->GetPosition(), Position);
+	//calc.y = 0;
 	a.x = sin(GetRotation().y);
 	a.y = sin(GetRotation().x);
-	a.z = cos(GetRotation().y);
+	a.z = 0;
 	XMFLOAT3 b = NormalizeVector(calc);
-	XMVECTOR dot = XMVector3Dot(XMLoadFloat3(&a), XMLoadFloat3(&b));
+	float dot = DotProduct(a, b);
+	//XMVECTOR dot = XMVector3Dot(XMLoadFloat3(&a), XMLoadFloat3(&b));
 
 
-	float rotationAngle = (float)acos(XMVectorGetX(dot));
+	float rotationAngle = dot;
 	rotationAngle = ceilf(rotationAngle * 10) / 10;
-	Rotation.y = -rotationAngle;
+	printf("%f\n", -dot);
+
 	if (lock->GetPosition().x < Position.x) {
 		Rotation.y = -rotationAngle;
 		//Rotation = Model->GetRotation();

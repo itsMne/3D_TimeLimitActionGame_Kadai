@@ -29,11 +29,33 @@ bool IsInCollision3D(Box a, Box b)
 	return false;
 }
 
+bool CompareXmfloat3(XMFLOAT3 a, XMFLOAT3 b)
+{
+	if (a.x != b.x)
+		return false;
+	if (a.y != b.y)
+		return false;
+	if (a.z != b.z)
+		return false;
+	return true;
+}
+
 float GetAngle(XMFLOAT3 a, XMFLOAT3 b)
 {
 	return (float)atan2(a.y, a.x) - atan2(b.y, b.x);
 }
-
+float DotProduct(XMFLOAT3 a, XMFLOAT3 b)
+{
+	return (a.x*b.x + a.y*b.y + a.z*b.z);
+}
+XMFLOAT3 MultiplyVector(XMFLOAT3 a, XMFLOAT3 b)
+{
+	return { a.x*b.x, a.y*b.y, a.z*b.z };
+}
+XMFLOAT3 SumVector(XMFLOAT3 a, XMFLOAT3 b)
+{
+	return { a.x+b.x, a.y+b.y, a.z+b.z };
+}
 XMFLOAT3 GetForwardVector(XMFLOAT3 Rot)
 {
 	return {(float)(cos(Rot.x) * cos(Rot.y)), (float)(cos(Rot.x) * sin(Rot.y)), (float)sin(Rot.x)};
@@ -52,4 +74,25 @@ XMFLOAT3 NormalizeVector(XMFLOAT3 v)
 	p.y /= w;
 	p.z /= w;
 	return p;
+}
+
+/*XMFLOAT3 GetLookRotation(XMFLOAT3 dir, XMFLOAT3 up)
+{
+	if (CompareXmfloat3(dir, {0,0,0})) {
+		return {0,0,0};
+	}
+	if (CompareXmfloat3(dir, up)) 
+	{
+		NormalizeVector(up);
+		
+		XMFLOAT3 v = MultiplyVectorByFloat( SumVector(dir, up) , -DotProduct(up, dir));
+		var q = Quaternion.FromToRotation(Vector3.forward, v);
+		return Quaternion.FromToRotation(v, dir) * q;
+	}
+	return XMFLOAT3();
+}*/
+
+XMFLOAT3 MultiplyVectorByFloat(XMFLOAT3 a, float flot)
+{
+	return { a.x*flot, a.y*flot, a.z*flot };
 }

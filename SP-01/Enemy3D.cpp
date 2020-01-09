@@ -76,7 +76,7 @@ void Enemy3D::Init()
 	fSpeed = 1;
 	fY_force = 0;
 	nSendOffFrames = 0;
-	//fSpeed = 0;//del
+	fSpeed = 0;//del
 	bSetDamageA = true;
 	nDizzyFrames = 0;
 	fSendOffPower = 0;
@@ -269,6 +269,8 @@ void Enemy3D::PlayerAttackCollision()
 				return;
 		}
 		pLastAttackPlaying = pCurrentAtk;
+		Position.x;
+		Position.y;
 		pPlayer->LockModelToObject(this);
 	}
 	else {
@@ -283,6 +285,7 @@ void Enemy3D::PlayerAttackCollision()
 	GetMainCamera()->SetShake(2.5f, 8);
 	GetCurrentGame()->SetAtkEffect(30);
 	XMFLOAT3 modelRot;
+
 	switch (pLastAttackPlaying->Animation)
 	{
 	case AIRCOMBOE:

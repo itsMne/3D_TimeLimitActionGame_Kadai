@@ -20,6 +20,7 @@ void InitInputManager()
 void UpdateInputManager()
 {
 	UpdateInput();
+	//printf("%f %f\n", GetMousePosition()->x, GetMousePosition()->y);
 	Player1->UpdateXinput();
 	XinputTriggerControl(true);
 	bXinputConnected = Player1->IsConnected();
@@ -102,6 +103,7 @@ void UpdateInputManager()
 		bUsingKeyBoard = true;
 		fAxis[CAMERA_AXIS_VERTICAL] = 1;
 	}
+	
 	if (GetKeyPress(VK_DOWN))
 	{
 		bUsingKeyBoard = true;
