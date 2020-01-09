@@ -118,6 +118,7 @@ private:
 	float fAnalogLockInput;
 	bool bIsLockedBackwards;
 	bool bIsLokedForward;
+	int nCancellingGravityFrames;
 public:
 	Player3D();
 	Player3D(Light3D* Light);

@@ -118,6 +118,13 @@ void Enemy3D::Update()
 		if (pGame)
 			pUIManager = pGame->GetUIManager();
 	}
+	if (pLastAttackPlaying)
+	{
+		if (pLastAttackPlaying->Animation == SLIDEKICK && pPlayer->GetModel()->GetCurrentAnimation()==SLIDEKICK)
+		{
+			Position.y = pPlayer->GetPosition().y;
+		}
+	}
 	switch (nState)
 	{
 	case ENEMY_IDLE:
@@ -288,6 +295,16 @@ void Enemy3D::PlayerAttackCollision()
 
 	switch (pLastAttackPlaying->Animation)
 	{
+	case SLIDEKICK:
+		pFloor = nullptr;
+		SetEnemyAnimation(DAMAGEDUP_ANIM);
+		nFaceCooldown = 0;
+		FacePlayer();
+		modelRot = pPlayer->GetModel()->GetRotation();
+		nGravityCancellingFrames = 15;
+		Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
+		Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
+		break;
 	case AIRCOMBOE:
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		modelRot = pPlayer->GetModel()->GetRotation();
@@ -407,9 +424,11 @@ void Enemy3D::PlayerAttackCollision()
 		}
 		else {
 			nGravityCancellingFrames = 15;
-			Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
-			Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
+			Position.x -= sinf(XM_PI + modelRot.y) * 0.5f;
+			Position.z -= cosf(XM_PI + modelRot.y) * 0.5f;
 		}
+		if (pLastAttackPlaying->Animation == SLIDE)
+			pPlayer->GetModel()->SetFrameOfAnimation(1167);
 		break;
 	}
 }

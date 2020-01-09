@@ -41,14 +41,16 @@ PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 	{"KK" ,   KICKB,      false, GROUND_MOVE,	  3041	},
 	{"KKK",   KICKC,      true,  GROUND_MOVE,	  3102	},
 	{"AAAK",  KICKC,      true,     GROUND_MOVE,  3102	},
-	{"AAK",   SLIDEKICK,      true,  GROUND_MOVE,  3102	},
+	{"AAK",   SLIDEKICK,      true,  GROUND_MOVE,  1319	},
 	{"K",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},
 	//向こうインプット
 	{"BA",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},//TEMP
 	{"FA",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},//TEMP
-	{"FK"  ,   SLIDE,      true, GROUND_MOVE,	  2981	}, //TEMP
-	{"BK"  ,   KICKA,      false, GROUND_MOVE,	  2981	}, //TEMP
+	{"FK"  ,   SLIDE,      true, GROUND_MOVE,	  1164	},
+	{"BK"  ,   SLIDEKICK,      false, GROUND_MOVE,	  1319	},
+	//{"BFK"  ,   KICKC,      false, GROUND_MOVE,	  3102	},
 	{"FK",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
+	{"BK",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
@@ -109,6 +111,7 @@ void Player3D::Init()
 	pLockedOnEnemy = nullptr;
 	pCurrentGame = nullptr;
 	fAtkAcceleration = 0;
+	nCancellingGravityFrames = 0;
 	pCurrentAttackPlaying = nullptr;
 	bSwitcheToAimingState = false; 
 	bIsLockedBackwards = false;
@@ -218,7 +221,7 @@ void Player3D::Update()
 	if (!pCurrentGame)
 		pCurrentGame = GetCurrentGame();
 	S_InGame3D* pGame = (S_InGame3D*)pCurrentGame;
-	if (GetInput(INPUT_LOCKON) && !pLockedOnEnemy && pGame)
+	if (GetInput(INPUT_LOCKON) && !pLockedOnEnemy && pGame && !GetInput(INPUT_AIM))
 	{
 		XMFLOAT3 ModelRot = Model->GetRotation();
 		Hitboxes[PLAYER_HB_LOCK].PositionX = -sinf(XM_PI + ModelRot.y) * 25;
@@ -250,7 +253,7 @@ void Player3D::Update()
 			pMainCamera->SetZoomLock(flock);
 		else
 			pMainCamera->SetZoomLock(0);
-		if (flock < -150) {
+		if (flock < -150 || GetInput(INPUT_AIM)) {
 			pLockedOnEnemy = nullptr;
 			pMainCamera->SetZoomLock(0);
 			pMainCamera->SetYOffsetLock(0);
@@ -393,13 +396,44 @@ void Player3D::PlayerAttackingControl()
 	float AttackHitboxDistance = 10;
 	switch (pCurrentAttackPlaying->Animation)
 	{
+	case SLIDEKICK:
+		if (nCurrentFrame < 1221) {
+			fY_force = -JUMP_FORCE;
+			break;
+		}
+		pFloor = nullptr;
+		fY_force += GRAVITY_FORCE;
+		if (fY_force > 0)
+			fY_force = 0;
+		Position.y -= fY_force;
+		if (nCurrentFrame > 1311)
+			fY_force = 0;
+		AttackHitboxDistance = 7;
+		Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
+		//nCancellingGravityFrames = 10;
+		break;
+	case SLIDE:
+		if (nCurrentFrame > 1122 && nCurrentFrame < 1164)
+		{
+			Position.x -= sinf(XM_PI + ModelRot.y) * 6;
+			Position.z -= cosf(XM_PI + ModelRot.y) * 6;
+			AttackHitboxDistance = 5;
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+		}
+		if (bIsLockedBackwards && GetInput(INPUT_KICK) && nCurrentFrame > 1148)
+		{
+			bIsLockedBackwards = bIsLokedForward = false;
+			printf("\nhi\n");
+			Attack("AAK");
+		}
+		break;
 	case BASIC_CHAIN_A:
 		GravityControl(false);
 		AttackDistanceAcceleration = 0.125f;
 		if (nCurrentFrame > 430 && nCurrentFrame < 460) {
 			if (fAtkAcceleration<2.5f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -416,7 +450,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 576 && nCurrentFrame < 590) {
 			if (fAtkAcceleration < 4.5f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -433,7 +467,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 755 && nCurrentFrame < 775) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -450,7 +484,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 855 && nCurrentFrame < 894) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -467,7 +501,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 1008 && nCurrentFrame < 1018) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -484,7 +518,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 2966 && nCurrentFrame < 2973) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -501,7 +535,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 3014 && nCurrentFrame < 3030) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -518,7 +552,7 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 3075 && nCurrentFrame < 3088) {
 			if (fAtkAcceleration < 5.0f)
 				fAtkAcceleration += AttackDistanceAcceleration;
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		}
 		else
 		{
@@ -530,7 +564,7 @@ void Player3D::PlayerAttackingControl()
 		Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	case KICK_DOWN:
-		Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+		Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,8.5f };
 		if (++nCountFrame>8)
 			GravityControl(false);
 		else
@@ -551,24 +585,29 @@ void Player3D::PlayerAttackingControl()
 		//Position.z -= cosf(XM_PI + ModelRot.y) * fAtkAcceleration;
 		break;
 	case AIRCOMBOA:
+		nCancellingGravityFrames = 10;
 		if (nCurrentFrame > 1394 && nCurrentFrame < 1412)
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
 		break;
 	case AIRCOMBOB:
+		nCancellingGravityFrames = 10;
 		if (nCurrentFrame > 1520 && nCurrentFrame < 1538)
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
 		break;
 	case AIRCOMBOC:
+		nCancellingGravityFrames = 10;
 		if (nCurrentFrame > 1647 && nCurrentFrame < 1664)
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
 		break;
 	case AIRCOMBOD:
+		nCancellingGravityFrames = 10;
 		if (nCurrentFrame > 1792 && nCurrentFrame < 1806)
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
 		break;
 	case AIRCOMBOE:
+		nCancellingGravityFrames = 10;
 		if (nCurrentFrame > 1954 && nCurrentFrame < 1973)
-			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
 		break;
 	default:
 		break;
@@ -596,6 +635,9 @@ void Player3D::GravityControl(bool bCountAttackState)
 {
 	if (nState == PLAYER_ATTACKING_STATE && bCountAttackState)
 		return;
+	if (--nCancellingGravityFrames > 0)
+		return;
+	nCancellingGravityFrames = 0;
 	if (pFloor) {
 		bool bCurrentfloorcol = IsInCollision3D(pFloor->GetHitbox(), GetHitboxPlayer(PLAYER_HB_FEET));
 		if (!bCurrentfloorcol) {
@@ -651,13 +693,20 @@ void Player3D::MoveControl()
 	//printf("ANALOG ROT: %f\n", nModelRotation);
 	//printf("MODEL ROT: %f\n", Model->GetRotation().y);
 
-	if (pLockedOnEnemy)
+	if (GetInput(INPUT_LOCKON))
 	{
-		if (fVerticalAxis > 0.19f && pLockedOnEnemy->GetPosition().z<Position.z)
-			fVerticalAxis = 0.19f;
-		else if (fVerticalAxis < -0.19f && pLockedOnEnemy->GetPosition().z>Position.z)
-			fVerticalAxis = -0.19f;
-	
+		if (pLockedOnEnemy) {
+			if (fVerticalAxis > 0.19f && pLockedOnEnemy->GetPosition().z < Position.z)
+				fVerticalAxis = 0.19f;
+			else if (fVerticalAxis < -0.19f && pLockedOnEnemy->GetPosition().z>Position.z)
+				fVerticalAxis = -0.19f;
+		}
+		else {
+			if (fVerticalAxis > 0.19f)
+				fVerticalAxis = 0.19f;
+			else if (fVerticalAxis < -0.19f)
+				fVerticalAxis = -0.19f;
+		}
 		if (fHorizontalAxis > 0.19f)
 			fHorizontalAxis = 0.19f;
 		else if (fHorizontalAxis < -0.19f)
@@ -683,7 +732,7 @@ void Player3D::MoveControl()
 	{
 		
 		XMFLOAT3 x3CurrentModelRot = Model->GetRotation();
-		if (!pLockedOnEnemy)
+		if (!GetInput(INPUT_LOCKON))
 			Model->SetRotationY(nModelRotation + Rotation.y);
 		else
 		{
