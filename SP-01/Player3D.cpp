@@ -13,34 +13,42 @@
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
 #define MAX_INPUT_TIMER 25
-#define MAX_ATTACKS 16
+#define MAX_ATTACKS 22
 #define MAX_FLOWER_TIMER 15
 #define DEBUG_ANIMATION_FRAME false
 #define SHOW_PLAYER_HITBOX false
-
+#define DEBUG_ADD_INPUTS false
+#define DEBUG_ATTACK_INPUTS false
+#define DEBUG_ANALOG_INPUTS false
 Player3D* pMainPlayer3D = nullptr;
 
 
 
 PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 {
-	{"A",	 BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},
-	{"AA",	 BASIC_CHAIN_B,   false, GROUND_MOVE, 630	},
-	{"AAA",	 BASIC_CHAIN_C,   false, GROUND_MOVE, 780	},
-	{"AAAA", BASIC_CHAIN_D,	  false, GROUND_MOVE, 950	},
-	{"AAAAA",BASIC_CHAIN_E,   true,  GROUND_MOVE, 1098	},
-	{"A",	 AIRCOMBOA,       false, AIR_MOVE,	  1403	},
-	{"AA",	 AIRCOMBOB,       false, AIR_MOVE,	  1535	},
-	{"AAA",	 AIRCOMBOC,       false, AIR_MOVE,	  1669	},
-	{"AAAA", AIRCOMBOD,       false, AIR_MOVE,	  1820	},
-	{"AAAAA",AIRCOMBOE,       true, AIR_MOVE,	  2000	},
+	{"A",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},
+	{"AA",	  BASIC_CHAIN_B,   false, GROUND_MOVE, 630	},
+	{"AAA",	  BASIC_CHAIN_C,   false, GROUND_MOVE, 780	},
+	{"AAAA",  BASIC_CHAIN_D,	  false, GROUND_MOVE, 950	},
+	{"AAAAA", BASIC_CHAIN_E,   true,  GROUND_MOVE, 1098	},
+	{"A",	  AIRCOMBOA,       false, AIR_MOVE,	  1403	},
+	{"AA",	  AIRCOMBOB,       false, AIR_MOVE,	  1535	},
+	{"AAA",	  AIRCOMBOC,       false, AIR_MOVE,	  1669	},
+	{"AAAA",  AIRCOMBOD,       false, AIR_MOVE,	  1820	},
+	{"AAAAA", AIRCOMBOE,       true, AIR_MOVE,	  2000	},
 
-	{"K"  ,  KICKA,      false, GROUND_MOVE,	  2981	},
-	{"KK" ,  KICKB,      false, GROUND_MOVE,	  3041	},
-	{"KKK",  KICKC,      true,  GROUND_MOVE,	  3102	},
+	{"K"  ,   KICKA,      false, GROUND_MOVE,	  2981	},
+	{"KK" ,   KICKB,      false, GROUND_MOVE,	  3041	},
+	{"KKK",   KICKC,      true,  GROUND_MOVE,	  3102	},
 	{"AAAK",  KICKC,      true,     GROUND_MOVE,  3102	},
-	{"AAK",  SLIDEKICK,      true,  GROUND_MOVE,  3102	},
-	{"K",  KICK_DOWN,      true,  AIR_MOVE,	      3176	},
+	{"AAK",   SLIDEKICK,      true,  GROUND_MOVE,  3102	},
+	{"K",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},
+	//向こうインプット
+	{"BA",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},//TEMP
+	{"FA",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},//TEMP
+	{"FK"  ,   SLIDE,      true, GROUND_MOVE,	  2981	}, //TEMP
+	{"BK"  ,   KICKA,      false, GROUND_MOVE,	  2981	}, //TEMP
+	{"FK",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 {
@@ -52,7 +60,7 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{3.75f},//BASIC_CHAIN_C
 	{3.75f},//BASIC_CHAIN_D
 	{3.75f},//BASIC_CHAIN_E
-	{1},//SLIDE,
+	{2},//SLIDE,
 	{2.95f},//SLIDEKICK,
 	{2.7f},//AIRCOMBOA,
 	{2.7f},//AIRCOMBOB,
@@ -103,11 +111,13 @@ void Player3D::Init()
 	fAtkAcceleration = 0;
 	pCurrentAttackPlaying = nullptr;
 	bSwitcheToAimingState = false; 
+	bIsLockedBackwards = false;
+	bIsLokedForward = false;
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
 		goBullets[i] = nullptr;
 	}
-
+	fAnalogLockInput = 0;
 	strcpy(szInputs, "********");
 	SetScale(PLAYER_SCALE);
 	pMainPlayer3D = this;
@@ -226,22 +236,32 @@ void Player3D::Update()
 	if (!GetInput(INPUT_LOCKON) && pLockedOnEnemy) {
 		pLockedOnEnemy = nullptr;
 		//pMainCamera->SetFocalPointGO(this);
-		//pMainCamera->SetZoomLock(0);
-		//pMainCamera->SetYOffsetLock(0);
+		pMainCamera->SetZoomLock(0);
+		pMainCamera->SetYOffsetLock(0);
 	}
 	LockModelToObject(pLockedOnEnemy);
 	if (pLockedOnEnemy)
 	{
-		
-		
 		//pMainCamera->SetFocalPointGO(pLockedOnEnemy);
-		//pMainCamera->SetYOffsetLock(-10);
-		//pMainCamera->SetZoomLock(80 - (pLockedOnEnemy->GetPosition().z - Position.z) - -(pLockedOnEnemy->GetPosition().y - Position.y));
+		pMainCamera->SetYOffsetLock(-10);
+		float flock = 80 - (pLockedOnEnemy->GetPosition().z - Position.z) - -(pLockedOnEnemy->GetPosition().y - Position.y);
+		//printf("%f\n", flock);
+		if(flock<0)
+			pMainCamera->SetZoomLock(flock);
+		else
+			pMainCamera->SetZoomLock(0);
+		if (flock < -150) {
+			pLockedOnEnemy = nullptr;
+			pMainCamera->SetZoomLock(0);
+			pMainCamera->SetYOffsetLock(0);
+		}
 	}
 
 
 	pDebugAim->SetPosition({ Position.x, Position.y+10, Position.z });
 	AttackInputsControl();
+	bIsLockedBackwards = false;
+	bIsLokedForward = false;
 	GravityControl(true);
 	if (!IsPlayerAiming() && nState != PLAYER_DODGE_UP && nState != PLAYER_DODGE_DOWN)
 	{
@@ -322,6 +342,7 @@ void Player3D::Update()
 	PlayerBulletsControl();
 	PlayerShadowControl();
 	UpdateFlowers();
+
 }
 
 void Player3D::AttackInputsControl()
@@ -341,6 +362,7 @@ void Player3D::AttackInputsControl()
 			}
 			else {
 				ResetInputs();
+				fAnalogLockInput = 0;
 			}
 			nInputTimer = 0;
 		}
@@ -626,6 +648,9 @@ void Player3D::MoveControl()
 	}
 	//スティック
 	float nModelRotation = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
+	//printf("ANALOG ROT: %f\n", nModelRotation);
+	//printf("MODEL ROT: %f\n", Model->GetRotation().y);
+
 	if (pLockedOnEnemy)
 	{
 		if (fVerticalAxis > 0.19f && pLockedOnEnemy->GetPosition().z<Position.z)
@@ -652,14 +677,49 @@ void Player3D::MoveControl()
 	if (fHorizontalAxis != 0) {
 		Position.x -= sinf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * fHorizontalAxis;
 		Position.z -= cosf(rotCamera.y - XM_PI * 0.50f) * PLAYER_SPEED * fHorizontalAxis;
-		//if (pLockedOnEnemy)
-		//	RotateAroundY(-fHorizontalAxis*0.0625f);
 	}
+
 	if (fVerticalAxis != 0 || fHorizontalAxis != 0)
 	{
+		
 		XMFLOAT3 x3CurrentModelRot = Model->GetRotation();
 		if (!pLockedOnEnemy)
 			Model->SetRotationY(nModelRotation + Rotation.y);
+		else
+		{
+			float abs = Model->GetRotation().y - nModelRotation;
+			if (abs < 0)
+				abs *= -1;
+			float fDifferenceChangeInFrame = fAnalogLockInput - abs;
+			if (fDifferenceChangeInFrame < 0)
+				fDifferenceChangeInFrame *= -1;
+#if DEBUG_ANALOG_INPUTS
+			printf("DIF: %f\n", fDifferenceChangeInFrame);
+#endif
+			fAnalogLockInput = abs;
+			if (fAnalogLockInput < 1)
+			{
+				bIsLokedForward = true;
+			}
+			else
+			{
+				bIsLockedBackwards = true;
+			}
+			if (fDifferenceChangeInFrame > 1.5f)
+			{
+				//変化があった
+				nInputTimer = (MAX_INPUT_TIMER / 2);
+				if (fAnalogLockInput < 1)
+				{
+					AddInput('F');
+				}
+				else
+				{
+					AddInput('B');
+				}
+			}
+			
+		}
 		if (!GetInput(INPUT_AIM)) {
 			if (IsOnTheFloor()) {
 				if (fVerticalAxis < 0.2f && fHorizontalAxis < 0.2f &&
@@ -824,12 +884,17 @@ bool Player3D::IsOnTheFloor()
 
 void Player3D::AddInput(char A)
 {
-	if (A == 'S' && szInputs[0] == '*')
+	if (A == 'P' && szInputs[0] == '*')
 		return;
+	if (A == 'P')
+		fAnalogLockInput = 0;
 	for (int i = 0; i < MAX_PLAYER_INPUT; i++)
 	{
 		if (szInputs[i] == '*') {
 			szInputs[i] = A;
+#if DEBUG_ADD_INPUTS
+			printf("INPUTS: %s\n", szInputs);
+#endif
 			return;
 		}
 	}
@@ -841,6 +906,9 @@ void Player3D::AddInput(char A)
 		}
 		else {
 			szInputs[i] = A;
+#if DEBUG_ADD_INPUTS
+			printf("INPUTS: %s\n", szInputs);
+#endif
 		}
 	}
 }
@@ -868,6 +936,10 @@ void Player3D::Attack(const char * atkInput)
 	int i = 0;
 	for (i = 0; i < MAX_PLAYER_INPUT && atkInput[i] != '*'; szAtkInput[i] = atkInput[i], i++);
 	szAtkInput[i] = '\0';
+
+#if DEBUG_ATTACK_INPUTS
+	printf("%s\n", atkInput);
+#endif
 	Attack(szAtkInput, MAX_PLAYER_INPUT);
 }
 
@@ -875,15 +947,26 @@ void Player3D::Attack(const char * atkInput, int recursions)
 {
 	if (recursions <= 0)
 		return;
+	char AtkInputComp[MAX_PLAYER_INPUT + 1];
+	strcpy(AtkInputComp, atkInput);
+	if (bIsLockedBackwards && !strcmp(AtkInputComp, "A"))
+		strcpy(AtkInputComp, "BA");
+	if (bIsLokedForward && !strcmp(AtkInputComp, "A"))
+		strcpy(AtkInputComp, "FA");
+	if (bIsLockedBackwards && !strcmp(AtkInputComp, "K"))
+		strcpy(AtkInputComp, "BK");
+	if (bIsLokedForward && !strcmp(AtkInputComp, "K"))
+		strcpy(AtkInputComp, "FK");
+
 	for (int i = 0; i < MAX_ATTACKS; i++)
 	{
 		if (stAllMoves[i].eAirMove == GROUND_MOVE && !IsOnTheFloor()
 			|| stAllMoves[i].eAirMove == AIR_MOVE && IsOnTheFloor())
 			continue;
-		if (!strcmp(stAllMoves[i].Input, atkInput))
+		if (!strcmp(stAllMoves[i].Input, AtkInputComp))
 		{
 			fAtkAcceleration = 0;
-			//printf("FOUND AT: %d\n", i);
+			printf("FOUND AT: %d\n", i);
 			pCurrentAttackPlaying = &stAllMoves[i];
 			nState = PLAYER_ATTACKING_STATE;
 			if (stAllMoves[i].ResetInputs)
@@ -1003,7 +1086,7 @@ void Player3D::LockPlayerToObject(GameObject3D * lock)
 
 	float rotationAngle = dot;
 	rotationAngle = ceilf(rotationAngle * 10) / 10;
-	printf("%f\n", -dot);
+	//printf("%f\n", -dot);
 
 	if (lock->GetPosition().x < Position.x) {
 		Rotation.y = -rotationAngle;

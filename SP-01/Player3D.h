@@ -115,6 +115,9 @@ private:
 	void* pCurrentGame;
 	GameObject3D* pLockedOnEnemy;
 	int nRecoveryFrames;
+	float fAnalogLockInput;
+	bool bIsLockedBackwards;
+	bool bIsLokedForward;
 public:
 	Player3D();
 	Player3D(Light3D* Light);

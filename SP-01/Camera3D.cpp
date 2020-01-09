@@ -60,7 +60,7 @@ HRESULT Camera3D::Init()
 	fAcceleration = 0;
 	fAttackZoom = 0;
 	fLockOnZoom = 0;
-	fLockOnYOffset = 0;
+	fLockOnOffset = 0;
 	return S_OK;
 }
 
@@ -143,11 +143,11 @@ void Camera3D::Update()
 			vEye = REGULAR_OBJECT_DISTANCE;
 		XMMATRIX mtxWorld = XMLoadFloat4x4(FocusPoint->GetModelWorld());
 		vEye.x += vsOffset.x;
-		vEye.y += vsOffset.y + fLockOnYOffset;
+		vEye.y += vsOffset.y;
 		vEye.z += vsOffset.z + fLockOnZoom;
 
 		vLookAt.x += vsOffset.x;
-		vLookAt.y += vsOffset.y;// +fLockOnYOffset;
+		vLookAt.y += vsOffset.y;
 
 		
 
@@ -317,7 +317,7 @@ void Camera3D::SetZoomLock(float flock)
 
 void Camera3D::SetYOffsetLock(float OffsetLockOnY)
 {
-	fLockOnYOffset = OffsetLockOnY;
+	fLockOnOffset = OffsetLockOnY;
 }
 
 void Camera3D::SetAttackZoom(float Zoom, float AttackZoomFrames)

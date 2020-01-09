@@ -18,7 +18,7 @@ private:
 	 XMFLOAT2			ShakeForce;
 	 float				fAcceleration;
 	 float				fLockOnZoom;
-	 float				fLockOnYOffset;
+	 float				fLockOnOffset;
 	 float				fAttackZoom;
 	 float				fMaxAttackZoom;
 	 float				fAttackZoomFrames;
