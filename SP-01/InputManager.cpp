@@ -30,6 +30,9 @@ void UpdateInputManager()
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
 
+	bInputs[INPUT_MENU_LEFT] = GetKeyTrigger(VK_A);
+	bInputs[INPUT_MENU_RIGHT] = GetKeyTrigger(VK_D);
+
 	bInputs[INPUT_LOCKON] = GetKeyPress(VK_SHIFT);
 
 	bInputs[INPUT_JUMP] = GetKeyTrigger(VK_K) || GetKeyTrigger(VK_SPACE) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);

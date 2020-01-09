@@ -292,6 +292,17 @@ XMFLOAT2 Polygon2D::GetPolygonPos()
 	return { Position.x,Position.y };
 }
 
+XMFLOAT2 Polygon2D::GetPolygonInitialPos()
+{
+	return { InitPosition.x,InitPosition.y };
+}
+
+void Polygon2D::bScaleUp(float scal)
+{
+	Scale.x += scal;
+	Scale.y += scal;
+}
+
 //=============================================================================
 // テクスチャの設定
 //=============================================================================
@@ -308,6 +319,14 @@ void Polygon2D::SetPolygonPos(float fX, float fY)
 {
 	Position.x = fX;
 	Position.y = fY;
+}
+
+void Polygon2D::SetPolygonPos(float fX, float fY, bool IsInit)
+{
+	Position.x = fX;
+	Position.y = fY;
+	if (IsInit)
+		InitPosition = Position;
 }
 
 //=============================================================================
@@ -364,6 +383,20 @@ void Polygon2D::SetPolygonAlpha(float fAlpha)
 		g_colPolygon.w = fAlpha;
 		g_bInvalidate = true;
 	}
+}
+
+void Polygon2D::RotateAroundY(float frot)
+{
+	Rotation.y += frot;
+	if (Rotation.y >= 360)
+		Rotation.y -= 360;
+}
+
+void Polygon2D::RotateAroundZ(float frot)
+{
+	Rotation.z += frot;
+	if (Rotation.z >= 360)
+		Rotation.z -= 360;
 }
 
 

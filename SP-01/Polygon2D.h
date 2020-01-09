@@ -28,6 +28,7 @@ protected:
 	VERTEX_2D					g_vertexWk[NUM_VERTEX];	// 頂点情報格納ワーク
 
 	XMFLOAT3						Position;			// ポリゴンの移動量
+	XMFLOAT3						InitPosition;			// ポリゴンの移動量
 	XMFLOAT3						Rotation;			// ポリゴンの回転量
 	XMFLOAT3						Scale;			// ポリゴンのサイズ
 	XMFLOAT4						g_colPolygon;			// ポリゴンの頂点カラー
@@ -61,16 +62,21 @@ public:
 	void DrawPolygon(ID3D11DeviceContext* pDeviceContext);
 	void SetTexture(ID3D11ShaderResourceView* pTexture);
 	void SetPolygonPos(float fX, float fY);
+	void SetPolygonPos(float fX, float fY, bool IsInit);
 	void SetPolygonSize(float fScaleX, float fScaleY);
 	void SetPolygonAngle(float fAngle);
 	void SetPolygonUV(float fU, float fV);
 	void SetPolygonFrameSize(float fWidth, float fHeight);
 	void SetColor(float fRed, float fGreen, float fBlue);
 	void SetPolygonAlpha(float fAlpha);
+	void RotateAroundY(float frot);
+	void RotateAroundZ(float frot);
 	HRESULT MakeVertexPolygon(ID3D11Device* pDevice);
 	void SetVertexPolygon(void);
 	void Translate(XMFLOAT2);
 	XMFLOAT2 GetPolygonSize();
 	XMFLOAT2 GetPolygonPos();
+	XMFLOAT2 GetPolygonInitialPos();
+	void bScaleUp(float scal);
 };
 #endif

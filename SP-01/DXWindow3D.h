@@ -56,3 +56,4 @@ public:
 DXWindow3D* GetMainWindow();
 int GetMainWindowFPS();
 void SetCullMode(int nCullMode);
+void EndCurrentGame();

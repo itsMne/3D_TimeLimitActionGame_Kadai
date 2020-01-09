@@ -11,10 +11,11 @@
 #define WINDOW_NAME		_T("カメラ処理")	// ウインドウのキャプション名
 
 DXWindow3D* pMainWindow = nullptr;
-
+bool bGameIsEnd;
 
 DXWindow3D::DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow, bool bIsMainWindow)
 {
+	bGameIsEnd = false;
 	fR = 0;
 	fG = 0;
 	fB = 0;
@@ -432,7 +433,10 @@ LRESULT DXWindow3D::DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	default:
 		break;
 	}
-
+	if (bGameIsEnd)
+	{
+		PostMessage(hWnd, WM_CLOSE, 0, 0);
+	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
@@ -509,4 +513,15 @@ void SetCullMode(int nCullMode)
 	{
 		GetMainWindow()->SetCull(nCullMode);
 	}
+}
+
+//*****************************************************************************
+//EndCurrentGame関数
+//ゲームが終わる変数を管理する
+//引数：void
+//戻：void
+//*****************************************************************************
+void EndCurrentGame()
+{
+	bGameIsEnd = true;
 }
