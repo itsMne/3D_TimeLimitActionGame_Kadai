@@ -13,17 +13,40 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
+char ModelPaths[MAX_PRELOADED_MODELS][256] = 
+{
+	"data/model/Enemy.fbx",
+	"data/model/Cube2.fbx",
+};
 
-
+CFbxModel* Models[MAX_PRELOADED_MODELS] = { nullptr };
 
 Model3D::Model3D(void* pParent, const char*ModelPath)
 {
 	pMainCamera = nullptr;
 	nFramCount = 0;
+	nCurrentAnimation = 0;
+	nInitialFrame = 0;
+	nFinalFrame = 0;
 	nAnimationFrameSlowness = 0;
 	fAnimationSkipFrame = 1;
 	GameObjectParent = nullptr;
 	GameObjectParent = pParent;
+	InitModel(ModelPath);
+	bLoop = true;
+}
+
+Model3D::Model3D(void * Parent, int ModelPath)
+{
+	pMainCamera = nullptr;
+	nFramCount = 0;
+	nCurrentAnimation = 0;
+	nInitialFrame = 0;
+	nFinalFrame = 0;
+	nAnimationFrameSlowness = 0;
+	fAnimationSkipFrame = 1;
+	GameObjectParent = nullptr;
+	GameObjectParent = Parent;
 	InitModel(ModelPath);
 	bLoop = true;
 }
@@ -67,17 +90,52 @@ HRESULT Model3D::InitModel(const char* ModelPath)
 		if (pLight)
 			g_pModel->SetLight(pLight->GetLight());
 	}
+	bPreLoadedModel = false;
 	return hr;
 }
 
 
+HRESULT Model3D::InitModel(int ModelPath)
+{
+	if (ModelPath > MAX_PRELOADED_MODELS || ModelPath < 0)
+		return S_OK;
+	HRESULT hr = S_OK;
+	ID3D11Device* pDevice = GetDevice();
+	ID3D11DeviceContext* pDeviceContext = GetDeviceContext();
+	pMainCamera = GetMainCamera();
+	if (!pMainCamera)
+	{
+		printf("メインカメラがありません\n");
+		return S_OK;
+	}
+	Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float ModelScale = 1.0f;
+	Scale = XMFLOAT3(ModelScale, ModelScale, ModelScale);
+	// FBXファイルの読み込み
+	if (!Models[ModelPath]) {
+		Models[ModelPath] = new CFbxModel();
+		Light3D* pLight = GetMainLight();
+		fFrame = Models[ModelPath]->GetInitialAnimFrame();
+		Models[ModelPath]->SetCamera(pMainCamera->GetCameraPos());
+		Models[ModelPath]->Init(pDevice, pDeviceContext, ModelPaths[ModelPath]);
+		g_pModel = Models[ModelPath];
+		SetLight(pLight);
+	}
+	else {
+		g_pModel = Models[ModelPath];
+	}
+	bPreLoadedModel = true;
+	return S_OK;
+}
 //=============================================================================
 // 終了処理
 //=============================================================================
 void Model3D::UninitModel(void)
 {
 	// FBXファイルの解放
-	SAFE_DELETE(g_pModel);
+	if (!bPreLoadedModel)
+		SAFE_DELETE(g_pModel);
 }
 
 //=============================================================================
@@ -90,7 +148,7 @@ void Model3D::UpdateModel(void)
 
 void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, float AnimationFrameSkip)
 {
-	if (g_pModel->GetCurrentAnimation() == nNewAnimNum) {
+	if (nCurrentAnimation == nNewAnimNum) {
 		if(nAnimationFrameSlowness != FrameSlowness)
 			nAnimationFrameSlowness = FrameSlowness;
 		if (fAnimationSkipFrame != AnimationFrameSkip)
@@ -99,8 +157,10 @@ void Model3D::SwitchAnimation(int nNewAnimNum, int FrameSlowness, float Animatio
 	}
 	nCountLoop = 0;
 	nAnimationFrameSlowness = FrameSlowness;
+	nCurrentAnimation = nNewAnimNum;
 	g_pModel->SetAnimStack(nNewAnimNum);
-	fFrame = g_pModel->GetInitialAnimFrame();
+	nInitialFrame = fFrame = g_pModel->GetInitialAnimFrame();
+	nFinalFrame = g_pModel->GetMaxAnimFrame();
 	fAnimationSkipFrame = AnimationFrameSkip;
 	nFramCount = 0;
 }
@@ -149,7 +209,7 @@ void Model3D::DrawModel(void)
 	// ワールドマトリックスの設定
 	XMStoreFloat4x4(&g_mtxWorld, mtxWorld);
 
-
+	g_pModel->SetAnimStack(nCurrentAnimation);
 	AnimationControl();
 	SetZWrite(true);
 	g_pModel->Render(g_mtxWorld, pMainCamera->GetViewMatrix(), pMainCamera->GetProjMatrix(), eOpacityOnly);
@@ -162,11 +222,11 @@ void Model3D::AnimationControl()
 	if (++nFramCount >= nAnimationFrameSlowness) {
 		nFramCount = 0;
 		fFrame += fAnimationSkipFrame;
-		if (fFrame >= g_pModel->GetMaxAnimFrame()) {
+		if (fFrame >= nFinalFrame) {
 			if (++nCountLoop > MAX_LOOPS)
 				nCountLoop = MAX_LOOPS;
 			if(bLoop)
-				fFrame = g_pModel->GetInitialAnimFrame();
+				fFrame = nInitialFrame;
 		}
 		g_pModel->SetAnimFrame((int)fFrame);
 	}
@@ -194,7 +254,7 @@ void Model3D::SetScale(float newScale)
 
 int Model3D::GetNumberOfAnimations()
 {
-	return g_pModel->GetMaxNumberOfAnimations();;
+	return g_pModel->GetMaxNumberOfAnimations();
 }
 
 void Model3D::SetParent(void * newParent)
@@ -254,19 +314,17 @@ void Model3D::SetLight(Light3D * newLight)
 
 int Model3D::GetCurrentAnimation()
 {
-	return g_pModel->GetCurrentAnimation();
+	return nCurrentAnimation;
 }
 
 int Model3D::GetCurrentFrameOfAnimation()
 {
-	return g_pModel->GetCurrentAnimationFrame();
+	return (int)fFrame;
 }
 
 int Model3D::GetEndFrameOfCurrentAnimation()
 {
-	if (g_pModel)
-		return g_pModel->GetMaxAnimFrame();
-	return 0;
+	return nFinalFrame;
 }
 
 int Model3D::GetCurrentFrame()

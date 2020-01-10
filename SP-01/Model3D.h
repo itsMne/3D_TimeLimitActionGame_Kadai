@@ -5,6 +5,14 @@
 #include "FbxModel.h"
 #include "Light3D.h"
 //#include "Camera3D.h"
+enum MyEnum
+{
+	ENEMY_WARRIOR_MODEL_PATH,
+	WALL_MODEL_PATH,
+	//SPIKE_MODEL,
+	MAX_PRELOADED_MODELS,
+};
+
 class Model3D
 {
 private:
@@ -18,15 +26,21 @@ private:
 	float fFrame;
 	int nFramCount;
 	int nAnimationFrameSlowness;
+	int nCurrentAnimation;
+	int nInitialFrame;
+	int nFinalFrame;
 	float fAnimationSkipFrame;
 	void* GameObjectParent;
 	Light3D* pLight;
 	int nCountLoop;
 	bool bLoop;
+	bool bPreLoadedModel;
 public:
 	Model3D(void* Parent, const char*ModelPath);
+	Model3D(void* Parent, int ModelPath);
 	~Model3D();
 	HRESULT InitModel(const char*ModelPath);
+	HRESULT InitModel(int ModelPath);
 	void UninitModel(void);
 	void UpdateModel(void);
 	void SwitchAnimation(int nNewAnimNum, int FrameSlowness, float nAnimationSkipFrame);

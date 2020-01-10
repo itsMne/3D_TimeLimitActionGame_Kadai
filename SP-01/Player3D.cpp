@@ -13,13 +13,13 @@
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
 #define MAX_INPUT_TIMER 25
-#define MAX_ATTACKS 22
+#define MAX_ATTACKS 24
 #define MAX_FLOWER_TIMER 15
 #define DEBUG_ANIMATION_FRAME false
 #define SHOW_PLAYER_HITBOX false
 #define DEBUG_ADD_INPUTS false
 #define DEBUG_ATTACK_INPUTS false
-#define DEBUG_ANALOG_INPUTS false
+#define DEBUG_ANALOG_INPUTS true
 Player3D* pMainPlayer3D = nullptr;
 
 
@@ -42,7 +42,9 @@ PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 	{"KKK",   KICKC,      true,  GROUND_MOVE,	  3102	},
 	{"AAAK",  KICKC,      true,     GROUND_MOVE,  3102	},
 	{"AAK",   SLIDEKICK,      true,  GROUND_MOVE,  1319	},
-	{"K",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},
+	{"K",	  AIRKICKA,      false,  AIR_MOVE,	      3495	},
+	{"KK",	  AIRKICKB,      false,  AIR_MOVE,	      3592	},
+	{"KKK",	  AIRKICKC,      true,  AIR_MOVE,	      3660	},
 	//向こうインプット
 	{"BA",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},//TEMP
 	{"FA",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},//TEMP
@@ -85,6 +87,10 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1},//DAMAGEA,
 	{1},//DAMAGEB,
 	{1.5f},//DAMAGEC,
+	{1.5f},//,
+	{1.5f},//,
+	{1.5f},//,
+	{1.5f},//,
 };
 
 Player3D::Player3D() :GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
@@ -736,21 +742,23 @@ void Player3D::MoveControl()
 			Model->SetRotationY(nModelRotation + Rotation.y);
 		else
 		{
-			float abs = Model->GetRotation().y - nModelRotation;
+			float abs = Model->GetRotation().y - nModelRotation - GetMainCamera()->GetCameraAngle().y;
 			if (abs < 0)
 				abs *= -1;
 			float fDifferenceChangeInFrame = fAnalogLockInput - abs;
 			if (fDifferenceChangeInFrame < 0)
 				fDifferenceChangeInFrame *= -1;
 #if DEBUG_ANALOG_INPUTS
-			printf("DIF: %f\n", fDifferenceChangeInFrame);
+			printf("DIF: %f\n", fAnalogLockInput);
 #endif
 			fAnalogLockInput = abs;
+			if (fAnalogLockInput > XM_PI)
+				fAnalogLockInput -= XM_2PI;
 			if (fAnalogLockInput < 1)
 			{
 				bIsLokedForward = true;
 			}
-			else
+			else if(fAnalogLockInput > 2)
 			{
 				bIsLockedBackwards = true;
 			}
@@ -762,7 +770,7 @@ void Player3D::MoveControl()
 				{
 					AddInput('F');
 				}
-				else
+				else if(fAnalogLockInput>2)
 				{
 					AddInput('B');
 				}
@@ -1096,9 +1104,9 @@ void Player3D::LockModelToObject(GameObject3D * lock)
 		return;
 	XMFLOAT3 a;
 	XMFLOAT3 calc = GetVectorDifference(lock->GetPosition(), Position);
-	a.x = sin(GetRotation().y);
-	a.y = sin(GetRotation().x);
-	a.z = cos(GetRotation().y);
+	a.x = sin(GetRotation().y+ GetMainCamera()->GetCameraAngle().y);
+	a.y = sin(GetRotation().x + GetMainCamera()->GetCameraAngle().x);
+	a.z = cos(GetRotation().y+ GetMainCamera()->GetCameraAngle().y);
 	XMFLOAT3 b = NormalizeVector(calc);
 	XMVECTOR dot = XMVector3Dot(XMLoadFloat3(&a), XMLoadFloat3(&b));
 

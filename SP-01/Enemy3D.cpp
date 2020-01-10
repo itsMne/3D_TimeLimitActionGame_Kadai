@@ -67,7 +67,8 @@ void Enemy3D::Init()
 	pPlayerPointer = nullptr;
 	pUIManager = nullptr;
 	pFloor = nullptr;
-	InitModel(MODEL_PATH);
+	InitModel(ENEMY_WARRIOR_MODEL_PATH);
+	//Model->SetPosition({0,-10,0});
 	Model->SetScale(0.79f);
 	Hitbox = { 0,10.5f,0, 5,11,5 };
 	nState = ENEMY_IDLE;
@@ -529,7 +530,7 @@ void Enemy3D::GravityControl()
 {
 	if (!pGameFloors)
 		return;
-	if (nState == ENEMY_DAMAGED)
+	if (nState == ENEMY_DAMAGED || nState == ENEMY_DIZZY_STATE)
 		return;
 	if (--nGravityCancellingFrames > 0)
 		return;

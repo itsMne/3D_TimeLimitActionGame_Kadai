@@ -18,7 +18,7 @@ Wall3D::~Wall3D()
 
 void Wall3D::Init()
 {
-	InitModel(MODEL_PATH);
+	InitModel(WALL_MODEL_PATH);
 	Model->SetScale(0.009765625f);
 	SetScale(1);
 	

@@ -300,6 +300,13 @@ void GameObject3D::InitModel(const char * szPath)
 	Model = new Model3D(this, szPath);
 }
 
+void GameObject3D::InitModel(int szPath)
+{
+	if (Model)
+		SAFE_DELETE(Model);
+	Model = new Model3D(this, szPath);
+}
+
 void GameObject3D::SetParent(GameObject3D * pNewParent)
 {
 	p_goParent = pNewParent;

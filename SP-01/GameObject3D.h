@@ -71,6 +71,7 @@ public:
 	void RotateAroundZ(float z);
 	void SetUse(bool newUse);
 	void InitModel(const char* szPath);
+	void InitModel(int szPath);
 	void SetParent(GameObject3D* pNewParent);
 	void TranslateX(float translation);
 	void TranslateY(float translation);
