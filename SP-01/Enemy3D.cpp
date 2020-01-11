@@ -5,6 +5,8 @@
 #define MAX_GRAVITY_FORCE 5.5f
 #define ATTACK_HIT_DAMAGE 1
 #define MAX_DIZZY_FRAMES 60*3
+#define UNLIT_FRAMES_AFTER_HIT 5
+#define BULLET_DAMAGE 1
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
@@ -36,7 +38,7 @@ float nEnemyAnimationSpeed[MAX_ANIM] = {
 	2.75f,//ATTACKA_ANIM,
 	2.75f,//ATTACKB_ANIM,
 	1,//DASHING_ANIM,
-	5,//DAMAGEDA_ANIM,
+	4,//DAMAGEDA_ANIM,
 	5,//DAMAGEDB_ANIM,
 	1,//DAMAGEDUP_ANIM,
 	1,//FALLDAMAGE_ANIM
@@ -85,6 +87,7 @@ void Enemy3D::Init()
 	fSendOffAcceleration = 0;
 	nSendOffFrames = 0;
 	nSendUpGravityCancelling = 0;
+	nUnlitFrames = 0;
 	SkullMark = new GameObject3D(GO_SKULLWARNING);
 }
 
@@ -102,6 +105,13 @@ void Enemy3D::Update()
 		pPlayerPointer = GetPlayer3D();
 	if (!pGameFloors)
 		pGameFloors = pGame->GetList(GO_FLOOR);
+
+	if (--nUnlitFrames > 0)
+		bIsUnlit = true;
+	else {
+		nUnlitFrames = 0;
+		bIsUnlit = false;
+	}
 	GravityControl();
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
 	XMFLOAT3 xm3PlayerRotation = pPlayer->GetRotation();
@@ -261,6 +271,23 @@ void Enemy3D::Update()
 	}
 	PlayerCollision();
 	PlayerAttackCollision();
+	GameObject3D** pBullets = pPlayer->GetBullets();
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		if (!pBullets[i])
+			continue;
+		if (!pBullets[i]->IsInUse())
+			continue;
+		if (IsInCollision3D(pBullets[i]->GetHitbox(), GetHitbox()))
+		{
+			fHP -= BULLET_DAMAGE;
+			if (fHP <= 0)
+				fHP = 1;
+			pBullets[i]->SetUse(false);
+			nUnlitFrames = 2;
+			nGravityCancellingFrames = 10;
+		}
+	}
 }
 
 void Enemy3D::PlayerAttackCollision()
@@ -289,7 +316,7 @@ void Enemy3D::PlayerAttackCollision()
 		nState = ENEMY_DAMAGED;
 	else
 		nDizzyFrames -= 10;
-
+	nUnlitFrames = UNLIT_FRAMES_AFTER_HIT;
 	GetMainCamera()->SetAttackZoom(30, 40);
 	GetMainCamera()->SetShake(2.5f, 8);
 	GetCurrentGame()->SetAtkEffect(30);
@@ -307,10 +334,12 @@ void Enemy3D::PlayerAttackCollision()
 		Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
 		Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
 		break;
-	case AIRCOMBOE:
+	case AIRCOMBOE: case AIRKICKC:
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		modelRot = pPlayer->GetModel()->GetRotation();
 		nGravityCancellingFrames = 0;
+		if (pLastAttackPlaying->Animation == AIRKICKC)
+			nGravityCancellingFrames = 65;
 		fY_force -= -12;
 		nState = ENEMY_SENDOFF;
 		if (nState == ENEMY_DIZZY_STATE)
@@ -426,6 +455,8 @@ void Enemy3D::PlayerAttackCollision()
 		}
 		else {
 			nGravityCancellingFrames = 15;
+			if (pLastAttackPlaying->Animation == AIRKICKB)
+				nGravityCancellingFrames = 30;
 			Position.x -= sinf(XM_PI + modelRot.y) * 0.5f;
 			Position.z -= cosf(XM_PI + modelRot.y) * 0.5f;
 		}

@@ -29,6 +29,7 @@ GameObject3D::GameObject3D(int Type)
 		break;
 	case GO_BULLET:
 		Model = new Model3D(this, "data/model/Bullet.fbx");
+		Hitbox = { 0,0,0,2.5f,2.5f,7 };
 		nCurrentRasterizer = 1;
 		break;
 	case GO_SKULLWARNING:

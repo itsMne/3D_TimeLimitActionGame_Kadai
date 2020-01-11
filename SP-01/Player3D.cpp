@@ -51,7 +51,7 @@ PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 	{"FK"  ,   SLIDE,      true, GROUND_MOVE,	  1164	},
 	{"BK"  ,   SLIDEKICK,      false, GROUND_MOVE,	  1319	},
 	//{"BFK"  ,   KICKC,      false, GROUND_MOVE,	  3102	},
-	{"FK",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
+	{"FK",	  REDHOTKICKDOWN,      true,  AIR_MOVE,	      3176	},//TEMP
 	{"BK",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
@@ -417,6 +417,38 @@ void Player3D::PlayerAttackingControl()
 	float AttackHitboxDistance = 10;
 	switch (pCurrentAttackPlaying->Animation)
 	{
+	case AIRKICKA:
+		nCancellingGravityFrames = 10;
+		if (nCurrentFrame > 3478 && nCurrentFrame < 3490)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
+		break;
+	case AIRKICKB:
+		nCancellingGravityFrames = 10;
+		if (nCurrentFrame > 3549 && nCurrentFrame < 3563)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
+		break;
+	case AIRKICKC:
+		nCancellingGravityFrames = 10;
+		if (nCurrentFrame > 3626 && nCurrentFrame < 3638)
+			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
+		break;
+	case REDHOTKICKDOWN:
+		if (nCurrentFrame < 3669) {
+			fY_force = JUMP_FORCE;
+			break;
+		}
+		pFloor = nullptr;
+		fY_force += GRAVITY_FORCE;
+		if (fY_force > MAX_GRAVITY_FORCE)
+			fY_force = MAX_GRAVITY_FORCE;
+		Position.y -= fY_force;
+		AttackHitboxDistance = 7;
+		Position.x -= sinf(XM_PI + ModelRot.y) * 17;
+		Position.z -= cosf(XM_PI + ModelRot.y) * 17;
+		if (nCurrentFrame > 3740)
+			Model->SetFrameOfAnimation(3674);
+		Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
+		break;
 	case SLIDEKICK:
 		if (nCurrentFrame < 1221) {
 			fY_force = -JUMP_FORCE;
@@ -634,14 +666,19 @@ void Player3D::PlayerAttackingControl()
 		break;
 	}
 	if (Model->GetLoops() >= 1) {
-		pCurrentAttackPlaying = nullptr;
-		nState = PLAYER_IDLE_STATE;
+		CancelAttack();
 		Update();
 		return;
 	}
 #if DEBUG_ANIMATION_FRAME
 	printf("FRAME: %d\n", Model->GetCurrentFrame());
 #endif
+}
+
+void Player3D::CancelAttack()
+{
+	pCurrentAttackPlaying = nullptr;
+	nState = PLAYER_IDLE_STATE;
 }
 
 void Player3D::Jump(float jumpforce)
@@ -1118,6 +1155,11 @@ void Player3D::LockModelToObject(GameObject3D * lock)
 {
 	if (!lock)
 		return;
+	if (pCurrentAttackPlaying)
+	{
+		if (pCurrentAttackPlaying->Animation == REDHOTKICKDOWN)
+			return;
+	}
 	XMFLOAT3 a;
 	XMFLOAT3 calc = GetVectorDifference(lock->GetPosition(), Position);
 	a.x = sin(GetRotation().y+ GetMainCamera()->GetCameraAngle().y);
@@ -1142,9 +1184,6 @@ void Player3D::LockModelToObject(GameObject3D * lock)
 void Player3D::LockPlayerToObject(GameObject3D * lock)
 {
 	if (!lock)
-	//XMFLOAT3 direction = GetVectorDifference(lock->GetPosition(), Position);
-
-	///////////
 	return;
 	XMFLOAT3 a;
 	XMFLOAT3 calc = GetVectorDifference(lock->GetPosition(), Position);
@@ -1197,6 +1236,11 @@ void Player3D::SetDamage(int nDamage)
 bool Player3D::IsPlayerDead()
 {
 	return nFramesDead>120;
+}
+
+GameObject3D ** Player3D::GetBullets()
+{
+	return goBullets;
 }
 
 Player3D * GetPlayer3D()

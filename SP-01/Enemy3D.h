@@ -26,6 +26,8 @@ private:
 	float fSendOffAcceleration;
 	int nSendUpGravityCancelling;
 	int nGravityCancellingFrames;
+	int nUnlitFrames;
+	float fHP;
 public:
 	Enemy3D();
 	~Enemy3D();

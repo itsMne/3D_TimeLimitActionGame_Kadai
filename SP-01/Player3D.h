@@ -134,6 +134,7 @@ public:
 	void Update();
 	void AttackInputsControl();
 	void PlayerAttackingControl();
+	void CancelAttack();
 	void Jump(float jumpforce);
 	void GravityControl(bool bCountAttackState);
 	void PlayerCameraControl();
@@ -167,6 +168,7 @@ public:
 	int GetState();
 	void SetDamage(int nDamage);
 	bool IsPlayerDead();
+	GameObject3D** GetBullets();
 };
 
 Player3D*  GetPlayer3D();

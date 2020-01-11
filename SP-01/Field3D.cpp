@@ -189,6 +189,11 @@ void Field3D::Update(void)
 				pPlayer->TranslateY(0.1f);
 			pPlayer->TranslateY(-0.1f);
 			pPlayer->SetFloor(this);
+			if (pPlayer->GetCurrentAttack())
+			{
+				if (pPlayer->GetCurrentAttack()->Animation == REDHOTKICKDOWN)
+					pPlayer->CancelAttack();
+			}
 		}
 	}
 	SetTextureSubdivisions(10.0f / Scale.x);
