@@ -53,6 +53,7 @@ Enemy3D::Enemy3D(): GameObject3D(GO_ENEMY)
 
 Enemy3D::~Enemy3D()
 {
+	GameObject3D::~GameObject3D();
 	pGame = nullptr;
 	End();
 }

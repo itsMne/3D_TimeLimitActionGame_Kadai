@@ -68,4 +68,5 @@ public:
 	void SetFrameOfAnimation(float Frame);
 	void SetLoop(bool loopable);
 };
+void UninitPreloadedModels();
 #endif

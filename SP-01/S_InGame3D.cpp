@@ -37,6 +37,8 @@ S_InGame3D::S_InGame3D() :Scene3D(true)
 
 S_InGame3D::~S_InGame3D()
 {
+	printf("ENDING INGAME SCENE\n");
+	UninitPreloadedModels();
 	End();
 	pCurrentGame = nullptr;
 }

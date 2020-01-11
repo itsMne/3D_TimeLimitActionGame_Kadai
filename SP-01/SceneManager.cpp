@@ -10,6 +10,8 @@ int nTransitionInUse = TRANSITION_NONE;
 HRESULT InitScene()
 {
 	TransitionControl::Init();
+	if (pCurrentScene)
+		SAFE_DELETE(pCurrentScene);
 	switch (nCurrentScene)
 	{
 	case SCENE_TITLE_SCREEN:

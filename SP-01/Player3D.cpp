@@ -108,6 +108,7 @@ Player3D::Player3D(Light3D * Light) :GameObject3D(Light, PLAYER_MODEL_PATH, GO_P
 Player3D::~Player3D()
 {
 	End();
+	GameObject3D::~GameObject3D();
 }
 
 void Player3D::Init()
@@ -913,6 +914,7 @@ void Player3D::Draw()
 
 void Player3D::End()
 {
+	pMainPlayer3D = nullptr;
 	GameObject3D::End();
 	mShadow->End();
 	for (int i = 0; i < MAX_BULLETS; i++)

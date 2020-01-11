@@ -51,7 +51,7 @@ public:
 	GameObject3D(int nType);
 	GameObject3D(const char* ModelPath, int nType);
 	GameObject3D(Light3D* light, const char* ModelPath, int nType);
-	~GameObject3D();
+	virtual ~GameObject3D();
 	virtual void Init();
 	virtual void Update();
 	virtual void Draw();

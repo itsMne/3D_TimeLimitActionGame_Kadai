@@ -18,7 +18,7 @@ protected:
 	ID3D11DeviceContext* pDeviceContext;
 public:
 	Scene3D(bool);
-	~Scene3D();
+	virtual ~Scene3D();
 	virtual void Init() = 0;
 	virtual eSceneType Update();
 	virtual void Draw() = 0;

@@ -349,3 +349,9 @@ void Model3D::SetLoop(bool loopable)
 	bLoop = loopable;
 }
 
+void UninitPreloadedModels()
+{
+	for (int i = 0; i < MAX_PRELOADED_MODELS; i++)
+		SAFE_DELETE(Models[i]);
+	
+}
