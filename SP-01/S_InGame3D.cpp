@@ -4,6 +4,7 @@
 #include "Cube3D.h"
 #include "Wall3D.h"
 #include "Enemy3D.h"
+#include "InputManager.h"
 #include "Billboard2D.h"
 
 
@@ -46,6 +47,13 @@ void S_InGame3D::Init()
 
 eSceneType S_InGame3D::Update()
 {
+	if (pUI->GetGameOverFrames() > 120)
+	{
+		if (GetInput(INPUT_JUMP))
+			return SCENE_TITLE_SCREEN;
+		pUI->Update();
+		return SCENE_IN_GAME;
+	}
 	Scene3D::Update();
 	// デバッグ文字列表示更新
 	UpdateDebugProc();
@@ -69,6 +77,8 @@ eSceneType S_InGame3D::Update()
 	Walls->Update();
 
 	Enemies->Update();
+	if (pPlayer->IsPlayerDead())
+		pUI->ActivateGameOver();
 	return SCENE_IN_GAME;
 }
 
@@ -115,6 +125,7 @@ void S_InGame3D::End()
 	Scene3D::End();
 	// フィールド終了処理
 	SAFE_DELETE(Floors);
+	SAFE_DELETE(Enemies);
 	SAFE_DELETE(Walls);
 	// モデル表示終了処理
 	SAFE_DELETE(pPlayer);

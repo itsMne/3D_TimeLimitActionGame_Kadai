@@ -64,6 +64,19 @@ UIObject2D::UIObject2D(int nUI_Type)
 		SetPolygonSize(0, 0);
 		SetTexture(gpTexture);
 		break;
+	case UI_GAMEOVER_SCREEN:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/GameOverScreen.tga", &gpTexture);
+		Position.x = 0;
+		Position.y = 0;
+		x2Frame.x = 1.0f / 2.0f;
+		x2Frame.y = 1.0f / 10.0f;
+		uv.U = 0;
+		uv.V = 0;
+		SetPolygonSize(1280, 720);
+		SetPolygonAlpha(1);
+		SetTexture(gpTexture);
+		nAnimationSpeed = 3;
+		break;
 	default:
 		break;
 	}
@@ -79,6 +92,7 @@ void UIObject2D::Init()
 {
 	nType = UI_TYPE_MAX;
 	nAnimationTimer = 0;
+	nGameOverFrames = 0;
 	fAcceleration = 0;
 	nAnimationSpeed = 0;
 	bHeartActive = true;
@@ -136,6 +150,26 @@ void UIObject2D::Update()
 		if (Scale.x > 1500)
 			bIsInUse = false;
 		break;
+	case UI_GAMEOVER_SCREEN:
+		if (!bIsInUse)
+			return;
+		if (++nGameOverFrames > 600)
+			nGameOverFrames = 600;
+		if (++nAnimationTimer > nAnimationSpeed) {
+			nAnimationTimer = 0;
+			uv.U++;
+			if (uv.U == 2)
+			{
+				uv.U = 0;
+				uv.V++;
+				if (uv.V == 10) {
+					uv.V = 8;
+					//uv.V = 0;//del
+					uv.U = 0;
+				}
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -183,6 +217,13 @@ void UIObject2D::Draw()
 	case UI_AURA:
 		if (!bIsInUse)
 			return;
+		DrawPolygon(GetDeviceContext());
+		break;
+	case UI_GAMEOVER_SCREEN:
+		if (!bIsInUse)
+			return;
+		SetPolygonFrameSize(x2Frame.x, x2Frame.y);
+		SetPolygonUV(uv.U / 2.0f, uv.V / 10.0f);
 		DrawPolygon(GetDeviceContext());
 		break;
 	default:
@@ -239,6 +280,16 @@ void UIObject2D::SetAura()
 	Scale = { 0,0,0 };
 	fAcceleration = 0;
 }
+
+void UIObject2D::SetUse(bool use)
+{
+	bIsInUse = use;
+}
+
+int UIObject2D::GetGameOverFrames()
+{
+	return nGameOverFrames;
+}
  //UIマネージャー
 InGameUI2D::InGameUI2D()
 {
@@ -257,7 +308,7 @@ void InGameUI2D::Init()
 	pAtkEffect = new UIObject2D(UI_ATKZOOM);
 	for (int i = 0; i < MAX_AURA; i++)
 		pAuraEffects[i]=new UIObject2D(UI_AURA);
-	
+	pGameOverScreen = new UIObject2D(UI_GAMEOVER_SCREEN);
 }
 
 void InGameUI2D::Update()
@@ -270,6 +321,8 @@ void InGameUI2D::Update()
 		pAtkEffect->Update();
 	for (int i = 0; i < MAX_AURA; i++)
 		if(pAuraEffects[i])pAuraEffects[i]->Update();
+	if (pGameOverScreen)
+		pGameOverScreen->Update();
 }
 
 void InGameUI2D::Draw()
@@ -282,19 +335,30 @@ void InGameUI2D::Draw()
 		pAtkEffect->Draw();
 	for (int i = 0; i < MAX_AURA; i++)
 		if (pAuraEffects[i])pAuraEffects[i]->Draw();
+	if (pGameOverScreen)
+		pGameOverScreen->Draw();
 }
 
 void InGameUI2D::End()
 {
 	SAFE_DELETE(pPlayerHealth);
 	SAFE_DELETE(pPlayerAim);
+	for (int i = 0; i < MAX_AURA; i++)
+		SAFE_DELETE(pAuraEffects[i]);
 	SAFE_DELETE(pAtkEffect);
+	SAFE_DELETE(pGameOverScreen);
 }
 
 void InGameUI2D::ActivateAtkEffect(int Frames)
 {
 	if (pAtkEffect)
 		pAtkEffect->SetActiveFrames(Frames);
+}
+
+void InGameUI2D::ActivateGameOver()
+{
+	if (pGameOverScreen)
+		pGameOverScreen->SetUse(true);
 }
 
 void InGameUI2D::SetAura()
@@ -307,4 +371,11 @@ void InGameUI2D::SetAura()
 			continue;
 		pAuraEffects[i]->SetAura();
 	}
+}
+
+int InGameUI2D::GetGameOverFrames()
+{
+	if (pGameOverScreen)
+		return pGameOverScreen->GetGameOverFrames();
+	return 0;
 }

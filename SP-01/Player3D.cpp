@@ -117,6 +117,7 @@ void Player3D::Init()
 	pLockedOnEnemy = nullptr;
 	pCurrentGame = nullptr;
 	fAtkAcceleration = 0;
+	nFramesDead = 0;
 	nCancellingGravityFrames = 0;
 	pCurrentAttackPlaying = nullptr;
 	bSwitcheToAimingState = false; 
@@ -180,6 +181,19 @@ void Player3D::InitPlayerHitboxes()
 }
 void Player3D::Update()
 {
+	if (nCurrentHealth <= 0)
+	{
+		if (Model->GetCurrentAnimation() == DAMAGEC)
+		{
+			if (Model->GetCurrentFrame() >= 3407) {
+				Model->SetFrameOfAnimation(3407);
+				nFramesDead++;
+				return;
+			}
+			
+		}
+		
+	}
 	if (!pMainCamera) {
 		pMainCamera = GetMainCamera();
 		return;
@@ -229,7 +243,7 @@ void Player3D::Update()
 	S_InGame3D* pGame = (S_InGame3D*)pCurrentGame;
 	if (GetInput(INPUT_LOCKON) && !pLockedOnEnemy && pGame && !GetInput(INPUT_AIM))
 	{
-		XMFLOAT3 ModelRot = Model->GetRotation();
+		XMFLOAT3 ModelRot = GetRotation();
 		Hitboxes[PLAYER_HB_LOCK].PositionX = -sinf(XM_PI + ModelRot.y) * 25;
 		Hitboxes[PLAYER_HB_LOCK].PositionZ = -cosf(XM_PI + ModelRot.y) * 25;
 		while (++Hitboxes[PLAYER_HB_LOCK].SizeZ < 150) {
@@ -1176,6 +1190,11 @@ void Player3D::SetDamage(int nDamage)
 		return;
 	nState = PLAYER_DAMAGED;
 	nCurrentHealth -= nDamage;
+}
+
+bool Player3D::IsPlayerDead()
+{
+	return nFramesDead>120;
 }
 
 Player3D * GetPlayer3D()

@@ -10,6 +10,7 @@ enum UI_TYPE
 	UI_LOGO,
 	UI_ATKZOOM,
 	UI_AURA,
+	UI_GAMEOVER_SCREEN,
 	UI_TYPE_MAX
 };
 class UIObject2D :
@@ -27,6 +28,7 @@ private:
 	int nFramesActive;
 	float fAcceleration;
 	bool bIsInUse;
+	int nGameOverFrames;
 public:
 	UIObject2D();
 	UIObject2D(int nUI_Type);
@@ -41,6 +43,8 @@ public:
 	void SetActiveFrames(int Frames);
 	bool GetUse();
 	void SetAura();
+	void SetUse(bool use);
+	int GetGameOverFrames();
 };
 
 class InGameUI2D
@@ -50,6 +54,7 @@ private:
 	UIObject2D* pPlayerAim;
 	UIObject2D* pAtkEffect;
 	UIObject2D* pAuraEffects[MAX_AURA];
+	UIObject2D* pGameOverScreen;
 
 public:
 	InGameUI2D();
@@ -59,7 +64,9 @@ public:
 	void Draw();
 	void End();
 	void ActivateAtkEffect(int Frames);
+	void ActivateGameOver();
 	void SetAura();
+	int GetGameOverFrames();
 };
 
 #endif

@@ -123,6 +123,7 @@ private:
 	bool bIsLockedBackwards;
 	bool bIsLokedForward;
 	int nCancellingGravityFrames;
+	int nFramesDead;
 public:
 	Player3D();
 	Player3D(Light3D* Light);
@@ -165,6 +166,7 @@ public:
 	PLAYER_ATTACK_MOVE* GetCurrentAttack();
 	int GetState();
 	void SetDamage(int nDamage);
+	bool IsPlayerDead();
 };
 
 Player3D*  GetPlayer3D();
