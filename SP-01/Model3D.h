@@ -5,10 +5,13 @@
 #include "FbxModel.h"
 #include "Light3D.h"
 //#include "Camera3D.h"
+
 enum MyEnum
 {
 	ENEMY_WARRIOR_MODEL_PATH,
 	WALL_MODEL_PATH,
+	SKULL_MODEL_PATH,
+	HEART_ENEMY_MODEL,
 	//SPIKE_MODEL,
 	MAX_PRELOADED_MODELS,
 };
@@ -49,7 +52,9 @@ public:
 	XMFLOAT4X4 *GetModelWorld();
 	XMFLOAT3 GetRotation();
 	XMFLOAT3 GetPosition();
+	XMFLOAT3* GetScaleAdd();
 	void SetScale(float newScale);
+	void SetScale(XMFLOAT3 newScale);
 	int GetNumberOfAnimations();
 	void SetParent(void* newParent);
 	void RotateAroundX(float x);

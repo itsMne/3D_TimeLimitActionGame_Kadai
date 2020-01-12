@@ -17,6 +17,8 @@ char ModelPaths[MAX_PRELOADED_MODELS][256] =
 {
 	"data/model/Enemy.fbx",
 	"data/model/Cube2.fbx",
+	"data/model/SkullV2.fbx",
+	"data/model/EnemyHeart.fbx"
 };
 
 CFbxModel* Models[MAX_PRELOADED_MODELS] = { nullptr };
@@ -247,9 +249,18 @@ XMFLOAT3 Model3D::GetPosition()
 	return Position;
 }
 
+XMFLOAT3 * Model3D::GetScaleAdd()
+{
+	return &Scale;
+}
+
 void Model3D::SetScale(float newScale)
 {
 	Scale = XMFLOAT3(newScale, newScale, newScale);
+}
+void Model3D::SetScale(XMFLOAT3 newScale)
+{
+	Scale = newScale;
 }
 
 int Model3D::GetNumberOfAnimations()

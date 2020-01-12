@@ -7,6 +7,7 @@
 #define MAX_DIZZY_FRAMES 60*3
 #define UNLIT_FRAMES_AFTER_HIT 5
 #define BULLET_DAMAGE 1
+#define INITIAL_HP 250
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
@@ -88,7 +89,10 @@ void Enemy3D::Init()
 	nSendOffFrames = 0;
 	nSendUpGravityCancelling = 0;
 	nUnlitFrames = 0;
+	fMaxHP = fHP = INITIAL_HP;
 	SkullMark = new GameObject3D(GO_SKULLWARNING);
+	HeartMark = new GameObject3D(GO_ENEMYHEARTMARK);
+	bIsOnLockOn = false;
 }
 
 void Enemy3D::Update()
@@ -100,7 +104,6 @@ void Enemy3D::Update()
 		if (!pGame)
 			return;	
 	}
-
 	if (!pPlayerPointer)
 		pPlayerPointer = GetPlayer3D();
 	if (!pGameFloors)
@@ -135,6 +138,23 @@ void Enemy3D::Update()
 		if (pLastAttackPlaying->Animation == SLIDEKICK && pPlayer->GetModel()->GetCurrentAnimation()==SLIDEKICK)
 		{
 			Position.y = pPlayer->GetPosition().y;
+		}
+	}
+	
+	bIsOnLockOn = pPlayer->GetLockedOnEnemy() == this;
+	if (fHP < 0)
+		fHP = 0;
+	if (HeartMark)
+	{
+		if (!bIsOnLockOn)
+			HeartMark->GetModel()->SetScale(0);
+		else
+		{
+			HeartMark->Update();
+			HeartMark->SetPosition({ Position.x - sinf(XM_PI + Model->GetRotation().y) * 15, Position.y + 12.5f,  Position.z - cosf(XM_PI + Model->GetRotation().y) * 15 });
+			HeartMark->GetModel()->SetRotation(Model->GetRotation());
+			HeartMark->GetModel()->RotateAroundY(XM_PI / 2);
+			HeartMark->SetScale(fHP / fMaxHP);
 		}
 	}
 	switch (nState)
@@ -325,6 +345,7 @@ void Enemy3D::PlayerAttackCollision()
 	switch (pLastAttackPlaying->Animation)
 	{
 	case SLIDEKICK: case RED_HOT_KICK_DOWN:
+		fHP -= 9;
 		pFloor = nullptr;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		nFaceCooldown = 0;
@@ -337,6 +358,7 @@ void Enemy3D::PlayerAttackCollision()
 			pPlayer->CancelAttack();
 		break;
 	case AIRCOMBOE: case AIRKICKC:
+		fHP -= 11;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		modelRot = pPlayer->GetModel()->GetRotation();
 		nGravityCancellingFrames = 0;
@@ -359,6 +381,7 @@ void Enemy3D::PlayerAttackCollision()
 		pLastAttackPlaying = nullptr;
 		break;
 	case KICK_DOWN:
+		fHP -= 10;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		nFaceCooldown = 0;
 		FacePlayer();
@@ -383,6 +406,7 @@ void Enemy3D::PlayerAttackCollision()
 		}
 		break;
 	case KICKC:
+		fHP -= 11;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
 			bSetDamageA = false;
@@ -412,6 +436,7 @@ void Enemy3D::PlayerAttackCollision()
 		Position.z -= cosf(XM_PI + modelRot.y) * 5;
 		break;
 	case BASIC_CHAIN_E:
+		fHP -= 11;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
 			bSetDamageA = false;
@@ -440,6 +465,7 @@ void Enemy3D::PlayerAttackCollision()
 
 		break;
 	default:
+		fHP -= 5;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
 			bSetDamageA = false;
@@ -550,6 +576,8 @@ void Enemy3D::Draw()
 
 	GameObject3D::Draw();
 	SetCullMode(CULLMODE_CW);
+	if (HeartMark && bIsOnLockOn)
+		HeartMark->Draw();
 	if (SkullMark && (nState == ENEMY_ATTACKING_UP || nState == ENEMY_ATTACKING_DOWN))
 		SkullMark->Draw();
 

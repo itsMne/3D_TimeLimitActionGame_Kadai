@@ -22,12 +22,14 @@ private:
 	Box hbAttackHitbox;
 	InGameUI2D* pUIManager;
 	GameObject3D* SkullMark;
+	GameObject3D* HeartMark;
 	float fSendOffPower;
 	float fSendOffAcceleration;
 	int nSendUpGravityCancelling;
 	int nGravityCancellingFrames;
 	int nUnlitFrames;
-	float fHP;
+	float fHP, fMaxHP;
+	bool bIsOnLockOn;
 public:
 	Enemy3D();
 	~Enemy3D();

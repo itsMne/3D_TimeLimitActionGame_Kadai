@@ -1283,6 +1283,11 @@ GameObject3D ** Player3D::GetBullets()
 	return goBullets;
 }
 
+GameObject3D * Player3D::GetLockedOnEnemy()
+{
+	return pLockedOnEnemy;
+}
+
 Player3D * GetPlayer3D()
 {
 	return pMainPlayer3D;

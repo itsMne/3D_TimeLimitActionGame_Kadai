@@ -15,6 +15,7 @@ enum eGameObjectTypes
 	GO_WALL,
 	GO_ENEMY,
 	GO_SKULLWARNING,
+	GO_ENEMYHEARTMARK,
 	GO_MAX
 };
 class GameObject3D
@@ -46,6 +47,7 @@ protected:
 	int nCurrentRasterizer;
 	Light3D* pLight;
 	bool ScaleUp;
+	float fAcceleration;
 public:
 	GameObject3D();
 	GameObject3D(int nType);
@@ -88,6 +90,7 @@ public:
 	XMFLOAT3 GetMoveEndPosition();
 	XMFLOAT3 GetForward();
 	XMFLOAT3 GetModelForward();
+	XMFLOAT3* GetScaleAdd();
 	bool MoveTowardPos(XMFLOAT3 Destination, float Speed);
 	void PauseObject(int pauseFrames);
 	float GetMoveSpeed();

@@ -5,7 +5,7 @@
 #include "Player3D.h"
 #define BULLET_SPEED 30
 #define PRINT_HITBOX false
-#define SKULLTEXTURE_PATH "data/model/SkullV2.fbx"
+
 int nInitedGameObjects = 0;
 
 GameObject3D::GameObject3D()
@@ -33,9 +33,15 @@ GameObject3D::GameObject3D(int Type)
 		nCurrentRasterizer = 1;
 		break;
 	case GO_SKULLWARNING:
-		Model = new Model3D(this, SKULLTEXTURE_PATH);
+		Model = new Model3D(this, SKULL_MODEL_PATH);
 		Model->SetScale(2);
 		SetScale(0.25f);
+		bIsUnlit = true;
+		break;
+	case GO_ENEMYHEARTMARK:
+		Model = new Model3D(this, HEART_ENEMY_MODEL);
+		Model->SetScale(1);
+		SetScale(1);
 		bIsUnlit = true;
 		break;
 	default:
@@ -79,6 +85,7 @@ void GameObject3D::Init()
 	ScaleUp = true;
 	bIsUnlit = false;
 	nUseCounterFrame = 0;
+	fAcceleration = 0;
 	p_goParent = nullptr;
 	Model = nullptr;
 	pVisualHitbox = nullptr;
@@ -100,6 +107,7 @@ void GameObject3D::Update()
 		return;
 	if (Model)
 		Model->UpdateModel();
+	XMFLOAT3* ModelScale;
 	switch (nType)
 	{
 	case GO_BULLET:
@@ -145,6 +153,31 @@ void GameObject3D::Update()
 			Scale.z -= 0.0125f;
 
 			if (Scale.x < 0.07f)
+				ScaleUp = true;
+		}
+		break;
+	case GO_ENEMYHEARTMARK:
+		if (!Model)
+			break;
+		ModelScale = Model->GetScaleAdd();
+		if (ModelScale->x < 0.80f)
+			fAcceleration += 0.0125f;
+		else
+			fAcceleration = 0;
+		if (ScaleUp)
+		{
+			ModelScale->x += 0.0125f+fAcceleration;
+			ModelScale->y += 0.0125f+fAcceleration;
+			ModelScale->z += 0.0125f+fAcceleration;
+			if (ModelScale->x > 1.17f)
+				ScaleUp = false;
+		}
+		else {
+			ModelScale->x -= 0.0125f+fAcceleration;
+			ModelScale->y -= 0.0125f+fAcceleration;
+			ModelScale->z -= 0.0125f+fAcceleration;
+
+			if (ModelScale->x < 0.87f)
 				ScaleUp = true;
 		}
 		break;

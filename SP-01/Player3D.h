@@ -170,6 +170,7 @@ public:
 	void SetDamage(int nDamage);
 	bool IsPlayerDead();
 	GameObject3D** GetBullets();
+	GameObject3D* GetLockedOnEnemy();
 };
 
 Player3D*  GetPlayer3D();
