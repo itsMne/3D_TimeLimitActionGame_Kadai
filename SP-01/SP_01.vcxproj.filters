@@ -107,6 +107,7 @@
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="TransitionControl.cpp" />
     <ClCompile Include="S_Menu.cpp" />
+    <ClCompile Include="RankManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -195,6 +196,7 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="TransitionControl.h" />
     <ClInclude Include="S_Menu.h" />
+    <ClInclude Include="RankManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

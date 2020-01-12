@@ -177,6 +177,7 @@
     <ClCompile Include="Model3D.cpp" />
     <ClCompile Include="Player3D.cpp" />
     <ClCompile Include="Polygon2D.cpp" />
+    <ClCompile Include="RankManager.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sphere3D.cpp" />
     <ClCompile Include="S_Menu.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="Model3D.h" />
     <ClInclude Include="Player3D.h" />
     <ClInclude Include="Polygon2D.h" />
+    <ClInclude Include="RankManager.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Sphere3D.h" />
     <ClInclude Include="S_Menu.h" />

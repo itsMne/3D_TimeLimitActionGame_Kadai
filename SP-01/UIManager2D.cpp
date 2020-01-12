@@ -1,4 +1,5 @@
 #include "UIManager2D.h"
+#include "S_InGame3D.h"
 #include "Texture.h"
 #define HEART_SIZE	75
 #define AIM_SIZE	125
@@ -74,6 +75,18 @@ UIObject2D::UIObject2D(int nUI_Type)
 		uv.V = 0;
 		SetPolygonSize(1280, 720);
 		SetPolygonAlpha(1);
+		SetTexture(gpTexture);
+		nAnimationSpeed = 3;
+		break;
+	case UI_SCORE:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/NumbersUI.tga", &gpTexture);
+		SetPolygonSize(18, 25);
+		Position.x = SCREEN_WIDTH / 2 - (25 * 8);
+		Position.y = SCREEN_HEIGHT / 2 - 25;
+		x2Frame.x = 1 / 10.0f;
+		x2Frame.y = 1 / 10.0f;
+		uv = { 0,0 };
+		nScore = 0;
 		SetTexture(gpTexture);
 		nAnimationSpeed = 3;
 		break;
@@ -170,6 +183,14 @@ void UIObject2D::Update()
 			}
 		}
 		break;
+	case UI_SCORE:
+		nScore = GetScore();
+		if (++nAnimationTimer > nAnimationSpeed) {
+			nAnimationTimer = 0;
+			if (++uv.V == 10)
+				uv.V = 0;
+		}
+		break;
 	default:
 		break;
 	}
@@ -226,11 +247,62 @@ void UIObject2D::Draw()
 		SetPolygonUV(uv.U / 2.0f, uv.V / 10.0f);
 		DrawPolygon(GetDeviceContext());
 		break;
+	case UI_SCORE:
+		DrawNumber();
+		break;
 	default:
 		DrawPolygon(GetDeviceContext());
 		break;
 	}
 	
+}
+
+void UIObject2D::DrawNumber()
+{
+	XMFLOAT3 x2OriginalPosition;
+	int nNumberToPrint;
+	int nDividerByTen;
+	int nDigits = 0;
+	int	nMaxDigits = 7;
+	x2OriginalPosition = Position;
+	nNumberToPrint = nScore;
+	for (nDividerByTen = 1; nNumberToPrint > 0; nNumberToPrint /= 10, nDividerByTen *= 10, nDigits++);
+	nDividerByTen /= 10;
+	if (nScore < 10)
+	{
+		for (int i = 0; i < nMaxDigits; i++)
+		{
+			uv.U = 0;
+			SetPolygonFrameSize(x2Frame.x, x2Frame.y);
+			SetPolygonUV(uv.U / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
+			DrawPolygon(GetDeviceContext());
+			Position.x += 27 * 0.75f;
+		}
+		uv.U = nScore;
+		SetPolygonFrameSize(x2Frame.x, x2Frame.y);
+		SetPolygonUV(uv.U / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
+		DrawPolygon(GetDeviceContext());
+	}
+	else {
+		for (int i = 0; i < nMaxDigits - nDigits + 1; i++)
+		{
+			uv.U = 0;
+			SetPolygonFrameSize(x2Frame.x, x2Frame.y);
+			SetPolygonUV(uv.U / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
+			DrawPolygon(GetDeviceContext());
+			Position.x += 27 * 0.75f;
+		}
+		while (nDividerByTen > 0)
+		{
+			nNumberToPrint = nScore / nDividerByTen % 10;
+			SetPolygonFrameSize(x2Frame.x, x2Frame.y);
+			SetPolygonUV(nNumberToPrint / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
+			DrawPolygon(GetDeviceContext());
+			Position.x += 27 * 0.75f;
+			nDividerByTen /= 10;
+		}
+	}
+	SetPolygonPos(x2OriginalPosition.x, x2OriginalPosition.y);
 }
 
 void UIObject2D::UIHeartDrawControl()
@@ -309,6 +381,7 @@ void InGameUI2D::Init()
 	for (int i = 0; i < MAX_AURA; i++)
 		pAuraEffects[i]=new UIObject2D(UI_AURA);
 	pGameOverScreen = new UIObject2D(UI_GAMEOVER_SCREEN);
+	pScore = new UIObject2D(UI_SCORE);
 }
 
 void InGameUI2D::Update()
@@ -323,6 +396,8 @@ void InGameUI2D::Update()
 		if(pAuraEffects[i])pAuraEffects[i]->Update();
 	if (pGameOverScreen)
 		pGameOverScreen->Update();
+	if (pScore)
+		pScore->Update();
 }
 
 void InGameUI2D::Draw()
@@ -337,6 +412,8 @@ void InGameUI2D::Draw()
 		if (pAuraEffects[i])pAuraEffects[i]->Draw();
 	if (pGameOverScreen)
 		pGameOverScreen->Draw();
+	if (pScore)
+		pScore->Draw();
 }
 
 void InGameUI2D::End()
@@ -347,6 +424,7 @@ void InGameUI2D::End()
 		SAFE_DELETE(pAuraEffects[i]);
 	SAFE_DELETE(pAtkEffect);
 	SAFE_DELETE(pGameOverScreen);
+	SAFE_DELETE(pScore);
 }
 
 void InGameUI2D::ActivateAtkEffect(int Frames)

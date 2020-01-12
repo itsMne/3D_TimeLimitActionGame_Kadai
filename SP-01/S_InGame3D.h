@@ -30,3 +30,4 @@ public:
 };
 
 S_InGame3D* GetCurrentGame();
+int GetScore();

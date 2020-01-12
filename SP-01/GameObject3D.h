@@ -142,6 +142,7 @@ public:
 	GameObject3D* AddEnemy(XMFLOAT3 newPosition);
 	GameObject3D* AddEnemy(XMFLOAT3 newPosition, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames);
 	GameObject3D* CheckCollision(Box hb);
+	GameObject3D * CheckCollision(Box hb, bool bIgnoreUnused);
 	void DeleteLastPosObject();
 	void DeleteObject(GameObject3D*);
 	void Update();

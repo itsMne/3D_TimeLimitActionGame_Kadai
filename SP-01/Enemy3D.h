@@ -30,6 +30,7 @@ private:
 	int nUnlitFrames;
 	float fHP, fMaxHP;
 	bool bIsOnLockOn;
+	float fDeadAcceleration;
 public:
 	Enemy3D();
 	~Enemy3D();

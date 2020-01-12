@@ -11,6 +11,7 @@ enum UI_TYPE
 	UI_ATKZOOM,
 	UI_AURA,
 	UI_GAMEOVER_SCREEN,
+	UI_SCORE,
 	UI_TYPE_MAX
 };
 class UIObject2D :
@@ -29,6 +30,7 @@ private:
 	float fAcceleration;
 	bool bIsInUse;
 	int nGameOverFrames;
+	int nScore;
 public:
 	UIObject2D();
 	UIObject2D(int nUI_Type);
@@ -38,6 +40,7 @@ public:
 	void Update();
 	void RegularUVAnimation();
 	void Draw();
+	void DrawNumber();
 	void UIHeartDrawControl();
 	void End();
 	void SetActiveFrames(int Frames);
@@ -55,6 +58,7 @@ private:
 	UIObject2D* pAtkEffect;
 	UIObject2D* pAuraEffects[MAX_AURA];
 	UIObject2D* pGameOverScreen;
+	UIObject2D* pScore;
 
 public:
 	InGameUI2D();

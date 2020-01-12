@@ -8,6 +8,11 @@
 #define UNLIT_FRAMES_AFTER_HIT 5
 #define BULLET_DAMAGE 1
 #define INITIAL_HP 250
+#define MAX_NUM_ENEMIES_FOLLOWING_PLAYER 4
+
+Enemy3D* FollowingPlayer[MAX_NUM_ENEMIES_FOLLOWING_PLAYER] = {nullptr};
+int nMaxFollowingPlayer = MAX_NUM_ENEMIES_FOLLOWING_PLAYER;
+
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
@@ -17,7 +22,9 @@ enum ENEMY_STATES
 	ENEMY_DIZZY_STATE,
 	ENEMY_SENDOFF,
 	ENEMY_SENDUP,
-	ENEMY_DAMAGED
+	ENEMY_DAMAGED,
+	ENEMY_DEAD,
+	MAX_ENEMY_STATES,
 };
 enum ENEMY_ANIMATIONS
 {
@@ -58,6 +65,11 @@ Enemy3D::~Enemy3D()
 {
 	GameObject3D::~GameObject3D();
 	pGame = nullptr;
+	for (int i = 0; i < MAX_NUM_ENEMIES_FOLLOWING_PLAYER; i++)
+	{
+		if (this == FollowingPlayer[i])
+			FollowingPlayer[i] = nullptr;
+	}
 	End();
 }
 
@@ -77,8 +89,9 @@ void Enemy3D::Init()
 	Hitbox = { 0,10.5f,0, 5,11,5 };
 	nState = ENEMY_IDLE;
 	nFaceCooldown = 0;
+	fDeadAcceleration = 0;
 	nIdleFramesCount=nIdleFramesWait = 60;
-	fSpeed = 1;
+	fSpeed = 1.5f;
 	fY_force = 0;
 	nSendOffFrames = 0;
 	fSpeed = 0;//del
@@ -97,6 +110,8 @@ void Enemy3D::Init()
 
 void Enemy3D::Update()
 {
+	if (!bUse)
+		return;
 	GameObject3D::Update();
 	if (!pGame)
 	{
@@ -119,6 +134,21 @@ void Enemy3D::Update()
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
 	XMFLOAT3 xm3PlayerRotation = pPlayer->GetRotation();
 	XMFLOAT3 xm3PlayerPosition = pPlayer->GetRotation();
+	if (nState == ENEMY_DEAD)
+	{
+		for (int i = 0; i < MAX_NUM_ENEMIES_FOLLOWING_PLAYER; i++)
+		{
+			if (this == FollowingPlayer[i])
+				FollowingPlayer[i] = nullptr;
+		}
+		Model->RotateAroundY(1);
+		SetScale(Scale.x - fDeadAcceleration);
+		if (Scale.x == 0 || Scale.y == 0 || Scale.z == 0)
+			bUse = false;
+		fDeadAcceleration+=0.00125f;
+		bIsUnlit = true;
+		return;
+	}
 	float AttackHitboxDistance;
 	int nAttackFrame = 0;
 	if (nState != ENEMY_IDLE)
@@ -167,8 +197,17 @@ void Enemy3D::Update()
 				Position.y += 0.1f;
 			Position.y -= 0.1f;
 		}
-		if (pPlayer->GetFloor() == pFloor && ++nIdleFramesCount> nIdleFramesWait)
-			nState = ENEMY_MOVING;
+		for (int i = 0; i < nMaxFollowingPlayer; i++)
+		{
+			if (FollowingPlayer[i] == nullptr || FollowingPlayer[i] == this)
+			{
+				FollowingPlayer[i] = this;
+				if (pPlayer->GetFloor() == pFloor && ++nIdleFramesCount > nIdleFramesWait)
+					nState = ENEMY_MOVING;
+				break;
+			}
+		}
+
 		break;
 	case ENEMY_MOVING:
 		FacePlayer();
@@ -308,6 +347,8 @@ void Enemy3D::Update()
 			nGravityCancellingFrames = 10;
 		}
 	}
+	if (fHP <= 0)
+		nState = ENEMY_DEAD;
 }
 
 void Enemy3D::PlayerAttackCollision()
@@ -572,8 +613,8 @@ void Enemy3D::FacePlayer()
 
 void Enemy3D::Draw()
 {
-
-
+	if (!bUse)
+		return;
 	GameObject3D::Draw();
 	SetCullMode(CULLMODE_CW);
 	if (HeartMark && bIsOnLockOn)

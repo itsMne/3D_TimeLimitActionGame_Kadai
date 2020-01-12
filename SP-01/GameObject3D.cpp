@@ -252,6 +252,11 @@ Model3D * GameObject3D::GetModel()
 
 void GameObject3D::SetScale(float fScale)
 {
+	if (fScale < 0) 
+	{
+		Scale = { 0,0,0 };
+		return;
+	}
 	Scale = { fScale, fScale, fScale };
 }
 
@@ -708,6 +713,26 @@ GameObject3D * Go_List::CheckCollision(Box hb)
 		{
 			if (IsInCollision3D(pPositionList->Object->GetHitbox(), hb))
 				return pPositionList->Object;
+		}
+		pPositionList = pPositionList->next;
+	}
+	return nullptr;
+}
+
+GameObject3D * Go_List::CheckCollision(Box hb, bool bIgnoreUnused)
+{
+	if (HeadNode == nullptr)
+		return nullptr;
+	go_node* pPositionList = HeadNode;
+	while (true) {
+		if (pPositionList == nullptr)
+			break;
+		if (pPositionList->Object != nullptr)
+		{
+			if (bIgnoreUnused && pPositionList->Object->IsInUse()) {
+				if (IsInCollision3D(pPositionList->Object->GetHitbox(), hb))
+					return pPositionList->Object;
+			}
 		}
 		pPositionList = pPositionList->next;
 	}

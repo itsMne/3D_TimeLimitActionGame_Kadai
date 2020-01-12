@@ -1,21 +1,20 @@
 #include "S_InGame3D.h"
 #include "debugproc.h"
 #include "Field3D.h"
-#include "Cube3D.h"
-#include "Wall3D.h"
-#include "Enemy3D.h"
 #include "InputManager.h"
+#include "RankManager.h"
 #include "Billboard2D.h"
 
 
 S_InGame3D* pCurrentGame = nullptr;
-
+int nScore;
 S_InGame3D::S_InGame3D() :Scene3D(true)
 {
 	pCurrentGame = this;
 	MainWindow = GetMainWindow();
 	MainWindow->SetWindowColor255(150, 71, 89);
 	pPlayer = new Player3D();
+	pPlayer->SetPosition({ 2.578626f, 119.499969f, -138.668900f });
 	
 	pSkybox = new Sphere3D("data/texture/Skybox.tga");
 	HRESULT	hr;
@@ -31,6 +30,8 @@ S_InGame3D::S_InGame3D() :Scene3D(true)
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
 
+	nScore = 0;
+	RankManager::Init();
 	//Enemies->AddEnemy({ 0,0,0 });
 }
 
@@ -64,13 +65,12 @@ eSceneType S_InGame3D::Update()
 	StartDebugProc();
 	PrintDebugProc("FPS:%d\n\n", GetMainWindowFPS());
 
+	RankManager::Update();
 	// モデル更新
 	pPlayer->Update();
 
 	// フィールド更新
 	Floors->Update();
-
-	//HelloShadow->Update();
 
 	pUI->Update();
 
@@ -88,11 +88,6 @@ void S_InGame3D::Draw()
 {
 	// Zバッファ有効
 	SetZBuffer(true);
-
-	// 前面カリング (FBXは表裏が反転するため)
-	//if(!pDeviceContext)
-	//	pDeviceContext = MainWindow->GetDeviceContext();
-	//pDeviceContext->RSSetState(MainWindow->GetRasterizerState(1));
 
 	SetCullMode(CULLMODE_NONE);
 	// モデル描画
@@ -168,4 +163,9 @@ InGameUI2D * S_InGame3D::GetUIManager()
 S_InGame3D * GetCurrentGame()
 {
 	return pCurrentGame;
+}
+
+int GetScore()
+{
+	return nScore;
 }

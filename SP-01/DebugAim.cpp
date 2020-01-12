@@ -98,8 +98,10 @@ void DebugAim::Update()
 	switch (nTypeObj)
 	{
 	case DA_DEBUG_AIM:
-		if (GetInput(INPUT_DEBUG_CONFIRM) && pPlayer)
+		if (GetInput(INPUT_DEBUG_CONFIRM) && pPlayer) {
 			pPlayer->SetPosition(Position);
+			printf("PLAYER POS: (%f, %f, %f)\n", Position.x, Position.y, Position.z);
+		}
 		SetScale(0.5f);
 		break;
 	case DA_FLOOR:

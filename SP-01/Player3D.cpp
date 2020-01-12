@@ -19,7 +19,8 @@
 #define SHOW_PLAYER_HITBOX false
 #define DEBUG_ADD_INPUTS false
 #define DEBUG_ATTACK_INPUTS false
-#define DEBUG_ANALOG_INPUTS true
+#define DEBUG_ANALOG_INPUTS false
+#define DEBUG_FOUND_ATTACKS false
 Player3D* pMainPlayer3D = nullptr;
 
 
@@ -248,7 +249,7 @@ void Player3D::Update()
 		Hitboxes[PLAYER_HB_LOCK].PositionX = -sinf(XM_PI + ModelRot.y) * 25;
 		Hitboxes[PLAYER_HB_LOCK].PositionZ = -cosf(XM_PI + ModelRot.y) * 25;
 		while (++Hitboxes[PLAYER_HB_LOCK].SizeZ < 150) {
-			pLockedOnEnemy = pGame->GetList(GO_ENEMY)->CheckCollision(GetHitboxPlayer(PLAYER_HB_LOCK));
+			pLockedOnEnemy = pGame->GetList(GO_ENEMY)->CheckCollision(GetHitboxPlayer(PLAYER_HB_LOCK), true);
 			if (pLockedOnEnemy) {
 				//((Enemy3D*)pLockedOnEnemy)->LockEnemyToObject(this);
 				break;
@@ -274,7 +275,7 @@ void Player3D::Update()
 			pMainCamera->SetZoomLock(flock);
 		else
 			pMainCamera->SetZoomLock(0);
-		if (flock < -150 || GetInput(INPUT_AIM)) {
+		if (flock < -150 || GetInput(INPUT_AIM) || !pLockedOnEnemy->IsInUse()) {
 			pLockedOnEnemy = nullptr;
 			pMainCamera->SetZoomLock(0);
 			pMainCamera->SetYOffsetLock(0);
@@ -899,6 +900,10 @@ void Player3D::PlayerShadowControl()
 	mShadow->Update();
 	XMFLOAT3 ModelRot = Model->GetRotation();
 	mShadow->SetRotation({ 0, ModelRot.y, 0 });
+	if(pFloor)
+		mShadow->SetPosition({ Position.x,pFloor->GetPosition().y,Position.z });
+	else
+		mShadow->SetPosition({ Position.x,1,Position.z });
 }
 
 void Player3D::PlayerBulletsControl()
@@ -964,8 +969,6 @@ void Player3D::Draw()
 	
 	GameObject3D::Draw();
 	pDeviceContext->RSSetState(pCurrentWindow->GetRasterizerState(2));
-	if (mShadow)
-		mShadow->Draw();
 	pLight->SetLightEnable(false);
 	for (int i = 0; i < MAX_BULLETS; i++)
 	{
@@ -973,6 +976,9 @@ void Player3D::Draw()
 			continue;
 		goBullets[i]->Draw();
 	}
+	SetCullMode(CULLMODE_NONE);
+	if (mShadow)
+		mShadow->Draw();
 	pLight->SetLightEnable(true);
 
 	
@@ -1116,7 +1122,9 @@ void Player3D::Attack(const char * atkInput, int recursions)
 		if (!strcmp(stAllMoves[i].Input, AtkInputComp))
 		{
 			fAtkAcceleration = 0;
+#if DEBUG_FOUND_ATTACKS
 			printf("FOUND AT: %d\n", i);
+#endif
 			pCurrentAttackPlaying = &stAllMoves[i];
 			nState = PLAYER_ATTACKING_STATE;
 			if (stAllMoves[i].ResetInputs)
