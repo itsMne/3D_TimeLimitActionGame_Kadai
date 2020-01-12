@@ -51,7 +51,7 @@ PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 	{"FK"  ,   SLIDE,      true, GROUND_MOVE,	  1164	},
 	{"BK"  ,   SLIDEKICK,      false, GROUND_MOVE,	  1319	},
 	//{"BFK"  ,   KICKC,      false, GROUND_MOVE,	  3102	},
-	{"FK",	  REDHOTKICKDOWN,      true,  AIR_MOVE,	      3176	},//TEMP
+	{"FK",	  RED_HOT_KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
 	{"BK",	  KICK_DOWN,      true,  AIR_MOVE,	      3176	},//TEMP
 };
 float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
@@ -326,6 +326,8 @@ void Player3D::Update()
 			nState = PLAYER_IDLE_STATE;
 			break;
 		}
+		if(GetInput(INPUT_LOCKON))
+			DirectionalInputsControl();
 		PlayerAttackingControl();
 		break;
 	case PLAYER_DODGE_DOWN:
@@ -432,19 +434,42 @@ void Player3D::PlayerAttackingControl()
 		if (nCurrentFrame > 3626 && nCurrentFrame < 3638)
 			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,11.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
 		break;
-	case REDHOTKICKDOWN:
+	case RED_HOT_KICK_DOWN:
 		if (nCurrentFrame < 3669) {
 			fY_force = JUMP_FORCE;
 			break;
 		}
 		pFloor = nullptr;
-		fY_force += GRAVITY_FORCE;
-		if (fY_force > MAX_GRAVITY_FORCE)
-			fY_force = MAX_GRAVITY_FORCE;
-		Position.y -= fY_force;
 		AttackHitboxDistance = 7;
-		Position.x -= sinf(XM_PI + ModelRot.y) * 17;
-		Position.z -= cosf(XM_PI + ModelRot.y) * 17;
+		if (pLockedOnEnemy)
+		{
+			fY_force += GRAVITY_FORCE * 0.5f;
+			if (fY_force > MAX_GRAVITY_FORCE*0.5f)
+				fY_force = MAX_GRAVITY_FORCE*0.5f;
+			Position.y -= fY_force;
+			float MoveX = -sinf(XM_PI + ModelRot.y) * 17;
+			float MoveZ = -cosf(XM_PI + ModelRot.y) * 17;
+			Position.x += MoveX;
+			Position.z += MoveZ;
+
+			if (MoveX < 0 && Position.x < pLockedOnEnemy->GetPosition().x)
+				Position.x = pLockedOnEnemy->GetPosition().x;
+			else if (MoveX > 0 && Position.x > pLockedOnEnemy->GetPosition().x)
+				Position.x = pLockedOnEnemy->GetPosition().x;
+			if (MoveZ < 0 && Position.z < pLockedOnEnemy->GetPosition().z)
+				Position.z = pLockedOnEnemy->GetPosition().z;
+			else if (MoveZ > 0 && Position.z > pLockedOnEnemy->GetPosition().z)
+				Position.z = pLockedOnEnemy->GetPosition().z;
+
+		}
+		else {
+			fY_force += GRAVITY_FORCE;
+			if (fY_force > MAX_GRAVITY_FORCE)
+				fY_force = MAX_GRAVITY_FORCE;
+			Position.y -= fY_force;
+			Position.x -= sinf(XM_PI + ModelRot.y) * 17;
+			Position.z -= cosf(XM_PI + ModelRot.y) * 17;
+		}
 		if (nCurrentFrame > 3740)
 			Model->SetFrameOfAnimation(3674);
 		Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,12.5f };
@@ -472,12 +497,6 @@ void Player3D::PlayerAttackingControl()
 			Position.z -= cosf(XM_PI + ModelRot.y) * 6;
 			AttackHitboxDistance = 5;
 			Hitboxes[PLAYER_HB_ATTACK] = { -sinf(XM_PI + ModelRot.y) * AttackHitboxDistance,9.5f,-cosf(XM_PI + ModelRot.y) * AttackHitboxDistance,7.5f,7,6.5f };
-		}
-		if (bIsLockedBackwards && GetInput(INPUT_KICK) && nCurrentFrame > 1148)
-		{
-			bIsLockedBackwards = bIsLokedForward = false;
-			printf("\nhi\n");
-			Attack("AAK");
 		}
 		break;
 	case BASIC_CHAIN_A:
@@ -794,39 +813,7 @@ void Player3D::MoveControl()
 			Model->SetRotationY(nModelRotation + Rotation.y);
 		else
 		{
-			float abs = Model->GetRotation().y - nModelRotation - GetMainCamera()->GetCameraAngle().y;
-			if (abs < 0)
-				abs *= -1;
-			float fDifferenceChangeInFrame = fAnalogLockInput - abs;
-			if (fDifferenceChangeInFrame < 0)
-				fDifferenceChangeInFrame *= -1;
-#if DEBUG_ANALOG_INPUTS
-			printf("DIF: %f\n", fAnalogLockInput);
-#endif
-			fAnalogLockInput = abs;
-			if (fAnalogLockInput > XM_PI)
-				fAnalogLockInput -= XM_2PI;
-			if (fAnalogLockInput < 1)
-			{
-				bIsLokedForward = true;
-			}
-			else if(fAnalogLockInput > 2)
-			{
-				bIsLockedBackwards = true;
-			}
-			if (fDifferenceChangeInFrame > 1.5f)
-			{
-				//変化があった
-				nInputTimer = (MAX_INPUT_TIMER / 2);
-				if (fAnalogLockInput < 1)
-				{
-					AddInput('F');
-				}
-				else if(fAnalogLockInput>2)
-				{
-					AddInput('B');
-				}
-			}
+			DirectionalInputsControl();
 			
 		}
 		if (!GetInput(INPUT_AIM)) {
@@ -850,6 +837,48 @@ void Player3D::MoveControl()
 	if (++nFlowerTimer > MAX_FLOWER_TIMER && IsOnTheFloor()) {
 		SetFlower({ Position.x,Position.y-1.2f,Position.z });
 		nFlowerTimer = 0;
+	}
+}
+
+void Player3D::DirectionalInputsControl()
+{
+	float fHorizontalAxis = GetAxis(MOVEMENT_AXIS_HORIZONTAL);
+	float fVerticalAxis = GetAxis(MOVEMENT_AXIS_VERTICAL);
+	if (fHorizontalAxis == 0 && fVerticalAxis == 0)
+		return;
+	float nModelRotation = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
+	float abs = Model->GetRotation().y - nModelRotation - GetMainCamera()->GetCameraAngle().y;
+	if (abs < 0)
+		abs *= -1;
+	float fDifferenceChangeInFrame = fAnalogLockInput - abs;
+	if (fDifferenceChangeInFrame < 0)
+		fDifferenceChangeInFrame *= -1;
+#if DEBUG_ANALOG_INPUTS
+	printf("DIF: %f\n", fAnalogLockInput);
+#endif
+	fAnalogLockInput = abs;
+	if (fAnalogLockInput > XM_PI)
+		fAnalogLockInput -= XM_2PI;
+	if (fAnalogLockInput < 1)
+	{
+		bIsLokedForward = true;
+	}
+	else if (fAnalogLockInput > 2)
+	{
+		bIsLockedBackwards = true;
+	}
+	if (fDifferenceChangeInFrame > 1.5f)
+	{
+		//変化があった
+		nInputTimer = (MAX_INPUT_TIMER / 2);
+		if (fAnalogLockInput < 1)
+		{
+			AddInput('F');
+		}
+		else if (fAnalogLockInput>2)
+		{
+			AddInput('B');
+		}
 	}
 }
 
@@ -1059,14 +1088,25 @@ void Player3D::Attack(const char * atkInput, int recursions)
 		return;
 	char AtkInputComp[MAX_PLAYER_INPUT + 1];
 	strcpy(AtkInputComp, atkInput);
-	if (bIsLockedBackwards && !strcmp(AtkInputComp, "A"))
+	static bool bLastCheck = false;
+	if (recursions == MAX_PLAYER_INPUT)
+		bLastCheck = false;
+	if (bIsLockedBackwards && !strcmp(AtkInputComp, "A") && !bLastCheck) {
 		strcpy(AtkInputComp, "BA");
-	if (bIsLokedForward && !strcmp(AtkInputComp, "A"))
+		bLastCheck = true;
+	}
+	if (bIsLokedForward && !strcmp(AtkInputComp, "A") && !bLastCheck) {
 		strcpy(AtkInputComp, "FA");
-	if (bIsLockedBackwards && !strcmp(AtkInputComp, "K"))
+		bLastCheck = true;
+	}
+	if (bIsLockedBackwards && !strcmp(AtkInputComp, "K") && !bLastCheck) {
 		strcpy(AtkInputComp, "BK");
-	if (bIsLokedForward && !strcmp(AtkInputComp, "K"))
+		bLastCheck = true;
+	}
+	if (bIsLokedForward && !strcmp(AtkInputComp, "K") && !bLastCheck) {
 		strcpy(AtkInputComp, "FK");
+		bLastCheck = true;
+	}
 
 	for (int i = 0; i < MAX_ATTACKS; i++)
 	{
@@ -1157,7 +1197,7 @@ void Player3D::LockModelToObject(GameObject3D * lock)
 		return;
 	if (pCurrentAttackPlaying)
 	{
-		if (pCurrentAttackPlaying->Animation == REDHOTKICKDOWN)
+		if (pCurrentAttackPlaying->Animation == RED_HOT_KICK_DOWN)
 			return;
 	}
 	XMFLOAT3 a;

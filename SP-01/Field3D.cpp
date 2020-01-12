@@ -191,7 +191,7 @@ void Field3D::Update(void)
 			pPlayer->SetFloor(this);
 			if (pPlayer->GetCurrentAttack())
 			{
-				if (pPlayer->GetCurrentAttack()->Animation == REDHOTKICKDOWN)
+				if (pPlayer->GetCurrentAttack()->Animation == RED_HOT_KICK_DOWN)
 					pPlayer->CancelAttack();
 			}
 		}

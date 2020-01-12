@@ -324,7 +324,7 @@ void Enemy3D::PlayerAttackCollision()
 
 	switch (pLastAttackPlaying->Animation)
 	{
-	case SLIDEKICK:
+	case SLIDEKICK: case RED_HOT_KICK_DOWN:
 		pFloor = nullptr;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		nFaceCooldown = 0;
@@ -333,6 +333,8 @@ void Enemy3D::PlayerAttackCollision()
 		nGravityCancellingFrames = 15;
 		Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
 		Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
+		if (pLastAttackPlaying->Animation == RED_HOT_KICK_DOWN)
+			pPlayer->CancelAttack();
 		break;
 	case AIRCOMBOE: case AIRKICKC:
 		SetEnemyAnimation(DAMAGEDUP_ANIM);

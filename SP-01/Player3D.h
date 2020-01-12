@@ -45,7 +45,7 @@ enum PLAYER_ANIMATIONS
 	AIRKICKA,
 	AIRKICKB,
 	AIRKICKC,
-	REDHOTKICKDOWN,
+	RED_HOT_KICK_DOWN,
 	MAX_ANIMATIONS
 };
 
@@ -139,6 +139,7 @@ public:
 	void GravityControl(bool bCountAttackState);
 	void PlayerCameraControl();
 	void MoveControl();
+	void DirectionalInputsControl();
 	void SetPlayerAnimation(int Animation);
 	void SetPlayerAnimation(int Animation, int Slowness);
 	void PlayerShadowControl();
