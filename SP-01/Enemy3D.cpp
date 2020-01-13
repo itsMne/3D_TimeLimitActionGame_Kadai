@@ -134,6 +134,8 @@ void Enemy3D::Update()
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
 	XMFLOAT3 xm3PlayerRotation = pPlayer->GetRotation();
 	XMFLOAT3 xm3PlayerPosition = pPlayer->GetRotation();
+	if (pPlayer->GetState() == PLAYER_FELL)
+		return;
 	if (nState == ENEMY_DEAD)
 	{
 		for (int i = 0; i < MAX_NUM_ENEMIES_FOLLOWING_PLAYER; i++)

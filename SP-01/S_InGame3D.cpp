@@ -15,7 +15,7 @@ S_InGame3D::S_InGame3D() :Scene3D(true)
 	MainWindow->SetWindowColor255(150, 71, 89);
 	pPlayer = new Player3D();
 	pPlayer->SetPosition({ 2.578626f, 119.499969f, -138.668900f });
-	
+	pPlayer->SetBottom(-650);
 	pSkybox = new Sphere3D("data/texture/Skybox.tga");
 	HRESULT	hr;
 	g_pDevice = GetDevice();

@@ -78,7 +78,7 @@ GameObject3D::~GameObject3D()
 void GameObject3D::Init()
 {
 	Rotation = { 0,0,0 };
-	Position = { 0,0,0 };
+	InitialPosition = Position = { 0,0,0 };
 	Scale = { 1,1,1 };
 	pMainCamera = GetMainCamera();
 	bUse = true;
@@ -473,6 +473,46 @@ void GameObject3D::AutomaticMovementControl()
 		//nDelayFramesBetweenStops = (int)x3MoveEndPos.z * 60;//FIX THIS
 	}
 
+}
+
+bool GameObject3D::MoveToPos(float f_Speed, XMFLOAT3 vDestination)
+{
+	if (Position.x < vDestination.x)
+	{
+		Position.x += f_Speed;
+		if (Position.x > vDestination.x)
+			Position.x = vDestination.x;
+	}
+	else if (Position.x > vDestination.x) {
+		Position.x -= f_Speed;
+		if (Position.x < vDestination.x)
+			Position.x = vDestination.x;
+	}
+
+	if (Position.y < vDestination.y)
+	{
+		Position.y += f_Speed;
+		if (Position.y > vDestination.y)
+			Position.y = vDestination.y;
+	}
+	else if (Position.y > vDestination.y) {
+		Position.y -= f_Speed;
+		if (Position.y < vDestination.y)
+			Position.y = vDestination.y;
+	}
+
+	if (Position.z < vDestination.z)
+	{
+		Position.z += f_Speed;
+		if (Position.z > vDestination.z)
+			Position.z = vDestination.z;
+	}
+	else if (Position.z > vDestination.z) {
+		Position.z -= f_Speed;
+		if (Position.z < vDestination.z)
+			Position.z = vDestination.z;
+	}
+	return CompareXmfloat3(Position, vDestination);
 }
 
 void GameObject3D::SetMovement(XMFLOAT3 Start, XMFLOAT3 End, float Speed, int delay)

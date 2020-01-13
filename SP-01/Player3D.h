@@ -57,6 +57,7 @@ enum EPLAYER_STATE
 	PLAYER_DODGE_DOWN,
 	PLAYER_DODGE_UP,
 	PLAYER_DAMAGED,
+	PLAYER_FELL,
 	MAX_PLAYER_STATE
 };
 enum EPLAYER_HITBOXES
@@ -124,6 +125,9 @@ private:
 	bool bIsLokedForward;
 	int nCancellingGravityFrames;
 	int nFramesDead;
+	float fBottom;
+	float fDamageAcceleration;
+	float fTeleportAcceleration;
 public:
 	Player3D();
 	Player3D(Light3D* Light);
@@ -171,6 +175,7 @@ public:
 	bool IsPlayerDead();
 	GameObject3D** GetBullets();
 	GameObject3D* GetLockedOnEnemy();
+	void SetBottom(float);
 };
 
 Player3D*  GetPlayer3D();

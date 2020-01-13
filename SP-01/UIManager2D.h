@@ -3,6 +3,14 @@
 #define MAX_AURA 5
 #include "Polygon2D.h"
 #include "Player3D.h"
+
+enum AURA_EFFECTS
+{
+	NORMAL_AURA_TEXTURE,
+	DARK_AURA_TEXTURE,
+	MAX_AURA_TEXTURE
+};
+
 enum UI_TYPE
 {
 	UI_HEART,
@@ -70,6 +78,7 @@ public:
 	void ActivateAtkEffect(int Frames);
 	void ActivateGameOver();
 	void SetAura();
+	void SetAura(int Texture);
 	int GetGameOverFrames();
 };
 

@@ -256,6 +256,11 @@ XMFLOAT3 * Model3D::GetScaleAdd()
 
 void Model3D::SetScale(float newScale)
 {
+	if (newScale < 0)
+	{
+		Scale = XMFLOAT3(0, 0, 0);
+		return;
+	}
 	Scale = XMFLOAT3(newScale, newScale, newScale);
 }
 void Model3D::SetScale(XMFLOAT3 newScale)

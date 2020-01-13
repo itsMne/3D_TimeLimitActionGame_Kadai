@@ -33,6 +33,7 @@ protected:
 	Model3D* Model;
 	XMFLOAT3 Rotation;
 	XMFLOAT3 Position;
+	XMFLOAT3 InitialPosition;
 	XMFLOAT3 Scale;
 	Camera3D* pMainCamera;
 	XMFLOAT4X4 WorldMatrix;
@@ -84,6 +85,7 @@ public:
 	void SetHitbox(Box);
 	//自動で動いているオブジェクトなら
 	void AutomaticMovementControl();
+	bool MoveToPos(float fSpeed, XMFLOAT3 Destination);
 	void SetMovement(XMFLOAT3 Start, XMFLOAT3 End, float Speed, int nDelayFrames);
 	bool IsMoveableObject();
 	XMFLOAT3 GetMoveStartPosition();

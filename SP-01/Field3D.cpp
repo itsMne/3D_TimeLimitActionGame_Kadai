@@ -182,6 +182,8 @@ void Field3D::Update(void)
 	Player3D* pPlayer = GetPlayer3D();
 	if (pPlayer)
 	{
+		if (pPlayer->GetState() == PLAYER_FELL)
+			return;
 		if (!pPlayer->IsOnTheFloor()) {
 			if (!IsInCollision3D(pPlayer->GetHitboxPlayer(PLAYER_HB_FEET), GetHitbox()))
 				return;

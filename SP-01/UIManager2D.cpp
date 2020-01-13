@@ -4,6 +4,8 @@
 #define HEART_SIZE	75
 #define AIM_SIZE	125
 #define HEART_TATE true
+
+ID3D11ShaderResourceView*	AuraTexture[MAX_AURA_TEXTURE] = {nullptr};
 UIObject2D::UIObject2D()
 {
 	Init();
@@ -59,11 +61,14 @@ UIObject2D::UIObject2D(int nUI_Type)
 		SetTexture(gpTexture);
 		break;
 	case UI_AURA:
-		CreateTextureFromFile(GetDevice(), "data/texture/AuraEffect.tga", &gpTexture);
+		if (!AuraTexture[NORMAL_AURA_TEXTURE])
+			CreateTextureFromFile(GetDevice(), "data/texture/AuraEffect.tga", &AuraTexture[NORMAL_AURA_TEXTURE]);
+		if (!AuraTexture[DARK_AURA_TEXTURE])
+			CreateTextureFromFile(GetDevice(), "data/texture/AuraEffectAlt.tga", &AuraTexture[DARK_AURA_TEXTURE]);
 		Position.x = 0;
 		Position.y = 0;
 		SetPolygonSize(0, 0);
-		SetTexture(gpTexture);
+		SetTexture(AuraTexture[NORMAL_AURA_TEXTURE]);
 		break;
 	case UI_GAMEOVER_SCREEN:
 		CreateTextureFromFile(GetDevice(), "data/texture/UI/GameOverScreen.tga", &gpTexture);
@@ -337,6 +342,8 @@ void UIObject2D::UIHeartDrawControl()
 
 void UIObject2D::End()
 {
+	//if (nType != UI_AURA)
+	//	SAFE_RELEASE(gpTexture);
 }
 void UIObject2D::SetActiveFrames(int Frames)
 {
@@ -448,6 +455,22 @@ void InGameUI2D::SetAura()
 		if (pAuraEffects[i]->GetUse())
 			continue;
 		pAuraEffects[i]->SetAura();
+		pAuraEffects[i]->SetTexture(AuraTexture[NORMAL_AURA_TEXTURE]);
+	}
+}
+
+void InGameUI2D::SetAura(int Texture)
+{
+	if (Texture > MAX_AURA_TEXTURE || Texture < 0)
+		return;
+	for (int i = 0; i < MAX_AURA; i++)
+	{
+		if (!pAuraEffects[i])
+			continue;
+		if (pAuraEffects[i]->GetUse())
+			continue;
+		pAuraEffects[i]->SetAura();
+		pAuraEffects[i]->SetTexture(AuraTexture[Texture]);
 	}
 }
 

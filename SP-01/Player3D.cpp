@@ -121,6 +121,7 @@ void Player3D::Init()
 	fAtkAcceleration = 0;
 	nFramesDead = 0;
 	nCancellingGravityFrames = 0;
+	fBottom = 0;
 	pCurrentAttackPlaying = nullptr;
 	bSwitcheToAimingState = false; 
 	bIsLockedBackwards = false;
@@ -137,6 +138,7 @@ void Player3D::Init()
 	nMaxHealth = nCurrentHealth = INITIAL_HEALTH;
 	nType = GO_PLAYER;
 	nShootCooldown = 0;
+	fTeleportAcceleration = fDamageAcceleration = 0;
 	fY_force = 0;
 	pDeviceContext = GetDeviceContext();
 	pCurrentWindow = GetMainWindow();
@@ -183,6 +185,48 @@ void Player3D::InitPlayerHitboxes()
 }
 void Player3D::Update()
 {
+	if (nState == PLAYER_FELL)
+	{
+		if (!CompareXmfloat3(Position, InitialPosition))
+		{
+			if (!CompareXmfloat3(*(Model->GetScaleAdd()), { 0,0,0 }))
+			{
+				fDamageAcceleration += 0.05f;
+				Model->SetScale(Scale.x - fDamageAcceleration);
+
+			}
+			else {
+				if (nCurrentHealth <= 0)
+				{
+					nState = PLAYER_DAMAGED;
+					SetPlayerAnimation(DAMAGEC);
+					return;
+				}
+				fDamageAcceleration = 0;
+				fTeleportAcceleration += 0.5f;
+				MoveToPos(fTeleportAcceleration, InitialPosition);
+			}
+		}
+		else {
+			if (!pCurrentGame)
+				pCurrentGame = GetCurrentGame();
+			S_InGame3D* pGame = (S_InGame3D*)pCurrentGame;
+			if (!CompareXmfloat3(*(Model->GetScaleAdd()), { 1,1,1 }))
+			{
+				fDamageAcceleration += 0.05f;
+				Model->SetScale(Scale.x + fDamageAcceleration);
+				if (Scale.x > 1)
+					Model->SetScale(1);
+				if (CompareXmfloat3(*(Model->GetScaleAdd()), { 1,1,1 }))
+					pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
+			}
+			else {
+				nState = PLAYER_IDLE_STATE;
+			}
+		}
+		SetPlayerAnimation(DAMAGEA);
+		return;
+	}
 	if (nCurrentHealth <= 0)
 	{
 		if (Model->GetCurrentAnimation() == DAMAGEC)
@@ -194,7 +238,6 @@ void Player3D::Update()
 			}
 			
 		}
-		
 	}
 	if (!pMainCamera) {
 		pMainCamera = GetMainCamera();
@@ -223,6 +266,7 @@ void Player3D::Update()
 		pDebugAim->Update();
 		return;
 	}
+	
 	if (nState == PLAYER_DAMAGED)
 	{
 		XMFLOAT3 ModelRot = Model->GetRotation();
@@ -257,7 +301,14 @@ void Player3D::Update()
 		}
 		Hitboxes[PLAYER_HB_LOCK].SizeZ = 1;
 	}
-
+	if (fBottom != 0)
+	{
+		if (Position.y < fBottom) {
+			nState = PLAYER_FELL;
+			pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
+			nCurrentHealth--;
+		}
+	}
 	if (!GetInput(INPUT_LOCKON) && pLockedOnEnemy) {
 		pLockedOnEnemy = nullptr;
 		//pMainCamera->SetFocalPointGO(this);
@@ -1277,6 +1328,10 @@ void Player3D::SetDamage(int nDamage)
 {
 	if (nState == PLAYER_DAMAGED)
 		return;
+	if (!pCurrentGame)
+		pCurrentGame = GetCurrentGame();
+	S_InGame3D* pGame = (S_InGame3D*)pCurrentGame;
+	pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
 	nState = PLAYER_DAMAGED;
 	nCurrentHealth -= nDamage;
 }
@@ -1294,6 +1349,11 @@ GameObject3D ** Player3D::GetBullets()
 GameObject3D * Player3D::GetLockedOnEnemy()
 {
 	return pLockedOnEnemy;
+}
+
+void Player3D::SetBottom(float bot)
+{
+	fBottom = bot;
 }
 
 Player3D * GetPlayer3D()
