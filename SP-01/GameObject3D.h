@@ -68,6 +68,7 @@ public:
 	void SetRotation(XMFLOAT3 fRot);
 	XMFLOAT4X4* GetModelWorld();
 	void SetPosition(XMFLOAT3 newPos);
+	void SetPosition(XMFLOAT3 newPos, bool bInitial);
 	void SetModelRotation(XMFLOAT3 rot);
 	void RotateAroundX(float x);
 	void RotateAroundY(float y);

@@ -1,5 +1,6 @@
 #include "UIManager2D.h"
 #include "S_InGame3D.h"
+#include "RankManager.h"
 #include "Texture.h"
 #define HEART_SIZE	75
 #define AIM_SIZE	125
@@ -91,6 +92,18 @@ UIObject2D::UIObject2D(int nUI_Type)
 		Position.x = SCREEN_WIDTH / 2 - (25 * 8);
 		Position.y = SCREEN_HEIGHT / 2 - 25;
 		x2Frame.x = 1 / 10.0f;
+		x2Frame.y = 1 / 10.0f;
+		uv = { 0,0 };
+		nScore = 0;
+		SetTexture(gpTexture);
+		nAnimationSpeed = 3;
+		break;
+	case UI_RANK:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/RankUI.tga", &gpTexture);
+		SetPolygonSize(100, 75);
+		Position.x = 550;
+		Position.y = 280;
+		x2Frame.x = 1 / 4.0f;
 		x2Frame.y = 1 / 10.0f;
 		uv = { 0,0 };
 		nScore = 0;
@@ -202,6 +215,14 @@ void UIObject2D::Update()
 				uv.V = 0;
 		}
 		break;
+	case UI_RANK:
+		uv.U = GetRank()-2;
+		if (++nAnimationTimer > nAnimationSpeed) {
+			nAnimationTimer = 0;
+			if (++uv.V == 10)
+				uv.V = 0;
+		}
+		break;
 	default:
 		break;
 	}
@@ -260,6 +281,12 @@ void UIObject2D::Draw()
 		break;
 	case UI_SCORE:
 		DrawNumber();
+		break;
+	case UI_RANK:
+		if (GetRank() - 2 < 0)
+			break;
+		SetPolygonUV(uv.U / 4.0f, uv.V / 10.0f);
+		DrawPolygon(GetDeviceContext());
 		break;
 	default:
 		DrawPolygon(GetDeviceContext());
@@ -399,6 +426,7 @@ void InGameUI2D::Init()
 		pAuraEffects[i]=new UIObject2D(UI_AURA);
 	pGameOverScreen = new UIObject2D(UI_GAMEOVER_SCREEN);
 	pScore = new UIObject2D(UI_SCORE);
+	pRankMeter = new UIObject2D(UI_RANK);
 }
 
 void InGameUI2D::Update()
@@ -414,7 +442,9 @@ void InGameUI2D::Update()
 	if (pGameOverScreen)
 		pGameOverScreen->Update();
 	if (pScore)
-		pScore->Update();
+		pScore->Update();	
+	if (pRankMeter)
+		pRankMeter->Update();
 }
 
 void InGameUI2D::Draw()
@@ -431,6 +461,8 @@ void InGameUI2D::Draw()
 		pGameOverScreen->Draw();
 	if (pScore)
 		pScore->Draw();
+	if (pRankMeter)
+		pRankMeter->Draw();
 }
 
 void InGameUI2D::End()

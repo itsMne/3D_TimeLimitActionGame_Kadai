@@ -1,5 +1,6 @@
 #include "Enemy3D.h"
 #include "S_InGame3D.h"
+#include "RankManager.h"
 #include "UniversalStructures.h"
 #define MODEL_PATH "data/model/Enemy.fbx"
 #define MAX_GRAVITY_FORCE 5.5f
@@ -12,7 +13,7 @@
 
 Enemy3D* FollowingPlayer[MAX_NUM_ENEMIES_FOLLOWING_PLAYER] = {nullptr};
 int nMaxFollowingPlayer = MAX_NUM_ENEMIES_FOLLOWING_PLAYER;
-
+bool bInfiniteSpawn = true;
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
@@ -94,6 +95,7 @@ void Enemy3D::Init()
 	fSpeed = 1.5f;
 	fY_force = 0;
 	nSendOffFrames = 0;
+
 	fSpeed = 0;//del
 	bSetDamageA = true;
 	nDizzyFrames = 0;
@@ -106,6 +108,7 @@ void Enemy3D::Init()
 	SkullMark = new GameObject3D(GO_SKULLWARNING);
 	HeartMark = new GameObject3D(GO_ENEMYHEARTMARK);
 	bIsOnLockOn = false;
+	bUse = true;
 }
 
 void Enemy3D::Update()
@@ -145,8 +148,13 @@ void Enemy3D::Update()
 		}
 		Model->RotateAroundY(1);
 		SetScale(Scale.x - fDeadAcceleration);
-		if (Scale.x == 0 || Scale.y == 0 || Scale.z == 0)
+		if (Scale.x == 0 || Scale.y == 0 || Scale.z == 0) {
 			bUse = false;
+			if (bInfiniteSpawn) {
+				Init();
+				Position = InitialPosition;
+			}
+		}
 		fDeadAcceleration+=0.00125f;
 		bIsUnlit = true;
 		return;
@@ -172,7 +180,8 @@ void Enemy3D::Update()
 			Position.y = pPlayer->GetPosition().y;
 		}
 	}
-	
+	if (Position.y < pPlayer->GetBottom())
+		fHP = 0;
 	bIsOnLockOn = pPlayer->GetLockedOnEnemy() == this;
 	if (fHP < 0)
 		fHP = 0;
@@ -391,6 +400,7 @@ void Enemy3D::PlayerAttackCollision()
 	switch (pLastAttackPlaying->Animation)
 	{
 	case SLIDEKICK: case RED_HOT_KICK_DOWN:
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
 		fHP -= 9;
 		pFloor = nullptr;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
@@ -400,10 +410,12 @@ void Enemy3D::PlayerAttackCollision()
 		nGravityCancellingFrames = 15;
 		Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
 		Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
+		AddScoreWithRank(10);
 		if (pLastAttackPlaying->Animation == RED_HOT_KICK_DOWN)
 			pPlayer->CancelAttack();
 		break;
 	case AIRCOMBOE: case AIRKICKC:
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
 		fHP -= 11;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		modelRot = pPlayer->GetModel()->GetRotation();
@@ -424,9 +436,11 @@ void Enemy3D::PlayerAttackCollision()
 			fSendOffAcceleration = 0;
 			nSendOffFrames = 2;
 		}
+		AddScoreWithRank(12);
 		pLastAttackPlaying = nullptr;
 		break;
 	case KICK_DOWN:
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 35);
 		fHP -= 10;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		nFaceCooldown = 0;
@@ -450,8 +464,10 @@ void Enemy3D::PlayerAttackCollision()
 			Position.z -= cosf(XM_PI + modelRot.y) * 1.5f;
 			pLastAttackPlaying = nullptr;
 		}
+		AddScoreWithRank(3);
 		break;
 	case KICKC:
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
 		fHP -= 11;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -480,8 +496,10 @@ void Enemy3D::PlayerAttackCollision()
 		modelRot = pPlayer->GetModel()->GetRotation();
 		Position.x -= sinf(XM_PI + modelRot.y) * 5;
 		Position.z -= cosf(XM_PI + modelRot.y) * 5;
+		AddScoreWithRank(10);
 		break;
 	case BASIC_CHAIN_E:
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
 		fHP -= 11;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -508,9 +526,11 @@ void Enemy3D::PlayerAttackCollision()
 			nSendOffFrames = 2;
 		}
 		nState = ENEMY_SENDOFF;
-
+		AddScoreWithRank(10);
 		break;
 	default:
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 30);
+		AddScoreWithRank(2);
 		fHP -= 5;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);

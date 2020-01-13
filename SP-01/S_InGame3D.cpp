@@ -4,10 +4,11 @@
 #include "InputManager.h"
 #include "RankManager.h"
 #include "Billboard2D.h"
-
+#define MAX_TIME 120
 
 S_InGame3D* pCurrentGame = nullptr;
 int nScore;
+int nScoreToAdd;
 S_InGame3D::S_InGame3D() :Scene3D(true)
 {
 	pCurrentGame = this;
@@ -30,8 +31,11 @@ S_InGame3D::S_InGame3D() :Scene3D(true)
 	pSceneCamera->SetFocalPointGO(pPlayer);
 	pUI = new InGameUI2D();
 
-	nScore = 0;
+	nTimer = MAX_TIME;
+	nFrameCounter = 0;
+	nScoreToAdd = nScore = 0;
 	RankManager::Init();
+	bUseTimer = true;
 	//Enemies->AddEnemy({ 0,0,0 });
 }
 
@@ -58,6 +62,19 @@ eSceneType S_InGame3D::Update()
 		return SCENE_IN_GAME;
 	}
 	Scene3D::Update();
+	if (nScoreToAdd > 0)
+	{
+		nScore += 1;
+		nScoreToAdd -= 1;
+	}
+	if(bUseTimer)
+	if (++nFrameCounter >= 60)
+	{
+		nFrameCounter = 0;
+		nTimer--;
+		if (nTimer < 0)
+			nTimer = 0;
+	}
 	// デバッグ文字列表示更新
 	UpdateDebugProc();
 
@@ -160,6 +177,11 @@ InGameUI2D * S_InGame3D::GetUIManager()
 	return pUI;
 }
 
+bool S_InGame3D::TimeIsUp()
+{
+	return (bUseTimer && nTimer <= 0);
+}
+
 S_InGame3D * GetCurrentGame()
 {
 	return pCurrentGame;
@@ -168,4 +190,13 @@ S_InGame3D * GetCurrentGame()
 int GetScore()
 {
 	return nScore;
+}
+
+void AddScoreWithRank(int add)
+{
+	nScoreToAdd += add*GetRank();
+}
+void AddScore(int add)
+{
+	nScoreToAdd += add;
 }

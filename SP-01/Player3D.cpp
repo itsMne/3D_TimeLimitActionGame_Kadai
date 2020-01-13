@@ -3,6 +3,7 @@
 #include "debugproc.h"
 #include "Texture.h"
 #include "Enemy3D.h"
+#include "RankManager.h"
 #include "S_InGame3D.h"
 #define PLAYER_MODEL_PATH "data/model/NinaModel.fbx"
 #define PLAYER_SPEED	1.95f					// ˆÚ“®‘¬“x
@@ -307,6 +308,7 @@ void Player3D::Update()
 			nState = PLAYER_FELL;
 			pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
 			nCurrentHealth--;
+			ResetRanks();
 		}
 	}
 	if (!GetInput(INPUT_LOCKON) && pLockedOnEnemy) {
@@ -1334,6 +1336,7 @@ void Player3D::SetDamage(int nDamage)
 	pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
 	nState = PLAYER_DAMAGED;
 	nCurrentHealth -= nDamage;
+	ResetRanks();
 }
 
 bool Player3D::IsPlayerDead()
@@ -1354,6 +1357,11 @@ GameObject3D * Player3D::GetLockedOnEnemy()
 void Player3D::SetBottom(float bot)
 {
 	fBottom = bot;
+}
+
+float Player3D::GetBottom()
+{
+	return fBottom;
 }
 
 Player3D * GetPlayer3D()

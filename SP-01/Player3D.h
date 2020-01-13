@@ -176,6 +176,7 @@ public:
 	GameObject3D** GetBullets();
 	GameObject3D* GetLockedOnEnemy();
 	void SetBottom(float);
+	float GetBottom();
 };
 
 Player3D*  GetPlayer3D();

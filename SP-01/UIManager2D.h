@@ -21,6 +21,7 @@ enum UI_TYPE
 	UI_AURA,
 	UI_GAMEOVER_SCREEN,
 	UI_SCORE,
+	UI_RANK,
 	UI_TYPE_MAX
 };
 class UIObject2D :
@@ -70,6 +71,7 @@ private:
 	UIObject2D* pAuraEffects[MAX_AURA];
 	UIObject2D* pGameOverScreen;
 	UIObject2D* pScore;
+	UIObject2D* pRankMeter;
 
 public:
 	InGameUI2D();

@@ -17,6 +17,9 @@ private:
 	Go_List* Floors;
 	Go_List* Walls;
 	Go_List* Enemies;
+	int nTimer;
+	int nFrameCounter;
+	bool bUseTimer;
 public:
 	S_InGame3D();
 	~S_InGame3D();
@@ -27,7 +30,10 @@ public:
 	Go_List* GetList(int Type);
 	void SetAtkEffect(int frames);
 	InGameUI2D* GetUIManager();
+	bool TimeIsUp();
 };
 
 S_InGame3D* GetCurrentGame();
 int GetScore();
+void AddScoreWithRank(int add);
+void AddScore(int add);

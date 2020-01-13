@@ -297,6 +297,13 @@ void GameObject3D::SetPosition(XMFLOAT3 newPos)
 	Position = newPos;
 }
 
+void GameObject3D::SetPosition(XMFLOAT3 newPos, bool bInitial)
+{
+	Position = newPos;
+	if (bInitial)
+		InitialPosition = Position;
+}
+
 void GameObject3D::SetModelRotation(XMFLOAT3 rot)
 {
 	if(Model)
@@ -720,7 +727,7 @@ GameObject3D * Go_List::AddEnemy(XMFLOAT3 newPosition, bool Moveable, XMFLOAT3 S
 		go_node* pWorkList = new go_node();
 		pWorkList->Object = new Enemy3D();
 		Enemy3D* thisWall = (Enemy3D*)(pWorkList->Object);
-		thisWall->SetPosition(newPosition);
+		thisWall->SetPosition(newPosition, true);
 		if (Moveable)
 			thisWall->SetMovement(Start, End, Speed, DelayFrames);
 		pWorkList->next = nullptr;
