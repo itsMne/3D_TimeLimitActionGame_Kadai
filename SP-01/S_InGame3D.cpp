@@ -4,6 +4,7 @@
 #include "InputManager.h"
 #include "RankManager.h"
 #include "Billboard2D.h"
+#include "Sound.h"
 #define MAX_TIME 120
 
 S_InGame3D* pCurrentGame = nullptr;
@@ -35,7 +36,8 @@ S_InGame3D::S_InGame3D() :Scene3D(true)
 	nFrameCounter = 0;
 	nScoreToAdd = nScore = 0;
 	RankManager::Init();
-	bUseTimer = true;
+	bUseTimer = false;
+	PlaySoundGame(SOUND_LABEL_TUTORIAL);
 	//Enemies->AddEnemy({ 0,0,0 });
 }
 
@@ -62,6 +64,12 @@ eSceneType S_InGame3D::Update()
 		return SCENE_IN_GAME;
 	}
 	Scene3D::Update();
+	if (pPlayer->GetPosition().y < 69.200058f && !bUseTimer)
+	{
+		bUseTimer = true;
+		StopSound();
+		PlaySoundGame(SOUND_LABEL_SA_GAME);
+	}
 	if (nScoreToAdd > 0)
 	{
 		nScore += 1;

@@ -1,6 +1,7 @@
 #include "UIManager2D.h"
 #include "S_InGame3D.h"
 #include "RankManager.h"
+#include "Sound.h"
 #include "Texture.h"
 #define HEART_SIZE	75
 #define AIM_SIZE	125
@@ -484,8 +485,15 @@ void InGameUI2D::ActivateAtkEffect(int Frames)
 
 void InGameUI2D::ActivateGameOver()
 {
-	if (pGameOverScreen)
+
+	if (pGameOverScreen) {
+		if (pGameOverScreen->GetUse())
+			return;
+		StopSound();
+		PlaySoundGame(SOUND_LABEL_GAMEOVER);
+		PlaySoundGame(SOUND_LABEL_SE_MIRRORBREAK);
 		pGameOverScreen->SetUse(true);
+	}
 }
 
 void InGameUI2D::SetAura()

@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include "Enemy3D.h"
 #include "RankManager.h"
+#include "Sound.h"
 #include "S_InGame3D.h"
 #define PLAYER_MODEL_PATH "data/model/NinaModel.fbx"
 #define PLAYER_SPEED	1.95f					// ˆÚ“®‘¬“x
@@ -1178,6 +1179,11 @@ void Player3D::Attack(const char * atkInput, int recursions)
 #if DEBUG_FOUND_ATTACKS
 			printf("FOUND AT: %d\n", i);
 #endif
+			if (GetInput(INPUT_SWORD))
+				PlaySoundGame(SOUND_LABEL_SE_SWING);
+			else if (GetInput(INPUT_KICK))
+				PlaySoundGame(SOUND_LABEL_SE_KICKSWING);
+			bIsSwordAttack = GetInput(INPUT_SWORD);
 			pCurrentAttackPlaying = &stAllMoves[i];
 			nState = PLAYER_ATTACKING_STATE;
 			if (stAllMoves[i].ResetInputs)
@@ -1362,6 +1368,11 @@ void Player3D::SetBottom(float bot)
 float Player3D::GetBottom()
 {
 	return fBottom;
+}
+
+bool Player3D::IsLastAttackExecutedASwordAttack()
+{
+	return bIsSwordAttack;
 }
 
 Player3D * GetPlayer3D()

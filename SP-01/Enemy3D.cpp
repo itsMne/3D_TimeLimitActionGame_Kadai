@@ -1,6 +1,7 @@
 #include "Enemy3D.h"
 #include "S_InGame3D.h"
 #include "RankManager.h"
+#include "Sound.h"
 #include "UniversalStructures.h"
 #define MODEL_PATH "data/model/Enemy.fbx"
 #define MAX_GRAVITY_FORCE 5.5f
@@ -411,6 +412,7 @@ void Enemy3D::PlayerAttackCollision()
 		Position.x -= sinf(XM_PI + modelRot.y) * 1.0f;
 		Position.z -= cosf(XM_PI + modelRot.y) * 1.0f;
 		AddScoreWithRank(10);
+		PlaySoundGame(SOUND_LABEL_SE_BIGHIT);
 		if (pLastAttackPlaying->Animation == RED_HOT_KICK_DOWN)
 			pPlayer->CancelAttack();
 		break;
@@ -437,6 +439,10 @@ void Enemy3D::PlayerAttackCollision()
 			nSendOffFrames = 2;
 		}
 		AddScoreWithRank(12);
+		if(pLastAttackPlaying->Animation==AIRKICKC)
+			PlaySoundGame(SOUND_LABEL_SE_BIGHIT);
+		else
+			PlaySoundGame(SOUND_LABEL_SE_BIGSWORD);
 		pLastAttackPlaying = nullptr;
 		break;
 	case KICK_DOWN:
@@ -464,6 +470,7 @@ void Enemy3D::PlayerAttackCollision()
 			Position.z -= cosf(XM_PI + modelRot.y) * 1.5f;
 			pLastAttackPlaying = nullptr;
 		}
+		PlaySoundGame(SOUND_LABEL_SE_BIGHIT);
 		AddScoreWithRank(3);
 		break;
 	case KICKC:
@@ -492,6 +499,7 @@ void Enemy3D::PlayerAttackCollision()
 			fSendOffAcceleration = 0;
 			nSendOffFrames = 2;
 		}
+		PlaySoundGame(SOUND_LABEL_SE_BIGHIT);
 		nState = ENEMY_SENDOFF;
 		modelRot = pPlayer->GetModel()->GetRotation();
 		Position.x -= sinf(XM_PI + modelRot.y) * 5;
@@ -512,7 +520,7 @@ void Enemy3D::PlayerAttackCollision()
 		nFaceCooldown = 0;
 		FacePlayer();
 		modelRot = pPlayer->GetModel()->GetRotation();
-
+		PlaySoundGame(SOUND_LABEL_SE_BIGSWORD);
 		if (nState == ENEMY_DIZZY_STATE)
 		{
 			fSendOffPower = 20;
@@ -529,6 +537,10 @@ void Enemy3D::PlayerAttackCollision()
 		AddScoreWithRank(10);
 		break;
 	default:
+		if(!pPlayer->IsLastAttackExecutedASwordAttack())
+			PlaySoundGame(SOUND_LABEL_SE_HIT);
+		else
+			PlaySoundGame(SOUND_LABEL_SE_SWORD);
 		AddMoveToRankMeter(pLastAttackPlaying->Animation, 30);
 		AddScoreWithRank(2);
 		fHP -= 5;

@@ -128,6 +128,7 @@ private:
 	float fBottom;
 	float fDamageAcceleration;
 	float fTeleportAcceleration;
+	bool bIsSwordAttack;
 public:
 	Player3D();
 	Player3D(Light3D* Light);
@@ -177,6 +178,7 @@ public:
 	GameObject3D* GetLockedOnEnemy();
 	void SetBottom(float);
 	float GetBottom();
+	bool IsLastAttackExecutedASwordAttack();
 };
 
 Player3D*  GetPlayer3D();

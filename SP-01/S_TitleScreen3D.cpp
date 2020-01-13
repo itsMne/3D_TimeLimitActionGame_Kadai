@@ -1,11 +1,13 @@
 #include "S_TitleScreen3D.h"
 #include "InputManager.h"
+#include "Sound.h"
 
 S_TitleScreen3D::S_TitleScreen3D() :Scene3D(true)
 {
 	MainWindow->SetWindowColor(0.8, 0.8, 0.8);
 	pSceneLight->GetLight();
 	Logo = new UIObject2D(UI_LOGO);
+	PlaySoundGame(SOUND_LABEL_TITLE);
 }
 
 
@@ -23,8 +25,9 @@ eSceneType S_TitleScreen3D::Update()
 	Scene3D::Update();
 	if (Logo)
 		Logo->Update();
-	if (GetInput(INPUT_JUMP))
+	if (GetInput(INPUT_JUMP)) {
 		return SCENE_MENU;
+	}
 	return SCENE_TITLE_SCREEN;
 }
 

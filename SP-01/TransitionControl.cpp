@@ -4,6 +4,7 @@
 #include "DXWindow3D.h"
 #include "SceneManager.h"
 #include "Polygon2D.h"
+#include "Sound.h"
 #define MAX_TRANSITIONEFFECTS 10
 #define MAX_BG 4
 
@@ -101,8 +102,12 @@ void TransitionControl::Update()
 					if (!bPasteEffect[i])
 					{
 						bPasteEffect[i] = true;
-						if(i== MAX_TRANSITIONEFFECTS)
+						PlaySoundGame(SOUND_LABEL_SE_PASTESTICKER);
+						if (i == MAX_TRANSITIONEFFECTS) {
+							StopSound();
+							PlaySoundGame(SOUND_LABEL_SE_PASTESTICKER);
 							pBackground->SetTexture(pBGTextures[rand() % MAX_BG]);
+						}
 						return;
 					}
 				}
@@ -114,6 +119,7 @@ void TransitionControl::Update()
 				{
 					if (bPasteEffect[i])
 					{
+						PlaySoundGame(SOUND_LABEL_SE_REMOVESTICKER);
 						bPasteEffect[i] = false;
 						return;
 					}
@@ -124,8 +130,6 @@ void TransitionControl::Update()
 		}
 		break;
 	case SLASH_TRANSITION:
-		//if (pSlash->x2UV.x == 3 && pSlash->x2UV.y == 7)
-		//	break;
 		if (++nFrameCounter >= 1)
 		{
 			nFrameCounter = 0;
@@ -134,8 +138,13 @@ void TransitionControl::Update()
 				SlashUI.y++;
 				SlashUI.x = 0;
 			}
-			if(SlashUI.y==4 && SlashUI.x==2)
+			if (SlashUI.y == 4 && SlashUI.x == 0) {
+				StopSound();
+				PlaySoundGame(SOUND_LABEL_SE_TRANSITIONSLASH);
+			}
+			if (SlashUI.y == 4 && SlashUI.x == 2) {
 				ChangeScene();
+			}
 			if (SlashUI.x == 3 && SlashUI.y == 7)
 			{
 				bTransitionComplete = true;

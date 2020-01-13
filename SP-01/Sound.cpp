@@ -41,8 +41,21 @@ DWORD g_aSizeAudio[SOUND_LABEL_MAX] = {};					// オーディオデータサイズ
 // 各音素材のパラメータ
 SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 {
-	{L"data/BGM/game.wav", -1},
-	{ L"data/SE/shoot.wav", 0 },
+	{L"data/BGM/Title.wav", -1},
+	{L"data/BGM/Menu.wav", -1},
+	{L"data/BGM/Tutorial.wav", -1},
+	{L"data/BGM/ScoreAttack.wav", -1},
+	{L"data/BGM/GameOver.wav", -1},
+	{ L"data/SE/SE_HIT.wav", 0 },
+	{ L"data/SE/SE_BIGHIT.wav", 0 },
+	{ L"data/SE/SE_TRANSITIONSLASH.wav", 0 },
+	{ L"data/SE/SE_PASTE_STICKER.wav", 0 },
+	{ L"data/SE/SE_REMOVE_STICKER.wav", 0 },
+	{ L"data/SE/SE_MIRRORBREAK.wav", 0 },
+	{ L"data/SE/SE_MISSA.wav", 0 },
+	{ L"data/SE/SE_MISSB.wav", 0 },
+	{ L"data/SE/SE_SWORD.wav", 0 },
+	{ L"data/SE/SE_BIGSWORD.wav", 0 },
 };
 
 //=============================================================================

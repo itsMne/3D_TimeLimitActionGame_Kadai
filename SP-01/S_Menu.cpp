@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include "DXWindow3D.h"
 #include "InputManager.h"
+#include "Sound.h"
 
 
 S_Menu::S_Menu() :Scene3D(false)
@@ -69,6 +70,7 @@ void S_Menu::Init()
 		fAccelerator[i] =  0;
 
 	}
+	PlaySoundGame(SOUND_LABEL_MENU);
 }
 
 eSceneType S_Menu::Update()
@@ -141,9 +143,11 @@ eSceneType S_Menu::Update()
 		switch (nCurrentSelection)
 		{
 		case OPTION_SCORE_ATTACK:
+			StopSound();
 			return SCENE_IN_GAME;
 			break;
 		case OPTION_EXIT:
+			StopSound();
 			EndCurrentGame();
 			break;
 		default:

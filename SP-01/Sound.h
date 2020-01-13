@@ -18,8 +18,21 @@
 //*****************************************************************************
 typedef enum
 {
-	SOUND_LABEL_BGM_GAME = 0,		// BGM0
-	SOUND_LABEL_SE_HIT,					// â£ÇÈSE
+	SOUND_LABEL_TITLE = 0,		// BGM0
+	SOUND_LABEL_MENU,			// BGM0
+	SOUND_LABEL_TUTORIAL,		// BGM0
+	SOUND_LABEL_SA_GAME,		// BGM0
+	SOUND_LABEL_GAMEOVER,		// BGM0
+	SOUND_LABEL_SE_HIT,			// â£ÇÈSE
+	SOUND_LABEL_SE_BIGHIT,			// â£ÇÈSE
+	SOUND_LABEL_SE_TRANSITIONSLASH,			// â£ÇÈSE
+	SOUND_LABEL_SE_PASTESTICKER,			// â£ÇÈSE
+	SOUND_LABEL_SE_REMOVESTICKER,			// â£ÇÈSE
+	SOUND_LABEL_SE_MIRRORBREAK,			// â£ÇÈSE
+	SOUND_LABEL_SE_SWING,			// â£ÇÈSE
+	SOUND_LABEL_SE_KICKSWING,			// â£ÇÈSE
+	SOUND_LABEL_SE_SWORD,			// â£ÇÈSE
+	SOUND_LABEL_SE_BIGSWORD,			// â£ÇÈSE
 	SOUND_LABEL_MAX,				// ìoò^êîÇÃé©ìÆê›íË
 } SOUND_LABEL;
 
