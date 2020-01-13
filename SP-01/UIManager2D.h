@@ -8,6 +8,7 @@ enum AURA_EFFECTS
 {
 	NORMAL_AURA_TEXTURE,
 	DARK_AURA_TEXTURE,
+	HEART_AURA_TEXTURE,
 	MAX_AURA_TEXTURE
 };
 
@@ -37,6 +38,7 @@ private:
 	int nFramesActive;
 	float fAcceleration;
 	bool bIsInUse;
+	bool bSpin;
 	int nGameOverFrames;
 	int nScore;
 public:
@@ -56,6 +58,7 @@ public:
 	void SetAura();
 	void SetUse(bool use);
 	int GetGameOverFrames();
+	void SetSpin(bool spin);
 };
 
 class InGameUI2D

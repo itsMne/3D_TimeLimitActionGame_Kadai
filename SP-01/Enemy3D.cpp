@@ -378,6 +378,9 @@ void Enemy3D::PlayerAttackCollision()
 	if (nState != ENEMY_DIZZY_STATE)
 		nState = ENEMY_DAMAGED;
 	else
+		if (pUIManager)
+			pUIManager->SetAura(HEART_AURA_TEXTURE);
+	else
 		nDizzyFrames -= 10;
 	nUnlitFrames = UNLIT_FRAMES_AFTER_HIT;
 	GetMainCamera()->SetAttackZoom(30, 40);

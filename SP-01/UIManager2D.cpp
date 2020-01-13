@@ -64,7 +64,9 @@ UIObject2D::UIObject2D(int nUI_Type)
 		if (!AuraTexture[NORMAL_AURA_TEXTURE])
 			CreateTextureFromFile(GetDevice(), "data/texture/AuraEffect.tga", &AuraTexture[NORMAL_AURA_TEXTURE]);
 		if (!AuraTexture[DARK_AURA_TEXTURE])
-			CreateTextureFromFile(GetDevice(), "data/texture/AuraEffectAlt.tga", &AuraTexture[DARK_AURA_TEXTURE]);
+			CreateTextureFromFile(GetDevice(), "data/texture/AuraEffectAlt.tga", &AuraTexture[DARK_AURA_TEXTURE]);		
+		if (!AuraTexture[HEART_AURA_TEXTURE])
+			CreateTextureFromFile(GetDevice(), "data/texture/HeartAuraEffect.tga", &AuraTexture[HEART_AURA_TEXTURE]);
 		Position.x = 0;
 		Position.y = 0;
 		SetPolygonSize(0, 0);
@@ -114,6 +116,7 @@ void UIObject2D::Init()
 	fAcceleration = 0;
 	nAnimationSpeed = 0;
 	bHeartActive = true;
+	bSpin = false;
 	bIsInUse = false;
 	nCurrent_hearts = 1;
 	nMax_Hearts = 1;
@@ -164,7 +167,10 @@ void UIObject2D::Update()
 		fAcceleration+=7.5f;
 		Scale.x+=fAcceleration;
 		Scale.y+=fAcceleration;
-		Rotation.z += 5;
+		if (bSpin)
+			Rotation.z += 5;
+		else
+			Rotation.z = 0;
 		if (Scale.x > 1500)
 			bIsInUse = false;
 		break;
@@ -369,6 +375,10 @@ int UIObject2D::GetGameOverFrames()
 {
 	return nGameOverFrames;
 }
+void UIObject2D::SetSpin(bool spin)
+{
+	bSpin = spin;
+}
  //UIマネージャー
 InGameUI2D::InGameUI2D()
 {
@@ -456,6 +466,7 @@ void InGameUI2D::SetAura()
 			continue;
 		pAuraEffects[i]->SetAura();
 		pAuraEffects[i]->SetTexture(AuraTexture[NORMAL_AURA_TEXTURE]);
+		return;
 	}
 }
 
@@ -471,6 +482,12 @@ void InGameUI2D::SetAura(int Texture)
 			continue;
 		pAuraEffects[i]->SetAura();
 		pAuraEffects[i]->SetTexture(AuraTexture[Texture]);
+		if (Texture == HEART_AURA_TEXTURE)
+			pAuraEffects[i]->SetSpin(false);
+		else
+			if (Texture == HEART_AURA_TEXTURE)
+				pAuraEffects[i]->SetSpin(true);
+		return;
 	}
 }
 
