@@ -4,6 +4,7 @@
 #include "input.h"
 #include "Camera3D.h"
 #include "GameObject3D.h"
+#include "S_InGame3D.h"
 #include "UniversalStructures.h"
 #include "debugproc.h"
 #define DEBUG_SHOW_INITED_MODEL_PATH false
@@ -221,6 +222,11 @@ void Model3D::DrawModel(void)
 
 void Model3D::AnimationControl()
 {
+	if (IsGamePaused())
+	{
+		g_pModel->SetAnimFrame((int)fFrame);
+		return;
+	}
 	if (++nFramCount >= nAnimationFrameSlowness) {
 		nFramCount = 0;
 		fFrame += fAnimationSkipFrame;

@@ -7,6 +7,7 @@ enum eSceneType
 	SCENE_TITLE_SCREEN = 0,
 	SCENE_MENU,
 	SCENE_IN_GAME,
+	SCENE_RANKING,
 	MAX_SCENES
 };
 class Scene3D

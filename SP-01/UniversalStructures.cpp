@@ -76,21 +76,6 @@ XMFLOAT3 NormalizeVector(XMFLOAT3 v)
 	return p;
 }
 
-/*XMFLOAT3 GetLookRotation(XMFLOAT3 dir, XMFLOAT3 up)
-{
-	if (CompareXmfloat3(dir, {0,0,0})) {
-		return {0,0,0};
-	}
-	if (CompareXmfloat3(dir, up)) 
-	{
-		NormalizeVector(up);
-		
-		XMFLOAT3 v = MultiplyVectorByFloat( SumVector(dir, up) , -DotProduct(up, dir));
-		var q = Quaternion.FromToRotation(Vector3.forward, v);
-		return Quaternion.FromToRotation(v, dir) * q;
-	}
-	return XMFLOAT3();
-}*/
 
 XMFLOAT3 MultiplyVectorByFloat(XMFLOAT3 a, float flot)
 {

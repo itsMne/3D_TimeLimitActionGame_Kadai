@@ -1,6 +1,7 @@
 #include "InputManager.h"
 #include "stdio.h"
 #include "C_XInput.h"
+#include "DXWindow3D.h"
 
 C_XInput* Player1 = nullptr;
 bool bInputs[MAX_INPUTS];
@@ -20,7 +21,8 @@ void InitInputManager()
 void UpdateInputManager()
 {
 	UpdateInput();
-	//printf("%f %f\n", GetMousePosition()->x, GetMousePosition()->y);
+	float fMouseWheel = GetMouseWheelMove();
+	//printf("%f\n", fMouseWheel);
 	Player1->UpdateXinput();
 	XinputTriggerControl(true);
 	bXinputConnected = Player1->IsConnected();
@@ -31,12 +33,13 @@ void UpdateInputManager()
 	bInputs[INPUT_LEFT] = GetKeyPress(VK_A);
 	bInputs[INPUT_RIGHT] = GetKeyPress(VK_D);
 
-	bInputs[INPUT_MENU_LEFT] = GetKeyTrigger(VK_A);
-	bInputs[INPUT_MENU_RIGHT] = GetKeyTrigger(VK_D);
+	bInputs[INPUT_MENU_LEFT] = GetKeyTrigger(VK_A) || Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+	bInputs[INPUT_MENU_RIGHT] = GetKeyTrigger(VK_D) || Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
 
 	bInputs[INPUT_LOCKON] = GetKeyPress(VK_SHIFT) || Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
 
 	bInputs[INPUT_JUMP] = GetKeyTrigger(VK_K) || GetKeyTrigger(VK_SPACE) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A && !bHoldingXinput[INPUT_JUMP]);
+	bInputs[INPUT_PAUSE] = GetKeyTrigger(VK_RETURN) || GetKeyTrigger(VK_P) || (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START && !bHoldingXinput[INPUT_PAUSE]);
 
 	bInputs[INPUT_SHOOT] = GetMouseButton(MOUSEBUTTON_L) || GetKeyPress(VK_J) ||
 		(bXinputConnected && Player1->GetState().Gamepad.bLeftTrigger > 0);
@@ -98,13 +101,13 @@ void UpdateInputManager()
 		bUsingKeyBoard = true;
 		fAxis[CAMERA_AXIS_HORIZONTAL] = 1;
 	}
-	if (GetKeyPress(VK_UP))
+	if (GetKeyPress(VK_UP) || fMouseWheel < 0)
 	{
 		bUsingKeyBoard = true;
 		fAxis[CAMERA_AXIS_VERTICAL] = 1;
 	}
 	
-	if (GetKeyPress(VK_DOWN))
+	if (GetKeyPress(VK_DOWN) || fMouseWheel>0)
 	{
 		bUsingKeyBoard = true;
 		fAxis[CAMERA_AXIS_VERTICAL] = -1;
@@ -115,10 +118,7 @@ void UpdateInputManager()
 		fAxis[MOVEMENT_AXIS_HORIZONTAL] = (float)Player1->GetState().Gamepad.sThumbLX / 32767;
 		fAxis[MOVEMENT_AXIS_VERTICAL] = (float)Player1->GetState().Gamepad.sThumbLY / 32767;
 	}
-	
 	XinputTriggerControl(false);
-
-	//printf("%f\n", fAxis[MOVEMENT_AXIS_VERTICAL]);
 }
 
 void EndInputManager()
@@ -151,11 +151,17 @@ void XinputTriggerControl(bool BeforeInputs)
 		if (bHoldingXinput[INPUT_SWORD] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y)) bHoldingXinput[INPUT_SWORD] = false;
 		if (bHoldingXinput[INPUT_KICK] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B)) bHoldingXinput[INPUT_KICK] = false;
 		if (bHoldingXinput[INPUT_JUMP] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A)) bHoldingXinput[INPUT_JUMP] = false;
+		if (bHoldingXinput[INPUT_PAUSE] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START)) bHoldingXinput[INPUT_PAUSE] = false;
+		if (bHoldingXinput[INPUT_MENU_LEFT] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT)) bHoldingXinput[INPUT_MENU_LEFT] = false;
+		if (bHoldingXinput[INPUT_MENU_RIGHT] && !(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT)) bHoldingXinput[INPUT_MENU_RIGHT] = false;
 
 	}
 	else {
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_Y) bHoldingXinput[INPUT_SWORD] = true;
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B) bHoldingXinput[INPUT_KICK] = true;
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A) bHoldingXinput[INPUT_JUMP] = true;
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START) bHoldingXinput[INPUT_PAUSE] = true;
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) bHoldingXinput[INPUT_MENU_LEFT] = true;
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) bHoldingXinput[INPUT_MENU_RIGHT] = true;
 	}
 }

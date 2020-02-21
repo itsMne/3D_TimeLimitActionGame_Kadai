@@ -62,6 +62,7 @@ public:
 	void DrawPolygon(ID3D11DeviceContext* pDeviceContext);
 	void SetTexture(ID3D11ShaderResourceView* pTexture);
 	void SetPolygonPos(float fX, float fY);
+	void SetPolygonPosY(float y);
 	void SetPolygonPos(float fX, float fY, bool IsInit);
 	void SetPolygonSize(float fScaleX, float fScaleY);
 	void SetPolygonAngle(float fAngle);

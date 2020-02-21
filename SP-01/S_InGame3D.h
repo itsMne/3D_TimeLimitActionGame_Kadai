@@ -4,6 +4,7 @@
 #include "Light3D.h"
 #include "UIManager2D.h"
 #include "Sphere3D.h"
+#include "GameObject3D.h"
 
 class S_InGame3D :
 	public Scene3D
@@ -20,6 +21,8 @@ private:
 	int nTimer;
 	int nFrameCounter;
 	bool bUseTimer;
+	bool bGameOverActivated;
+	GameObject3D* TutorialSign;
 public:
 	S_InGame3D();
 	~S_InGame3D();
@@ -31,9 +34,12 @@ public:
 	void SetAtkEffect(int frames);
 	InGameUI2D* GetUIManager();
 	bool TimeIsUp();
+	int GetTimer();
 };
 
 S_InGame3D* GetCurrentGame();
 int GetScore();
 void AddScoreWithRank(int add);
 void AddScore(int add);
+int GetTimer();
+bool IsGamePaused();

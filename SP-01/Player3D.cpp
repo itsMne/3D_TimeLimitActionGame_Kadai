@@ -11,7 +11,7 @@
 #define ROTATION_SPEED	XM_PI*0.02f			// ‰ñ“]‘¬“x
 #define PLAYER_SCALE	0.5f
 #define BULLET_COOLDOWN 5.0f
-#define INITIAL_HEALTH 3
+#define INITIAL_HEALTH 6
 #define JUMP_FORCE  6
 #define MAX_GRAVITY_FORCE 5.5f
 #define MAX_INPUT_TIMER 25
@@ -306,7 +306,8 @@ void Player3D::Update()
 	if (fBottom != 0)
 	{
 		if (Position.y < fBottom) {
-			nState = PLAYER_FELL;
+			nState = PLAYER_FELL; 
+			PlaySoundGame(SOUND_LABEL_SE_DAMAGED);
 			pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
 			nCurrentHealth--;
 			ResetRanks();
@@ -1341,6 +1342,7 @@ void Player3D::SetDamage(int nDamage)
 	S_InGame3D* pGame = (S_InGame3D*)pCurrentGame;
 	pGame->GetUIManager()->SetAura(DARK_AURA_TEXTURE);
 	nState = PLAYER_DAMAGED;
+	PlaySoundGame(SOUND_LABEL_SE_DAMAGED);
 	nCurrentHealth -= nDamage;
 	ResetRanks();
 }

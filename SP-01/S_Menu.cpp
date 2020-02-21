@@ -60,6 +60,7 @@ void S_Menu::Init()
 	pAim2->SetPolygonSize(783*2.2f / 1.65f, 720*2.2f / 1.65f);
 	pAim2->SetPolygonAlpha(0.75f);
 	pMenuOption[OPTION_SCORE_ATTACK]= new Polygon2D("data/texture/UI/ScoreAtkUI.tga");
+	pMenuOption[RANKING_OPTION]= new Polygon2D("data/texture/UI/RankingUI.tga");
 	pMenuOption[OPTION_EXIT]= new Polygon2D("data/texture/UI/OwariUI.tga");
 	
 	for (int i = 0; i < MAX_OPTIONS; i++)
@@ -138,13 +139,16 @@ eSceneType S_Menu::Update()
 		nCurrentSelection = 0;
 	else if (nCurrentSelection < 0)
 		nCurrentSelection = MAX_OPTIONS - 1;
-	if (GetInput(INPUT_JUMP) && !isMoving)
+	if ((GetInput(INPUT_JUMP) || GetInput(INPUT_SWORD)) && !isMoving)
 	{
 		switch (nCurrentSelection)
 		{
 		case OPTION_SCORE_ATTACK:
 			StopSound();
 			return SCENE_IN_GAME;
+			break;
+		case RANKING_OPTION:
+			return SCENE_RANKING;
 			break;
 		case OPTION_EXIT:
 			StopSound();

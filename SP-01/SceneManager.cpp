@@ -2,6 +2,7 @@
 #include "S_InGame3D.h"
 #include "S_Menu.h"
 #include "S_TitleScreen3D.h"
+#include "S_Ranking.h"
 #include "TransitionControl.h"
 Scene3D* pCurrentScene = nullptr;
 int nCurrentScene = SCENE_TITLE_SCREEN;
@@ -22,6 +23,9 @@ HRESULT InitScene()
 		break;
 	case SCENE_IN_GAME:
 		pCurrentScene = new S_InGame3D();
+		break;
+	case SCENE_RANKING:
+		pCurrentScene = new S_Ranking();
 		break;
 	default:
 		break;
@@ -71,7 +75,7 @@ void TransitionForNewScene(bool bTransitionIn)
 		SetTransition(bTransitionIn, STICKER_TRANSITION);
 		nTransitionInUse = STICKER_TRANSITION;
 		break;
-	case SCENE_MENU:
+	case SCENE_MENU: case SCENE_RANKING:
 		SetTransition(bTransitionIn, SLASH_TRANSITION);
 		nTransitionInUse = STICKER_TRANSITION;
 		break;

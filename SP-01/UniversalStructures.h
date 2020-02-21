@@ -5,8 +5,6 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-
-
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
@@ -29,6 +27,7 @@
 #define CULLMODE_NONE	0					// カリングしない
 #define CULLMODE_CW		1					// 前面カリング
 #define CULLMODE_CCW	2					// 背面カリング
+#define MAX_DECORATIONS 127-1
 using namespace DirectX;
 //*****************************************************************************
 // 構造体定義
@@ -51,6 +50,12 @@ typedef struct Box
 	float PositionY = 0; 
 	float PositionZ = 0;
 	float SizeX=0, SizeY=0, SizeZ=0;
+};
+
+enum eMODES
+{
+	MODE_SCORE_ATTACK = 0,
+	MAX_MODES
 };
 
 bool IsInCollision3D(Box a, Box b);

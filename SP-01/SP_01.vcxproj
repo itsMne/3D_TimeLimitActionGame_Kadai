@@ -181,6 +181,7 @@
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sphere3D.cpp" />
     <ClCompile Include="S_Menu.cpp" />
+    <ClCompile Include="S_Ranking.cpp" />
     <ClCompile Include="S_Scene3D.cpp" />
     <ClCompile Include="S_InGame3D.cpp" />
     <ClCompile Include="SceneManager.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Sphere3D.h" />
     <ClInclude Include="S_Menu.h" />
+    <ClInclude Include="S_Ranking.h" />
     <ClInclude Include="S_Scene3D.h" />
     <ClInclude Include="S_InGame3D.h" />
     <ClInclude Include="SceneManager.h" />

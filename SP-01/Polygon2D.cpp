@@ -321,6 +321,11 @@ void Polygon2D::SetPolygonPos(float fX, float fY)
 	Position.y = fY;
 }
 
+void Polygon2D::SetPolygonPosY(float fY)
+{
+	Position.y = fY;
+}
+
 void Polygon2D::SetPolygonPos(float fX, float fY, bool IsInit)
 {
 	Position.x = fX;

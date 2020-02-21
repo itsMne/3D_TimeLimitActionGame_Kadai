@@ -108,6 +108,7 @@
     <ClCompile Include="TransitionControl.cpp" />
     <ClCompile Include="S_Menu.cpp" />
     <ClCompile Include="RankManager.cpp" />
+    <ClCompile Include="S_Ranking.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -155,9 +156,6 @@
     <ClInclude Include="Player3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="C_XInput.h">
-      <Filter>CPPファイル\エンジンCPP</Filter>
-    </ClInclude>
     <ClInclude Include="UIManager2D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
@@ -197,6 +195,10 @@
     <ClInclude Include="TransitionControl.h" />
     <ClInclude Include="S_Menu.h" />
     <ClInclude Include="RankManager.h" />
+    <ClInclude Include="S_Ranking.h" />
+    <ClInclude Include="C_XInput.h">
+      <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CPPファイル">

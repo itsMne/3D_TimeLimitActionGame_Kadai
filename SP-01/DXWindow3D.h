@@ -24,6 +24,7 @@ private:
 	DWORD						dwFPSLastTime;			//FPSのタイマー（FPS変数の最後カウンター）
 	DWORD						dwCurrentTime;
 	DWORD						dwFrameCount;
+	float						fMouseWheelMove;
 public:
 	DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow, bool bIsMainWindow);
 	~DXWindow3D();
@@ -43,6 +44,7 @@ public:
 	void SetBlendState(bool bAdd);
 	void ReleaseBackBuffer();
 	static int DX_OnCreate(HWND hWnd, LPCREATESTRUCT lpcs);
+	BOOL OnMouseWheel(HWND hWnd, UINT nFlags, short zDelta, POINTS pt);
 	static LRESULT CALLBACK DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void SetWindowColor(float R, float G, float B);
 	void SetWindowColor255(int R, int G, int B);
@@ -51,9 +53,12 @@ public:
 	int GetFPS();
 	ID3D11RasterizerState* GetRasterizerState(int num);
 	void SetCull(int nCullMode);
+	float GetMouseWheel();
 };
 
 DXWindow3D* GetMainWindow();
 int GetMainWindowFPS();
 void SetCullMode(int nCullMode);
 void EndCurrentGame();
+BOOL OnMouseWheelDX(HWND hWnd, UINT nFlags, short zDelta, POINTS pt);
+float GetMouseWheelMove();

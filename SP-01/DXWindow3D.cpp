@@ -1,6 +1,12 @@
+//*****************************************************************************
+// DXWindow3D.cpp
+// XINPUTを管理する
+// Author : Mane
+//*****************************************************************************
 #include "DXWindow3D.h"
 #include "SceneManager.h"
 #include "InputManager.h"
+#include "debugproc.h"
 #include "Sound.h"
 #include <io.h>
 #include <fcntl.h>
@@ -8,21 +14,33 @@
 #pragma comment(lib, "winmm")
 #pragma comment(lib, "imm32")
 #pragma comment(lib, "d3d11")
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define CLASS_NAME		_T("AppClass")		// ウインドウのクラス名
-#define WINDOW_NAME		_T("カメラ処理")	// ウインドウのキャプション名
+#define WINDOW_NAME		_T("GP-52A-171 - 02")	// ウインドウのキャプション名
 
+//*****************************************************************************
+//グローバル変数
+//*****************************************************************************
 DXWindow3D* pMainWindow = nullptr;
-bool bGameIsEnd;
+bool		bGameIsEnd;
+float		g_fMeshRadius = 1;			// 境界球半径
 
+//*****************************************************************************
+//コンストラクタ関数
+//*****************************************************************************
 DXWindow3D::DXWindow3D(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow, bool bIsMainWindow)
 {
 	bGameIsEnd = false;
 	fR = 0;
 	fG = 0;
 	fB = 0;
+	fMouseWheelMove = 0;
 	if (bIsMainWindow)
 		pMainWindow = this;
-	ActivateConsole();
+	//ActivateConsole();
 	UNREFERENCED_PARAMETER(hPrevInstance);	// 無くても良いけど、警告が出る（未使用宣言）
 	UNREFERENCED_PARAMETER(lpCmdLine);		// 無くても良いけど、警告が出る（未使用宣言）
 	g_pDevice = nullptr;
@@ -95,10 +113,12 @@ DXWindow3D::~DXWindow3D()
 	Uninit();
 }
 
-//=============================================================================
-// バックバッファ生成
-//=============================================================================
-
+//*****************************************************************************
+//CreateBackBuffer関数
+//バックバッファ生成
+//引数：void
+//戻：HRESULT
+//*****************************************************************************
 HRESULT DXWindow3D::CreateBackBuffer(void)
 {
 	// レンダーターゲットビュー生成
@@ -151,6 +171,12 @@ HRESULT DXWindow3D::CreateBackBuffer(void)
 	return S_OK;
 }
 
+//*****************************************************************************
+//Init関数
+//初期化関数
+//引数：HWND, BOOL
+//戻：HRESULT
+//*****************************************************************************
 HRESULT DXWindow3D::Init(HWND hWnd, BOOL bWindow)
 {
 	hr = S_OK;
@@ -233,27 +259,32 @@ HRESULT DXWindow3D::Init(HWND hWnd, BOOL bWindow)
 	return hr;
 }
 
+//*****************************************************************************
+//InitDXWindow関数
+//オブジェクトの初期化関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void DXWindow3D::InitDXWindow()
 {
-
-	
 	hr = InitScene();
-
-	// 入力処理初期化
 	InitInputManager();
-
-
-
-
 }
 
+//*****************************************************************************
+//Uninit関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void DXWindow3D::Uninit(void)
 {
 	EndScene();
 	// 入力処理終了処理
 	EndInputManager();
 
-
+	// デバッグ文字列表示終了処理
+	UninitDebugProc();
 
 	// 深度ステンシルステート解放
 	SAFE_RELEASE(g_pDSS);
@@ -289,6 +320,12 @@ void DXWindow3D::Uninit(void)
 	timeEndPeriod(1);
 }
 
+//*****************************************************************************
+//UpdateDXWindow関数
+//ウインドウズの変更関数
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool DXWindow3D::UpdateDXWindow()
 {
 	if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -323,14 +360,41 @@ bool DXWindow3D::UpdateDXWindow()
 	return true;
 }
 
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void DXWindow3D::Update(void)
 {
+	if (fMouseWheelMove < -120)
+		fMouseWheelMove = -120;
+
+	if (fMouseWheelMove > 120)
+		fMouseWheelMove = 120;
+	float DecreaseSpeed = 4;
+	if (fMouseWheelMove > 0) {
+		fMouseWheelMove -= DecreaseSpeed;
+		if (fMouseWheelMove < 0)
+			fMouseWheelMove = 0;
+	}
+	if (fMouseWheelMove < 0) {
+		fMouseWheelMove += DecreaseSpeed;
+		if (fMouseWheelMove > 0)
+			fMouseWheelMove = 0;
+	}
 	// 入力処理更新
 	UpdateInputManager();	// 必ずUpdate関数の先頭で実行.
-
 	UpdateScene();
 }
 
+//*****************************************************************************
+//Draw関数
+//画像処理関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void DXWindow3D::Draw(void)
 {
 	// バックバッファ＆Ｚバッファのクリア
@@ -346,42 +410,90 @@ void DXWindow3D::Draw(void)
 	g_pSwapChain->Present(g_uSyncInterval, 0);
 }
 
+//*****************************************************************************
+//GetMainWnd関数
+//HWNDを戻す
+//引数：void
+//戻：HWND
+//*****************************************************************************
 HWND DXWindow3D::GetMainWnd()
 {
 	return g_hWnd;
 }
 
+//*****************************************************************************
+//GetInstance関数
+//インスタンスを戻す
+//引数：void
+//戻：HINSTANCE
+//*****************************************************************************
 HINSTANCE DXWindow3D::GetInstance()
 {
 	return g_hInst;
 }
 
+//*****************************************************************************
+//GetDevice関数
+//デバイスのアドレスを戻す
+//引数：void
+//戻：ID3D11Device*
+//*****************************************************************************
 ID3D11Device * DXWindow3D::GetDevice()
 {
 	return g_pDevice;
 }
 
+//*****************************************************************************
+//GetDevice関数
+//デバイスコンテクストのアドレスを戻す
+//引数：void
+//戻：ID3D11DeviceContext*
+//*****************************************************************************
 ID3D11DeviceContext * DXWindow3D::GetDeviceContext()
 {
 	return g_pDeviceContext;
 }
 
+//*****************************************************************************
+//SetZBuffer関数
+//Zバッファーの設定
+//引数：bool
+//戻：void
+//*****************************************************************************
 void DXWindow3D::SetZBuffer(bool bEnable)
 {
 	g_pDeviceContext->OMSetDepthStencilState((bEnable) ? nullptr : g_pDSS, 0);
 }
 
+//*****************************************************************************
+//SetZWrite関数
+//ZWriteの設定
+//引数：bool
+//戻：void
+//*****************************************************************************
 void DXWindow3D::SetZWrite(bool bEnable)
 {
 	g_pDeviceContext->OMSetDepthStencilState((bEnable) ? nullptr : g_pDSS, 0);
 }
 
+//*****************************************************************************
+//SetBlendState関数
+//ブレンドステートの設定
+//引数：bool
+//戻：void
+//*****************************************************************************
 void DXWindow3D::SetBlendState(bool bAdd)
 {
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	g_pDeviceContext->OMSetBlendState(g_pBlendState[(bAdd) ? 1 : 0], blendFactor, 0xffffffff);
 }
 
+//*****************************************************************************
+//ReleaseBackBuffer関数
+//バックバッファーをリリースする
+//引数：void
+//戻：void
+//*****************************************************************************
 void DXWindow3D::ReleaseBackBuffer()
 {
 	if (g_pDeviceContext) {
@@ -392,6 +504,12 @@ void DXWindow3D::ReleaseBackBuffer()
 	SAFE_RELEASE(g_pRenderTargetView);
 }
 
+//*****************************************************************************
+//DX_OnCreate関数
+//ウインドウズの作る時の処理
+//引数：HWND, LPCREATESTRUCT
+//戻：int
+//*****************************************************************************
 int DXWindow3D::DX_OnCreate(HWND hWnd, LPCREATESTRUCT lpcs)
 {
 	// クライアント領域サイズをSCREEN_WIDTH×SCREEN_HEIGHTに再設定.
@@ -414,6 +532,27 @@ int DXWindow3D::DX_OnCreate(HWND hWnd, LPCREATESTRUCT lpcs)
 	return 0;	// -1を返すとCreateWindow[Ex]が失敗する.
 }
 
+//*****************************************************************************
+//OnMouseWheel関数
+//マウスホイール回転
+//引数：HWND, UINT, short, POINTS
+//戻：BOOL
+//*****************************************************************************
+BOOL DXWindow3D::OnMouseWheel(HWND hWnd, UINT nFlags, short zDelta, POINTS pt)
+{
+	// now resize based on size of bounding sphere
+	fMouseWheelMove = (float)-zDelta / 120.0f * g_fMeshRadius * 0.1f;
+	fMouseWheelMove *= 1000;
+	printf("%f\n", fMouseWheelMove);
+	return TRUE;
+}
+
+//*****************************************************************************
+//DXWndProc関数
+//ウインドウズの処理
+//引数：HWND, UINT, WPARAM, LPARAM
+//戻：LRESULT
+//*****************************************************************************
 LRESULT DXWindow3D::DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
@@ -431,6 +570,10 @@ LRESULT DXWindow3D::DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		break;
 	case WM_MENUCHAR:
 		return MNC_CLOSE << 16;			// [Alt]+[Enter]時のBEEPを抑止
+	case WM_MOUSEWHEEL:
+		if (OnMouseWheelDX(hWnd, GET_KEYSTATE_WPARAM(wParam), 
+			GET_WHEEL_DELTA_WPARAM(wParam), MAKEPOINTS(lParam))) return 0;
+		break;
 	default:
 		break;
 	}
@@ -441,6 +584,12 @@ LRESULT DXWindow3D::DXWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
+//*****************************************************************************
+//SetWindowColor関数
+//ウインドウズの色を設定
+//引数：float, float, float
+//戻：void
+//*****************************************************************************
 void DXWindow3D::SetWindowColor(float R, float G, float B)
 {
 	fR = R;
@@ -448,6 +597,12 @@ void DXWindow3D::SetWindowColor(float R, float G, float B)
 	fB = B;
 }
 
+//*****************************************************************************
+//SetWindowColor255関数
+//ウインドウズの色を設定
+//引数：float, float, float
+//戻：void
+//*****************************************************************************
 void DXWindow3D::SetWindowColor255(int R, int G, int B)
 {
 	fR = R/255.0f;
@@ -455,11 +610,23 @@ void DXWindow3D::SetWindowColor255(int R, int G, int B)
 	fB = B/255.0f;
 }
 
+//*****************************************************************************
+//GetWindowColor関数
+//ウインドウズの色を戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 DXWindow3D::GetWindowColor()
 {
 	return { fR, fG, fB };
 }
 
+//*****************************************************************************
+//ActivateConsole関数
+//コンソールを有効する
+//引数：void
+//戻：void
+//*****************************************************************************
 void DXWindow3D::ActivateConsole()
 {
 	AllocConsole();
@@ -473,19 +640,34 @@ void DXWindow3D::ActivateConsole()
 	printf("こんにちは！コンソールはONです！\n");
 }
 
+//*****************************************************************************
+//GetFPS関数
+//FPSを戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int DXWindow3D::GetFPS()
 {
 	return g_nCountFPS;
 }
 
+//*****************************************************************************
+//GetRasterizerState関数
+//ラスターの状態を戻す
+//引数：void
+//戻：ID3D11RasterizerState*
+//*****************************************************************************
 ID3D11RasterizerState * DXWindow3D::GetRasterizerState(int num)
 {
 	return g_pRs[num];
 }
 
-//=============================================================================
-// カリング設定
-//=============================================================================
+//*****************************************************************************
+//SetCull関数
+//カリング設定
+//引数：int
+//戻：void
+//*****************************************************************************
 void DXWindow3D::SetCull(int nCullMode)
 {
 	if (nCullMode >= 0 && nCullMode < _countof(g_pRs)) {
@@ -493,11 +675,34 @@ void DXWindow3D::SetCull(int nCullMode)
 	}
 }
 
+//*****************************************************************************
+//GetMouseWheel関数
+//マウスホイールを戻す
+//引数：void
+//戻：float
+//*****************************************************************************
+float DXWindow3D::GetMouseWheel()
+{
+	return fMouseWheelMove;
+}
+
+//*****************************************************************************
+//GetMainWindow関数
+//ウインドウズのアドレスを戻す
+//引数：void
+//戻：DXWindow3D*
+//*****************************************************************************
 DXWindow3D * GetMainWindow()
 {
 	return pMainWindow;
 }
 
+//*****************************************************************************
+//GetMainWindowFPS関数
+//FPSを戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int GetMainWindowFPS()
 {
 	if (!pMainWindow)
@@ -505,9 +710,12 @@ int GetMainWindowFPS()
 	return pMainWindow->GetFPS();
 }
 
-//=============================================================================
-// カリング設定
-//=============================================================================
+//*****************************************************************************
+//SetCullMode関数
+//カリング設定
+//引数：int
+//戻：void
+//*****************************************************************************
 void SetCullMode(int nCullMode)
 {
 	if (GetMainWindow())
@@ -525,4 +733,32 @@ void SetCullMode(int nCullMode)
 void EndCurrentGame()
 {
 	bGameIsEnd = true;
+}
+
+//*****************************************************************************
+//GetMouseWheelMove関数
+//マウスホイールを戻す
+//引数：void
+//戻：float
+//*****************************************************************************
+float GetMouseWheelMove()
+{
+	if (GetMainWindow()) {
+		return GetMainWindow()->GetMouseWheel();
+	}
+	return 0;
+}
+
+//*****************************************************************************
+//OnMouseWheelDX関数
+//マウスホイールの状態を管理する
+//引数：HWND, UINT, short, POINTS
+//戻：BOOL
+//*****************************************************************************
+BOOL OnMouseWheelDX(HWND hWnd, UINT nFlags, short zDelta, POINTS pt)
+{
+	if (GetMainWindow()) {
+		return GetMainWindow()->OnMouseWheel(hWnd, nFlags, zDelta, pt);
+	}
+	return false;
 }

@@ -2,7 +2,10 @@
 #include "Cube3D.h"
 #include "Enemy3D.h"
 #include "Field3D.h"
+#include "S_InGame3D.h"
 #include "Player3D.h"
+#include "Sound.h"
+
 #define BULLET_SPEED 30
 #define PRINT_HITBOX false
 
@@ -43,6 +46,16 @@ GameObject3D::GameObject3D(int Type)
 		Model->SetScale(1);
 		SetScale(1);
 		bIsUnlit = true;
+		break;
+	case GO_TUTORIALSIGN:
+		Model = new Model3D(this, "data/model/TutorialModels/TutSign.fbx");
+		Hitbox = { 0,5,0,4.5f,12.5f,4.5f };
+		Position = { -1.321372f, 122.699966f, -130.018921f };
+		nCurrentRasterizer = 1;
+		bIsUnlit = true;
+		nSpinningFrames = 0;
+		fTutorialSignSpeed = 0.05f;
+		bUse = true;
 		break;
 	default:
 		break;
@@ -181,8 +194,62 @@ void GameObject3D::Update()
 				ScaleUp = true;
 		}
 		break;
+	case GO_TUTORIALSIGN:
+		TutorialSignControl();
+		break;
 	default:
 		break;
+	}
+}
+
+void GameObject3D::TutorialSignControl()
+{
+	Model->RotateAroundY(fTutorialSignSpeed);
+	Player3D* pPlayer = GetPlayer3D();
+	if (nSpinningFrames > 0)
+	{
+		nSpinningFrames--;
+		fTutorialSignSpeed = 0.05f*8;
+	}
+	else {
+		fTutorialSignSpeed = 0.05f;
+		if (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_ATTACK)))
+		{
+			GetMainCamera()->SetAttackZoom(40, 40);
+			GetCurrentGame()->SetAtkEffect(30);
+			nSpinningFrames = 25;
+			if (!pPlayer->IsLastAttackExecutedASwordAttack())
+				PlaySoundGame(SOUND_LABEL_SE_HIT);
+			else
+				PlaySoundGame(SOUND_LABEL_SE_SWORD);
+			GetCurrentGame()->GetUIManager()->SetNextTutorialMessage();
+
+		}
+	}
+	while (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_FEET)) && !pPlayer->GetFloor() && pPlayer->GetYForce() > 0)
+	{
+		pPlayer->TranslateY(0.1f);
+		if (!IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_FEET))) {
+			pPlayer->TranslateY(-0.1f);
+			pPlayer->SetFloor(this);
+			return;
+	}
+}
+	while (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_FRONT)))
+	{
+		pPlayer->TranslateZ(-0.1f);
+	}
+	while (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_BACK)))
+	{
+		pPlayer->TranslateZ(0.1f);
+	}
+	while (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_LEFT)))
+	{
+		pPlayer->TranslateX(0.1f);
+	}
+	while (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_RIGHT)))
+	{
+		pPlayer->TranslateX(-0.1f);
 	}
 }
 
@@ -313,24 +380,24 @@ void GameObject3D::SetModelRotation(XMFLOAT3 rot)
 void GameObject3D::RotateAroundX(float x)
 {
 	Rotation.x -= x;
-	if (Rotation.x < -XM_PI) {
-		Rotation.x += XM_2PI;
+	if (Rotation.x > XM_2PI) {
+		Rotation.x -= XM_2PI;
 	}
 }
 
 void GameObject3D::RotateAroundY(float y)
 {
 	Rotation.y -= y;
-	if (Rotation.y < -XM_PI) {
-		Rotation.y += XM_2PI;
+	if (Rotation.y > XM_2PI) {
+		Rotation.y -= XM_2PI;
 	}
 }
 
 void GameObject3D::RotateAroundZ(float z)
 {
 	Rotation.z -= z;
-	if (Rotation.z < -XM_PI) {
-		Rotation.z += XM_2PI;
+	if (Rotation.z > XM_2PI) {
+		Rotation.z -= XM_2PI;
 	}
 }
 

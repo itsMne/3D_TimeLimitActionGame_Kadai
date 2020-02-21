@@ -36,6 +36,7 @@ public:
 	~Enemy3D();
 	void Init();
 	void Update();
+	void MoveToPlayer(Player3D * pPlayer);
 	void PlayerAttackCollision();
 	void PlayerCollision();
 	void SetEnemyAnimation(int Animation);

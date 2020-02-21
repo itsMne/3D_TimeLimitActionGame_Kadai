@@ -8,6 +8,7 @@
 #define HEART_TATE true
 
 ID3D11ShaderResourceView*	AuraTexture[MAX_AURA_TEXTURE] = {nullptr};
+ID3D11ShaderResourceView*	TutorialMessageTexture[TUTM_MAX] = {nullptr};
 UIObject2D::UIObject2D()
 {
 	Init();
@@ -95,7 +96,7 @@ UIObject2D::UIObject2D(int nUI_Type)
 		x2Frame.x = 1 / 10.0f;
 		x2Frame.y = 1 / 10.0f;
 		uv = { 0,0 };
-		nScore = 0;
+		nNum = 0;
 		SetTexture(gpTexture);
 		nAnimationSpeed = 3;
 		break;
@@ -107,9 +108,98 @@ UIObject2D::UIObject2D(int nUI_Type)
 		x2Frame.x = 1 / 4.0f;
 		x2Frame.y = 1 / 10.0f;
 		uv = { 0,0 };
-		nScore = 0;
+		nNum = 0;
 		SetTexture(gpTexture);
 		nAnimationSpeed = 3;
+		break;
+	case UI_TIMER:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/NumbersUI.tga", &gpTexture);
+		SetPolygonSize(18, 25);
+		Position.x = -25;
+		Position.y = -(SCREEN_HEIGHT / 2 - 25);
+		x2Frame.x = 1 / 10.0f;
+		x2Frame.y = 1 / 10.0f;
+		uv = { 0,0 };
+		nNum = 0;
+		SetTexture(gpTexture);
+		nAnimationSpeed = 3;
+		break;
+	case UI_RESULT_SCREEN_NUMBER:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/GRS_GeneralRankingNumbers.tga", &gpTexture);
+		SetPolygonSize(108, 110);
+		Position.x = -(SCREEN_WIDTH/2)+(110*3.5f);
+		Position.y = 0;
+		x2Frame.x = 1 / 10.0f;
+		x2Frame.y = 1 / 1.0f;
+		uv = { 0,0 };
+		nNum = 0;
+		SetTexture(gpTexture);
+		break;
+	case UI_SCORETEXT:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/ScoreText.tga", &gpTexture);
+		SetPolygonSize(25, 95);
+		Position.x = (SCREEN_WIDTH / 2)-25;
+		Position.y = (SCREEN_HEIGHT / 2) - (95/2 + 10);
+		x2Frame.x = 1 / 1.0f;
+		x2Frame.y = 1 / 1.0f;
+		uv = { 0,0 };
+		nNum = 0;
+		SetTexture(gpTexture);
+		break;
+	case UI_TUTORIAL_MESSAGE:
+		if (!TutorialMessageTexture[TUTM_ATTACK])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutMessage3.tga", &TutorialMessageTexture[TUTM_ATTACK]);
+		if (!TutorialMessageTexture[TUTM_MOVE])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutMessage1.tga", &TutorialMessageTexture[TUTM_MOVE]);
+		if (!TutorialMessageTexture[TUTM_EVADE])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutMessage2.tga", &TutorialMessageTexture[TUTM_EVADE]);
+		if (!TutorialMessageTexture[TUTM_ATTACK2])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutMessage4.tga", &TutorialMessageTexture[TUTM_ATTACK2]);
+		if (!TutorialMessageTexture[TUTM_LOCKON])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutMessage6.tga", &TutorialMessageTexture[TUTM_LOCKON]);
+		if (!TutorialMessageTexture[TUTM_JUMP])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutMessage5.tga", &TutorialMessageTexture[TUTM_JUMP]);
+		if (!TutorialMessageTexture[TUTM_GAMESTART])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/TutGameStart.tga", &TutorialMessageTexture[TUTM_GAMESTART]);
+		if (!TutorialMessageTexture[TUTM_MISC1])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/Misc1.png", &TutorialMessageTexture[TUTM_MISC1]);
+		if (!TutorialMessageTexture[TUTM_MISC2])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/Misc2.png", &TutorialMessageTexture[TUTM_MISC2]);
+		if (!TutorialMessageTexture[TUTM_MISC3])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/Misc3.png", &TutorialMessageTexture[TUTM_MISC3]);
+		if (!TutorialMessageTexture[TUTM_MISC4])
+			CreateTextureFromFile(GetDevice(), "data/texture/TUT/Misc4.png", &TutorialMessageTexture[TUTM_MISC4]);
+		SetPolygonSize(1280, 206);
+		Position.x = 0;
+		Position.y = (SCREEN_HEIGHT / 2) - (206 / 2);
+		x2Frame.x = 1 / 1.0f;
+		x2Frame.y = 1 / 1.0f;
+		uv = { 0,0 };
+		nNum = 0;
+		SetTexture(TutorialMessageTexture[TUTM_ATTACK]);
+		break;
+	case UI_PAUSE:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/PAUSE.tga", &gpTexture);
+		SetPolygonSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		Position.x = 0;
+		Position.y = 0;
+		x2Frame.x = 1 / 1.0f;
+		x2Frame.y = 1 / 1.0f;
+		uv = { 0,0 };
+		nNum = 0;
+		SetTexture(gpTexture);
+		break;
+	case UI_PAUSE_BLACK:
+		CreateTextureFromFile(GetDevice(), "data/texture/UI/black.tga", &gpTexture);
+		SetPolygonSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		Position.x = 0;
+		Position.y = 0;
+		x2Frame.x = 1 / 1.0f;
+		SetPolygonAlpha(0.65f);
+		x2Frame.y = 1 / 1.0f;
+		uv = { 0,0 };
+		nNum = 0;
+		SetTexture(gpTexture);
 		break;
 	default:
 		break;
@@ -209,7 +299,7 @@ void UIObject2D::Update()
 		}
 		break;
 	case UI_SCORE:
-		nScore = GetScore();
+		nNum = GetScore();
 		if (++nAnimationTimer > nAnimationSpeed) {
 			nAnimationTimer = 0;
 			if (++uv.V == 10)
@@ -223,6 +313,16 @@ void UIObject2D::Update()
 			if (++uv.V == 10)
 				uv.V = 0;
 		}
+		break;
+	case UI_TIMER:
+		nNum = GetTimer();
+		if (++nAnimationTimer > nAnimationSpeed) {
+			nAnimationTimer = 0;
+			if (++uv.V == 10)
+				uv.V = 0;
+		}
+		break;
+	case UI_RESULT_SCREEN_NUMBER:
 		break;
 	default:
 		break;
@@ -280,7 +380,7 @@ void UIObject2D::Draw()
 		SetPolygonUV(uv.U / 2.0f, uv.V / 10.0f);
 		DrawPolygon(GetDeviceContext());
 		break;
-	case UI_SCORE:
+	case UI_SCORE: case UI_TIMER:
 		DrawNumber();
 		break;
 	case UI_RANK:
@@ -288,6 +388,9 @@ void UIObject2D::Draw()
 			break;
 		SetPolygonUV(uv.U / 4.0f, uv.V / 10.0f);
 		DrawPolygon(GetDeviceContext());
+		break;
+	case UI_RESULT_SCREEN_NUMBER:
+		DrawNumber();
 		break;
 	default:
 		DrawPolygon(GetDeviceContext());
@@ -303,11 +406,16 @@ void UIObject2D::DrawNumber()
 	int nDividerByTen;
 	int nDigits = 0;
 	int	nMaxDigits = 7;
+	if(nType == UI_TIMER)
+		nMaxDigits = 2;
 	x2OriginalPosition = Position;
-	nNumberToPrint = nScore;
+	nNumberToPrint = nNum;
+	float fSepatation = 27;
+	if (nType == UI_RESULT_SCREEN_NUMBER)
+		fSepatation = 105.0f;
 	for (nDividerByTen = 1; nNumberToPrint > 0; nNumberToPrint /= 10, nDividerByTen *= 10, nDigits++);
 	nDividerByTen /= 10;
-	if (nScore < 10)
+	if (nNum < 10)
 	{
 		for (int i = 0; i < nMaxDigits; i++)
 		{
@@ -315,9 +423,9 @@ void UIObject2D::DrawNumber()
 			SetPolygonFrameSize(x2Frame.x, x2Frame.y);
 			SetPolygonUV(uv.U / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
 			DrawPolygon(GetDeviceContext());
-			Position.x += 27 * 0.75f;
+			Position.x += fSepatation * 0.75f;
 		}
-		uv.U = nScore;
+		uv.U = nNum;
 		SetPolygonFrameSize(x2Frame.x, x2Frame.y);
 		SetPolygonUV(uv.U / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
 		DrawPolygon(GetDeviceContext());
@@ -329,15 +437,15 @@ void UIObject2D::DrawNumber()
 			SetPolygonFrameSize(x2Frame.x, x2Frame.y);
 			SetPolygonUV(uv.U / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
 			DrawPolygon(GetDeviceContext());
-			Position.x += 27 * 0.75f;
+			Position.x += fSepatation * 0.75f;
 		}
 		while (nDividerByTen > 0)
 		{
-			nNumberToPrint = nScore / nDividerByTen % 10;
+			nNumberToPrint = nNum / nDividerByTen % 10;
 			SetPolygonFrameSize(x2Frame.x, x2Frame.y);
 			SetPolygonUV(nNumberToPrint / (1 / x2Frame.x), uv.V / (1 / x2Frame.y));
 			DrawPolygon(GetDeviceContext());
-			Position.x += 27 * 0.75f;
+			Position.x += fSepatation * 0.75f;
 			nDividerByTen /= 10;
 		}
 	}
@@ -407,6 +515,14 @@ void UIObject2D::SetSpin(bool spin)
 {
 	bSpin = spin;
 }
+void UIObject2D::SetNum(int num)
+{
+	nNum = num;
+}
+void UIObject2D::SetTutorialMessage(int num)
+{
+	SetTexture(TutorialMessageTexture[num]);
+}
  //UIマネージャー
 InGameUI2D::InGameUI2D()
 {
@@ -427,7 +543,14 @@ void InGameUI2D::Init()
 		pAuraEffects[i]=new UIObject2D(UI_AURA);
 	pGameOverScreen = new UIObject2D(UI_GAMEOVER_SCREEN);
 	pScore = new UIObject2D(UI_SCORE);
+	pTimer = new UIObject2D(UI_TIMER);
 	pRankMeter = new UIObject2D(UI_RANK);
+	pScoreText = new UIObject2D(UI_SCORETEXT);
+	pTutorialMessage = new UIObject2D(UI_TUTORIAL_MESSAGE);
+	pPause[0] = new UIObject2D(UI_PAUSE_BLACK);
+	pPause[1] = new UIObject2D(UI_PAUSE);
+	bUseTutorialMessage = true;
+	nCurrentTutorialMessage = 0;
 }
 
 void InGameUI2D::Update()
@@ -445,7 +568,19 @@ void InGameUI2D::Update()
 	if (pScore)
 		pScore->Update();	
 	if (pRankMeter)
-		pRankMeter->Update();
+		pRankMeter->Update();	
+	if (pTimer)
+		pTimer->Update();	
+	if (pScoreText)
+		pScoreText->Update();	
+	if (pTutorialMessage)
+		pTutorialMessage->Update();
+	for (int i = 0; i < 2; i++)
+	{
+	if (pPause[i])
+		pPause[i]->Update();
+	}
+
 }
 
 void InGameUI2D::Draw()
@@ -463,7 +598,20 @@ void InGameUI2D::Draw()
 	if (pScore)
 		pScore->Draw();
 	if (pRankMeter)
-		pRankMeter->Draw();
+		pRankMeter->Draw();	
+	if (pTimer)
+		pTimer->Draw();	
+	if (pScoreText)
+		pScoreText->Draw();	
+	if (IsGamePaused()) {
+		for (int i = 0; i < 2; i++)
+		{
+			if (pPause[i])
+				pPause[i]->Draw();
+		}
+	}
+	if (pTutorialMessage && bUseTutorialMessage)
+		pTutorialMessage->Draw();
 }
 
 void InGameUI2D::End()
@@ -475,6 +623,7 @@ void InGameUI2D::End()
 	SAFE_DELETE(pAtkEffect);
 	SAFE_DELETE(pGameOverScreen);
 	SAFE_DELETE(pScore);
+	SAFE_DELETE(pTutorialMessage);
 }
 
 void InGameUI2D::ActivateAtkEffect(int Frames)
@@ -536,4 +685,18 @@ int InGameUI2D::GetGameOverFrames()
 	if (pGameOverScreen)
 		return pGameOverScreen->GetGameOverFrames();
 	return 0;
+}
+
+void InGameUI2D::SetNextTutorialMessage()
+{
+	nCurrentTutorialMessage++;
+	if (nCurrentTutorialMessage >= TUTM_MAX)
+		nCurrentTutorialMessage = 0;
+	if (pTutorialMessage)
+		pTutorialMessage->SetTutorialMessage(nCurrentTutorialMessage);
+}
+
+void InGameUI2D::DeactivateTutorial()
+{
+	bUseTutorialMessage = false;
 }

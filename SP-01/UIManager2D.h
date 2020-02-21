@@ -22,7 +22,29 @@ enum UI_TYPE
 	UI_GAMEOVER_SCREEN,
 	UI_SCORE,
 	UI_RANK,
+	UI_TIMER,
+	UI_RESULT_SCREEN_NUMBER,
+	UI_SCORETEXT,
+	UI_TUTORIAL_MESSAGE,
+	UI_PAUSE,
+	UI_PAUSE_BLACK,
 	UI_TYPE_MAX
+};
+
+enum TUTORIAL_MESSAGES
+{
+	TUTM_ATTACK,
+	TUTM_ATTACK2,
+	TUTM_MOVE,
+	TUTM_EVADE,
+	TUTM_LOCKON,
+	TUTM_JUMP,
+	TUTM_GAMESTART,
+	TUTM_MISC1,
+	TUTM_MISC2,
+	TUTM_MISC3,
+	TUTM_MISC4,
+	TUTM_MAX
 };
 class UIObject2D :
 	public Polygon2D
@@ -41,7 +63,8 @@ private:
 	bool bIsInUse;
 	bool bSpin;
 	int nGameOverFrames;
-	int nScore;
+	int nNum;
+	
 public:
 	UIObject2D();
 	UIObject2D(int nUI_Type);
@@ -60,6 +83,8 @@ public:
 	void SetUse(bool use);
 	int GetGameOverFrames();
 	void SetSpin(bool spin);
+	void SetNum(int num);
+	void SetTutorialMessage(int num);
 };
 
 class InGameUI2D
@@ -71,7 +96,13 @@ private:
 	UIObject2D* pAuraEffects[MAX_AURA];
 	UIObject2D* pGameOverScreen;
 	UIObject2D* pScore;
+	UIObject2D* pTimer;
 	UIObject2D* pRankMeter;
+	UIObject2D* pScoreText;
+	UIObject2D* pTutorialMessage;
+	UIObject2D* pPause[2];
+	int nCurrentTutorialMessage;
+	bool bUseTutorialMessage;
 
 public:
 	InGameUI2D();
@@ -85,6 +116,8 @@ public:
 	void SetAura();
 	void SetAura(int Texture);
 	int GetGameOverFrames();
+	void SetNextTutorialMessage();
+	void DeactivateTutorial();
 };
 
 #endif

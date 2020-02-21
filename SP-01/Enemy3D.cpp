@@ -6,12 +6,12 @@
 #define MODEL_PATH "data/model/Enemy.fbx"
 #define MAX_GRAVITY_FORCE 5.5f
 #define ATTACK_HIT_DAMAGE 1
-#define MAX_DIZZY_FRAMES 60*3
+#define MAX_DIZZY_FRAMES 60*4
 #define UNLIT_FRAMES_AFTER_HIT 5
 #define BULLET_DAMAGE 1
 #define INITIAL_HP 250
-#define MAX_NUM_ENEMIES_FOLLOWING_PLAYER 4
-
+#define MAX_NUM_ENEMIES_FOLLOWING_PLAYER 3
+#define MAX_SPEED 2.15f
 Enemy3D* FollowingPlayer[MAX_NUM_ENEMIES_FOLLOWING_PLAYER] = {nullptr};
 int nMaxFollowingPlayer = MAX_NUM_ENEMIES_FOLLOWING_PLAYER;
 bool bInfiniteSpawn = true;
@@ -86,7 +86,6 @@ void Enemy3D::Init()
 	pUIManager = nullptr;
 	pFloor = nullptr;
 	InitModel(ENEMY_WARRIOR_MODEL_PATH);
-	//Model->SetPosition({0,-10,0});
 	Model->SetScale(0.79f);
 	Hitbox = { 0,10.5f,0, 5,11,5 };
 	nState = ENEMY_IDLE;
@@ -214,17 +213,28 @@ void Enemy3D::Update()
 			if (FollowingPlayer[i] == nullptr || FollowingPlayer[i] == this)
 			{
 				FollowingPlayer[i] = this;
-				if (pPlayer->GetFloor() == pFloor && ++nIdleFramesCount > nIdleFramesWait)
+				if (pPlayer->GetFloor() == pFloor && ++nIdleFramesCount > nIdleFramesWait) {
+					fSpeed = (((float)i * (float)nMaxFollowingPlayer)/MAX_SPEED)*0.5f;
+					if (fSpeed < 0.25f)
+						fSpeed = 0.25f;
 					nState = ENEMY_MOVING;
+				}
 				break;
 			}
 		}
-
+		if (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_BODY)))
+		{
+			atkState = rand() % 101;
+			if (atkState > 50)
+				nState = ENEMY_ATTACKING_UP;
+			else
+				nState = ENEMY_ATTACKING_DOWN;
+		}
 		break;
 	case ENEMY_MOVING:
 		FacePlayer();
 		SetEnemyAnimation(DASHING_ANIM);
-		MoveTowardPos(pPlayer->GetPosition(), fSpeed);
+		MoveToPlayer(pPlayer);
 		if (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_BODY))) 
 		{
 			atkState = rand() % 101;
@@ -266,6 +276,7 @@ void Enemy3D::Update()
 				{
 					if (nAttackFrame > 478) {
 						SetEnemyAnimation(DIZZY_ANIM);
+						AddMoveToRankMeter(1000, 75);
 						nState = ENEMY_DIZZY_STATE;
 						GetMainCamera()->SetAttackZoom(40, 40);
 						if (pUIManager)
@@ -298,6 +309,7 @@ void Enemy3D::Update()
 				{
 					if (nAttackFrame > 729) {
 						SetEnemyAnimation(DIZZY_ANIM);
+						AddMoveToRankMeter(1000, 75);
 						nState = ENEMY_DIZZY_STATE;
 						GetMainCamera()->SetAttackZoom(40, 40);
 						if (pUIManager)
@@ -363,6 +375,13 @@ void Enemy3D::Update()
 		nState = ENEMY_DEAD;
 }
 
+void Enemy3D::MoveToPlayer(Player3D * pPlayer)
+{
+	XMFLOAT3 PlayerPos = pPlayer->GetPosition();
+	PlayerPos.y = Position.y;
+	MoveTowardPos(PlayerPos, fSpeed);
+}
+
 void Enemy3D::PlayerAttackCollision()
 {
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
@@ -397,11 +416,13 @@ void Enemy3D::PlayerAttackCollision()
 	GetMainCamera()->SetShake(2.5f, 8);
 	GetCurrentGame()->SetAtkEffect(30);
 	XMFLOAT3 modelRot;
-
+	float fDizzyBonus = 1;
+	if (nState == ENEMY_DIZZY_STATE)
+		fDizzyBonus = 1.5f;
 	switch (pLastAttackPlaying->Animation)
 	{
 	case SLIDEKICK: case RED_HOT_KICK_DOWN:
-		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45* fDizzyBonus);
 		fHP -= 9;
 		pFloor = nullptr;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
@@ -417,7 +438,7 @@ void Enemy3D::PlayerAttackCollision()
 			pPlayer->CancelAttack();
 		break;
 	case AIRCOMBOE: case AIRKICKC:
-		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45* fDizzyBonus);
 		fHP -= 11;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		modelRot = pPlayer->GetModel()->GetRotation();
@@ -446,7 +467,7 @@ void Enemy3D::PlayerAttackCollision()
 		pLastAttackPlaying = nullptr;
 		break;
 	case KICK_DOWN:
-		AddMoveToRankMeter(pLastAttackPlaying->Animation, 35);
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 35* fDizzyBonus);
 		fHP -= 10;
 		SetEnemyAnimation(DAMAGEDUP_ANIM);
 		nFaceCooldown = 0;
@@ -474,7 +495,7 @@ void Enemy3D::PlayerAttackCollision()
 		AddScoreWithRank(3);
 		break;
 	case KICKC:
-		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45* fDizzyBonus);
 		fHP -= 11;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -507,7 +528,7 @@ void Enemy3D::PlayerAttackCollision()
 		AddScoreWithRank(10);
 		break;
 	case BASIC_CHAIN_E:
-		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45);
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 45* fDizzyBonus);
 		fHP -= 11;
 		if (bSetDamageA) {
 			SetEnemyAnimation(DAMAGEDA_ANIM);
@@ -541,7 +562,7 @@ void Enemy3D::PlayerAttackCollision()
 			PlaySoundGame(SOUND_LABEL_SE_HIT);
 		else
 			PlaySoundGame(SOUND_LABEL_SE_SWORD);
-		AddMoveToRankMeter(pLastAttackPlaying->Animation, 30);
+		AddMoveToRankMeter(pLastAttackPlaying->Animation, 30* fDizzyBonus);
 		AddScoreWithRank(2);
 		fHP -= 5;
 		if (bSetDamageA) {
@@ -598,6 +619,7 @@ void Enemy3D::PlayerCollision()
 			pPlayer->TranslateX(0.1f);
 		}
 		TranslateX(-0.1f);
+		bCollision = true;
 	}
 	if ((IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_RIGHT)))) {
 		while (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_RIGHT)))
@@ -607,7 +629,10 @@ void Enemy3D::PlayerCollision()
 		TranslateX(0.1f);
 		bCollision = true;
 	}
-	if (nState == ENEMY_MOVING && bCollision) {
+	if (IsInCollision3D(GetHitbox(), pPlayer->GetHitboxPlayer(PLAYER_HB_BODY))) {
+		bCollision = true;
+	}
+	if ((nState == ENEMY_MOVING || nState == ENEMY_IDLE) && bCollision) {
 		int atkState = rand() % 101;
 		if (atkState > 50)
 			nState = ENEMY_ATTACKING_UP;
@@ -668,8 +693,6 @@ void Enemy3D::End()
 
 void Enemy3D::GravityControl()
 {
-	if (!pGameFloors)
-		return;
 	if (nState == ENEMY_DAMAGED || nState == ENEMY_DIZZY_STATE)
 		return;
 	if (--nGravityCancellingFrames > 0)

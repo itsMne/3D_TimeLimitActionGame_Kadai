@@ -16,6 +16,7 @@ enum eGameObjectTypes
 	GO_ENEMY,
 	GO_SKULLWARNING,
 	GO_ENEMYHEARTMARK,
+	GO_TUTORIALSIGN,
 	GO_MAX
 };
 class GameObject3D
@@ -29,6 +30,8 @@ private:
 	XMFLOAT3 x3MoveEndPos;
 	int nDelayFramesBetweenStops;
 	float fAutoSpeed;
+	float fTutorialSignSpeed;
+	int nSpinningFrames;
 protected:
 	Model3D* Model;
 	XMFLOAT3 Rotation;
@@ -57,6 +60,7 @@ public:
 	virtual ~GameObject3D();
 	virtual void Init();
 	virtual void Update();
+	void TutorialSignControl();
 	virtual void Draw();
 	virtual void End();
 	XMFLOAT3 GetPosition();

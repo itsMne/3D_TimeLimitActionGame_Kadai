@@ -1,11 +1,11 @@
 #pragma once
 #include "S_Scene3D.h"
 #include "Polygon2D.h"
-#define MAX_DECORATIONS 127-1
 
 enum MENU_OPTIONS
 {
 	OPTION_SCORE_ATTACK = 0,
+	RANKING_OPTION,
 	OPTION_EXIT,
 	MAX_OPTIONS
 };
