@@ -1,14 +1,6 @@
-//=============================================================================
-//
-// サウンド処理 [sound.h]
-// Author : AKIRA TANAKA
-//
-//=============================================================================
 #ifndef _SOUND_H_
 #define _SOUND_H_
-
 #include "DXWindow3D.h"
-
 #include <xaudio2.h>
 // Windows7の場合は上記を削除して以下に置き換え.
 //#include <C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xaudio2.h>

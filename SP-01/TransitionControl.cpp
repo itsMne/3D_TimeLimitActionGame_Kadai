@@ -1,3 +1,8 @@
+//*****************************************************************************
+// TransitionControl.cpp
+// シーンを変えることの管理する
+// Author : Mane
+//*****************************************************************************
 #include "TransitionControl.h"
 #include "stdio.h"
 #include "Texture.h"
@@ -5,9 +10,16 @@
 #include "SceneManager.h"
 #include "Polygon2D.h"
 #include "Sound.h"
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define MAX_TRANSITIONEFFECTS 10
 #define MAX_BG 4
 
+//*****************************************************************************
+// グローバル変数
+//*****************************************************************************
 Polygon2D* pBackground = nullptr;
 Polygon2D* ptEffects[MAX_TRANSITIONEFFECTS] = {nullptr};
 bool bPasteEffect[MAX_TRANSITIONEFFECTS+1];
@@ -16,9 +28,15 @@ bool bTCInited = false;
 int nTransition = TRANSITION_NONE;
 bool bTransitionIn;
 bool bTransitionComplete = true;
-
 Polygon2D* pSlash = nullptr;
 XMFLOAT2 SlashUI;
+
+//*****************************************************************************
+//Init関数
+//初期化関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void TransitionControl::Init()
 {
 	if (bTCInited)
@@ -70,7 +88,6 @@ void TransitionControl::Init()
 	ptEffects[9]->SetPolygonSize(523, 256);
 	ptEffects[9]->SetPolygonPos(-248.000000, -232.000000);
 	bTCInited = true;
-
 	if (!pSlash)
 		pSlash = new Polygon2D("data/texture/Transition/Slash.tga");
 	pSlash->SetPolygonPos(0, 0);
@@ -79,9 +96,14 @@ void TransitionControl::Init()
 	pSlash->SetPolygonUV(0, 0);
 	pSlash->SetPolygonFrameSize(1.0f / 4.0f, 1.0f / 8.0f);
 	pSlash->SetPolygonPos(0, 0);
-	//pSlash->
 }
 
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void TransitionControl::Update()
 {
 	static int nFrameCoolOffSticker = 0;
@@ -158,6 +180,12 @@ void TransitionControl::Update()
 	}
 }
 
+//*****************************************************************************
+//Draw関数
+//レンダリング関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void TransitionControl::Draw()
 {
 	if (nTransition == TRANSITION_NONE)
@@ -183,10 +211,23 @@ void TransitionControl::Draw()
 
 }
 
+//*****************************************************************************
+//End関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void TransitionControl::End()
 {
+	//なし
 }
 
+//*****************************************************************************
+//SetTransition関数
+//シーンを変えることを設定する
+//引数：bool, int
+//戻：void
+//*****************************************************************************
 void SetTransition(bool TransitionIn, int TransitionType)
 {
 	bTransitionComplete = false;
@@ -194,6 +235,12 @@ void SetTransition(bool TransitionIn, int TransitionType)
 	nTransition = TransitionType;
 }
 
+//*****************************************************************************
+//IsTransitionComplete関数
+//シーンを変えることが終わったかを確認する
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool IsTransitionComplete()
 {
 	return bTransitionComplete;

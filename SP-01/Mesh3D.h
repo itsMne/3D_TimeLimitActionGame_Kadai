@@ -65,7 +65,7 @@ public:
 	virtual void Init();
 	virtual void Update();
 	void Draw(ID3D11DeviceContext* pDeviceContext);
-	virtual void Uninit();
+	virtual void End();
 	float GetAlphaTestValue(void);
 	HRESULT MakeMeshVertex(ID3D11Device* pDevice, MESH* pMesh,
 		VERTEX_3D vertexWk[], int indexWk[]);

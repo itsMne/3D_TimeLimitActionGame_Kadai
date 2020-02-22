@@ -96,19 +96,33 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>CPPファイル\シーンCPP</Filter>
     </ClCompile>
-    <ClCompile Include="DebugAim.cpp" />
-    <ClCompile Include="Enemy3D.cpp" />
     <ClCompile Include="UniversalStructures.cpp">
       <Filter>CPPファイル</Filter>
     </ClCompile>
     <ClCompile Include="Wall3D.cpp">
       <Filter>CPPファイル\ゲームCPP</Filter>
     </ClCompile>
-    <ClCompile Include="Sound.cpp" />
-    <ClCompile Include="TransitionControl.cpp" />
-    <ClCompile Include="S_Menu.cpp" />
-    <ClCompile Include="RankManager.cpp" />
-    <ClCompile Include="S_Ranking.cpp" />
+    <ClCompile Include="TransitionControl.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="S_Ranking.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="S_Menu.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="RankManager.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy3D.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugAim.cpp">
+      <Filter>CPPファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -159,12 +173,6 @@
     <ClInclude Include="UIManager2D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="Billboard2D.h">
-      <Filter>CPPファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh3D.h">
-      <Filter>CPPファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Cube3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
@@ -186,18 +194,38 @@
     <ClInclude Include="SceneManager.h">
       <Filter>Hファイル\シーンH</Filter>
     </ClInclude>
-    <ClInclude Include="DebugAim.h" />
-    <ClInclude Include="Enemy3D.h" />
     <ClInclude Include="Wall3D.h">
       <Filter>Hファイル\ゲームH</Filter>
     </ClInclude>
-    <ClInclude Include="Sound.h" />
-    <ClInclude Include="TransitionControl.h" />
-    <ClInclude Include="S_Menu.h" />
-    <ClInclude Include="RankManager.h" />
-    <ClInclude Include="S_Ranking.h" />
     <ClInclude Include="C_XInput.h">
       <Filter>Hファイル\エンジンH</Filter>
+    </ClInclude>
+    <ClInclude Include="Billboard2D.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh3D.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugAim.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy3D.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="RankManager.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="S_Menu.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="S_Ranking.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Hファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="TransitionControl.h">
+      <Filter>Hファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

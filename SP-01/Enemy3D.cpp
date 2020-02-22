@@ -1,8 +1,17 @@
+//*****************************************************************************
+// Enemy3D.cpp
+// 敵を管理する
+// Author : Mane
+//*****************************************************************************
 #include "Enemy3D.h"
 #include "S_InGame3D.h"
 #include "RankManager.h"
 #include "Sound.h"
 #include "UniversalStructures.h"
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define MODEL_PATH "data/model/Enemy.fbx"
 #define MAX_GRAVITY_FORCE 5.5f
 #define ATTACK_HIT_DAMAGE 1
@@ -12,9 +21,10 @@
 #define INITIAL_HP 250
 #define MAX_NUM_ENEMIES_FOLLOWING_PLAYER 3
 #define MAX_SPEED 2.15f
-Enemy3D* FollowingPlayer[MAX_NUM_ENEMIES_FOLLOWING_PLAYER] = {nullptr};
-int nMaxFollowingPlayer = MAX_NUM_ENEMIES_FOLLOWING_PLAYER;
-bool bInfiniteSpawn = true;
+
+//*****************************************************************************
+// エナム
+//*****************************************************************************
 enum ENEMY_STATES
 {
 	ENEMY_IDLE,
@@ -43,6 +53,12 @@ enum ENEMY_ANIMATIONS
 	DIZZY_ANIM,
 	MAX_ANIM
 };
+//*****************************************************************************
+// グローバル変数
+//*****************************************************************************
+Enemy3D* FollowingPlayer[MAX_NUM_ENEMIES_FOLLOWING_PLAYER] = {nullptr};
+int nMaxFollowingPlayer = MAX_NUM_ENEMIES_FOLLOWING_PLAYER;
+bool bInfiniteSpawn = true;
 float nEnemyAnimationSpeed[MAX_ANIM] = {
 	1,//IDLE_ANIM,
 	2.75f,//ATTACKA_ANIM,
@@ -57,6 +73,10 @@ float nEnemyAnimationSpeed[MAX_ANIM] = {
 	3,//DIZZY
 };		
 S_InGame3D* pGame = nullptr;
+
+//*****************************************************************************
+// コンストラクタ関数
+//*****************************************************************************
 Enemy3D::Enemy3D(): GameObject3D(GO_ENEMY)
 {
 	Init();
@@ -75,6 +95,12 @@ Enemy3D::~Enemy3D()
 	End();
 }
 
+//*****************************************************************************
+//Init関数
+//初期化関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::Init()
 {
 	Position = { 0,0,0 };
@@ -111,6 +137,12 @@ void Enemy3D::Init()
 	bUse = true;
 }
 
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::Update()
 {
 	if (!bUse)
@@ -375,6 +407,12 @@ void Enemy3D::Update()
 		nState = ENEMY_DEAD;
 }
 
+//*****************************************************************************
+//MoveToPlayer関数
+//プレイヤーを探す
+//引数：Player3D*
+//戻：void
+//*****************************************************************************
 void Enemy3D::MoveToPlayer(Player3D * pPlayer)
 {
 	XMFLOAT3 PlayerPos = pPlayer->GetPosition();
@@ -382,6 +420,12 @@ void Enemy3D::MoveToPlayer(Player3D * pPlayer)
 	MoveTowardPos(PlayerPos, fSpeed);
 }
 
+//*****************************************************************************
+//PlayerAttackCollision関数
+//プレイヤーの攻撃動作と当たり判定の管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::PlayerAttackCollision()
 {
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
@@ -593,6 +637,12 @@ void Enemy3D::PlayerAttackCollision()
 	}
 }
 
+//*****************************************************************************
+//PlayerCollision関数
+//プレイヤーと当たり判定の管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::PlayerCollision()
 {
 	Player3D* pPlayer = (Player3D*)pPlayerPointer;
@@ -641,11 +691,23 @@ void Enemy3D::PlayerCollision()
 	}
 }
 
+//*****************************************************************************
+//SetEnemyAnimation関数
+//アニメーションを設定する
+//引数：int
+//戻：void
+//*****************************************************************************
 void Enemy3D::SetEnemyAnimation(int Animation)
 {
 	Model->SwitchAnimation(Animation, 0, nEnemyAnimationSpeed[Animation]);
 }
 
+//*****************************************************************************
+//FacePlayer関数
+//プレイヤーを探すために、角度を変える
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::FacePlayer()
 {
 	if (--nFaceCooldown > 0)
@@ -673,6 +735,12 @@ void Enemy3D::FacePlayer()
 	}
 }
 
+//*****************************************************************************
+//Draw関数
+//レンダリング関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::Draw()
 {
 	if (!bUse)
@@ -686,11 +754,23 @@ void Enemy3D::Draw()
 
 }
 
+//*****************************************************************************
+//End関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::End()
 {
 	GameObject3D::End();
 }
 
+//*****************************************************************************
+//GravityControl関数
+//重力の管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Enemy3D::GravityControl()
 {
 	if (nState == ENEMY_DAMAGED || nState == ENEMY_DIZZY_STATE)
@@ -722,6 +802,12 @@ void Enemy3D::GravityControl()
 	Position.y -= fY_force;
 }
 
+//*****************************************************************************
+//LockEnemyToObject関数
+//敵のロックオンを設定する
+//引数：GameObject3D*
+//戻：void
+//*****************************************************************************
 void Enemy3D::LockEnemyToObject(GameObject3D * lock)
 {
 	if (!lock)
@@ -740,10 +826,8 @@ void Enemy3D::LockEnemyToObject(GameObject3D * lock)
 	Rotation.y = -rotationAngle;
 	if (lock->GetPosition().x < Position.x) {
 		Rotation.y = rotationAngle;
-		//Rotation = Model->GetRotation();
 	}
 	else {
 		Rotation.y = -rotationAngle;
-		//Rotation = Model->GetRotation();
 	}
 }

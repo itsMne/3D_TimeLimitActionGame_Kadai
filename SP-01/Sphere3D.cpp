@@ -1,14 +1,22 @@
+//*****************************************************************************
+// Sphere3D.cpp
+// スフィアのオブジェクト
+// Author: Mane
+//*****************************************************************************
 #include "Sphere3D.h"
 #include "main.h"
 #include "Texture.h"
 #include "Camera3D.h"
-#define USE_16_SLASHES true
-#define SKYBOX_SIZE 800
+
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define USE_16_SLASHES true
+#define SKYBOX_SIZE 800
 
-
+//*****************************************************************************
+// コンストラクタ関数
+//*****************************************************************************
 Sphere3D::Sphere3D(XMFLOAT3 pos, XMFLOAT3 rot, int nSlice, int nStack, float fRadius, const char* szPath)
 {
 	Init(pos, rot, nSlice, nStack, fRadius, szPath);
@@ -29,11 +37,16 @@ Sphere3D::Sphere3D(const char * szPath)
 	bIsSkybox = true;
 }
 
-
 Sphere3D::~Sphere3D()
 {
 }
 
+//*****************************************************************************
+//Init関数
+//初期化関数
+//引数：void
+//戻：void
+//*****************************************************************************
 HRESULT Sphere3D::Init(XMFLOAT3 pos, XMFLOAT3 rot, int nSlice, int nStack, float fRadius, const char* szPath)
 {
 	Mesh3D::Init();
@@ -128,11 +141,23 @@ HRESULT Sphere3D::Init(XMFLOAT3 pos, XMFLOAT3 rot, int nSlice, int nStack, float
 	return hr;
 }
 
+//*****************************************************************************
+//Uninit関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Sphere3D::Uninit(void)
 {
-	Mesh3D::Uninit();
+	Mesh3D::End();
 }
 
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Sphere3D::Update(void)
 {
 	GameObject3D::Update();
@@ -151,12 +176,24 @@ void Sphere3D::Update(void)
 	pMesh->Position.y -= 10;
 }
 
+//*****************************************************************************
+//Draw関数
+//レンダリング関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Sphere3D::Draw(void)
 {
 	GameObject3D::Draw();
 	Mesh3D::Draw(GetDeviceContext());
 }
 
+//*****************************************************************************
+//SetUnlit関数
+//光を使うことを設定する
+//引数：bool
+//戻：void
+//*****************************************************************************
 void Sphere3D::SetUnlit(bool isUnlit)
 {
 	bisUnlit = isUnlit;

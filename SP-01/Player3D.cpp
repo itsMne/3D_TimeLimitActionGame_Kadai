@@ -1,3 +1,8 @@
+//*****************************************************************************
+// Player3D.cpp
+// プレイヤーを管理する
+// Author : Mane
+//*****************************************************************************
 #include "Player3D.h"
 #include "InputManager.h"
 #include "debugproc.h"
@@ -6,6 +11,10 @@
 #include "RankManager.h"
 #include "Sound.h"
 #include "S_InGame3D.h"
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define PLAYER_MODEL_PATH "data/model/NinaModel.fbx"
 #define PLAYER_SPEED	1.95f					// 移動速度
 #define ROTATION_SPEED	XM_PI*0.02f			// 回転速度
@@ -23,10 +32,11 @@
 #define DEBUG_ATTACK_INPUTS false
 #define DEBUG_ANALOG_INPUTS false
 #define DEBUG_FOUND_ATTACKS false
+
+//*****************************************************************************
+// グローバル変数
+//*****************************************************************************
 Player3D* pMainPlayer3D = nullptr;
-
-
-
 PLAYER_ATTACK_MOVE stAllMoves[MAX_ATTACKS] =
 {
 	{"A",	  BASIC_CHAIN_A,   false, GROUND_MOVE, 490	},
@@ -96,6 +106,9 @@ float fAnimationSpeeds[MAX_ANIMATIONS] =//アニメーションの速さ
 	{1.5f},//,
 };
 
+//*****************************************************************************
+// コンストラクタ関数
+//*****************************************************************************
 Player3D::Player3D() :GameObject3D(GetMainLight(), PLAYER_MODEL_PATH, GO_PLAYER)
 {
 	Init();
@@ -107,13 +120,18 @@ Player3D::Player3D(Light3D * Light) :GameObject3D(Light, PLAYER_MODEL_PATH, GO_P
 	Init();
 }
 
-
 Player3D::~Player3D()
 {
 	End();
 	GameObject3D::~GameObject3D();
 }
 
+//*****************************************************************************
+//Init関数
+//初期化関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::Init()
 {
 	mShadow = nullptr;
@@ -158,6 +176,13 @@ void Player3D::Init()
 	InitPlayerHitboxes();
 	InitFlowers();
 }
+
+//*****************************************************************************
+//InitPlayerHitboxes関数
+//プレイヤーのヒットボックスを設定する
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::InitPlayerHitboxes()
 {
 	for (int i = 0; i < PLAYER_HB_MAX; i++)
@@ -185,6 +210,13 @@ void Player3D::InitPlayerHitboxes()
 #endif
 	DebugAimOn = false;
 }
+
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::Update()
 {
 	if (nState == PLAYER_FELL)
@@ -268,7 +300,6 @@ void Player3D::Update()
 		pDebugAim->Update();
 		return;
 	}
-	
 	if (nState == PLAYER_DAMAGED)
 	{
 		XMFLOAT3 ModelRot = Model->GetRotation();
@@ -427,6 +458,12 @@ void Player3D::Update()
 
 }
 
+//*****************************************************************************
+//AttackInputsControl関数
+//攻撃動作のインプットの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::AttackInputsControl()
 {
 	if (pCurrentAttackPlaying)
@@ -464,6 +501,12 @@ void Player3D::AttackInputsControl()
 	}
 }
 
+//*****************************************************************************
+//PlayerAttackingControl関数
+//攻撃動作の管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::PlayerAttackingControl()
 {
 	XMFLOAT3 ModelRot;
@@ -750,12 +793,24 @@ void Player3D::PlayerAttackingControl()
 #endif
 }
 
+//*****************************************************************************
+//CancelAttack関数
+//攻撃動作をキャンセルする
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::CancelAttack()
 {
 	pCurrentAttackPlaying = nullptr;
 	nState = PLAYER_IDLE_STATE;
 }
 
+//*****************************************************************************
+//Jump関数
+//ジャンプする
+//引数：float
+//戻：void
+//*****************************************************************************
 void Player3D::Jump(float jumpforce)
 {
 	fY_force = -jumpforce;
@@ -764,6 +819,12 @@ void Player3D::Jump(float jumpforce)
 	pCurrentAttackPlaying = nullptr;
 }
 
+//*****************************************************************************
+//GravityControl関数
+//重力の管理
+//引数：bool
+//戻：void
+//*****************************************************************************
 void Player3D::GravityControl(bool bCountAttackState)
 {
 	if (nState == PLAYER_ATTACKING_STATE && bCountAttackState)
@@ -794,6 +855,12 @@ void Player3D::GravityControl(bool bCountAttackState)
 	Position.y -= fY_force;
 }
 
+//*****************************************************************************
+//PlayerCameraControl関数
+//カメラの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::PlayerCameraControl()
 {
 	if (GetInput(INPUT_LOCKON))
@@ -810,6 +877,12 @@ void Player3D::PlayerCameraControl()
 
 }
 
+//*****************************************************************************
+//MoveControl関数
+//カメラの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::MoveControl()
 {
 	XMFLOAT3 rotCamera;
@@ -823,9 +896,6 @@ void Player3D::MoveControl()
 	}
 	//スティック
 	float nModelRotation = -(atan2(fVerticalAxis, fHorizontalAxis) - 1.570796f);
-	//printf("ANALOG ROT: %f\n", nModelRotation);
-	//printf("MODEL ROT: %f\n", Model->GetRotation().y);
-
 	if (GetInput(INPUT_LOCKON))
 	{
 		if (pLockedOnEnemy) {
@@ -896,6 +966,12 @@ void Player3D::MoveControl()
 	}
 }
 
+//*****************************************************************************
+//DirectionalInputsControl関数
+//方向インプットの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::DirectionalInputsControl()
 {
 	float fHorizontalAxis = GetAxis(MOVEMENT_AXIS_HORIZONTAL);
@@ -938,16 +1014,34 @@ void Player3D::DirectionalInputsControl()
 	}
 }
 
+//*****************************************************************************
+//SetPlayerAnimation関数
+//アニメーションを設定する
+//引数：int
+//戻：void
+//*****************************************************************************
 void Player3D::SetPlayerAnimation(int Animation)
 {
 	Model->SwitchAnimation(Animation, 0, fAnimationSpeeds[Animation]);
 }
 
+//*****************************************************************************
+//SetPlayerAnimation関数
+//アニメーションを設定する
+//引数：int, int
+//戻：void
+//*****************************************************************************
 void Player3D::SetPlayerAnimation(int Animation, int Speed)
 {
 	Model->SwitchAnimation(Animation, 0, Speed);
 }
 
+//*****************************************************************************
+//PlayerShadowControl関数
+//影の管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::PlayerShadowControl()
 {
 	if (!mShadow)
@@ -961,6 +1055,12 @@ void Player3D::PlayerShadowControl()
 		mShadow->SetPosition({ Position.x,1,Position.z });
 }
 
+//*****************************************************************************
+//PlayerBulletsControl関数
+//バレットの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::PlayerBulletsControl()
 {
 	if (GetInput(INPUT_AIM))
@@ -999,6 +1099,12 @@ void Player3D::PlayerBulletsControl()
 	}
 }
 
+//*****************************************************************************
+//Draw関数
+//レンダリング関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::Draw()
 {
 	if (nRecoveryFrames>0)
@@ -1039,6 +1145,12 @@ void Player3D::Draw()
 	
 }
 
+//*****************************************************************************
+//End関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::End()
 {
 	pMainPlayer3D = nullptr;
@@ -1051,37 +1163,78 @@ void Player3D::End()
 
 }
 
+//*****************************************************************************
+//GetCurrentHealth関数
+//プレイヤーのHPを戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int Player3D::GetCurrentHealth()
 {
 	return nCurrentHealth;
 }
 
+//*****************************************************************************
+//GetMaxHealth関数
+//プレイヤーのマックスHPを戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int Player3D::GetMaxHealth()
 {
 	return nMaxHealth;
 }
 
+//*****************************************************************************
+//IsPlayerAiming関数
+//プレイヤーは狙っている状態を確認する
+//引数：void
+//戻：int
+//*****************************************************************************
 bool Player3D::IsPlayerAiming()
 {
 	return bSwitcheToAimingState;
 }
 
+//*****************************************************************************
+//GetHitboxPlayer関数
+//プレイヤーのヒットボックスを戻す
+//引数：int
+//戻：Box
+//*****************************************************************************
 Box Player3D::GetHitboxPlayer(int hb)
 {
 	return { Hitboxes[hb].PositionX + Position.x, Hitboxes[hb].PositionY + Position.y,Hitboxes[hb].PositionZ + Position.z, Hitboxes[hb].SizeX,Hitboxes[hb].SizeY,Hitboxes[hb].SizeZ };
 }
 
+//*****************************************************************************
+//SetFloor関数
+//床を設定する
+//引数：Field3D*
+//戻：void
+//*****************************************************************************
 void Player3D::SetFloor(GameObject3D* Floor)
 {
 	pFloor = Floor;
 }
 
+//*****************************************************************************
+//IsOnTheFloor関数
+//プレイヤーの床を確認する
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool Player3D::IsOnTheFloor()
 {
 	return pFloor != nullptr;
 }
 
-
+//*****************************************************************************
+//AddInput関数
+//プレイヤーのインプットキャラを行列に入れる
+//引数：char
+//戻：void
+//*****************************************************************************
 void Player3D::AddInput(char A)
 {
 	if (A == 'P' && szInputs[0] == '*')
@@ -1113,6 +1266,12 @@ void Player3D::AddInput(char A)
 	}
 }
 
+//*****************************************************************************
+//GetLastInputInserted関数
+//最後の入れたインプットを戻す
+//引数：void
+//戻：char
+//*****************************************************************************
 char Player3D::GetLastInputInserted()
 {
 	for (int i = 0; i < MAX_PLAYER_INPUT; i++)
@@ -1123,13 +1282,24 @@ char Player3D::GetLastInputInserted()
 	return szInputs[MAX_PLAYER_INPUT - 1];
 }
 
+//*****************************************************************************
+//ResetInputs関数
+//インプットの行列をリセットする
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::ResetInputs()
 {
 	strcpy(szInputs, "********");
 
 }
 
-
+//*****************************************************************************
+//Attack関数
+//攻撃動作を行う
+//引数：const char*
+//戻：void
+//*****************************************************************************
 void Player3D::Attack(const char * atkInput)
 {
 	char szAtkInput[MAX_PLAYER_INPUT + 1];
@@ -1143,6 +1313,12 @@ void Player3D::Attack(const char * atkInput)
 	Attack(szAtkInput, MAX_PLAYER_INPUT);
 }
 
+//*****************************************************************************
+//Attack関数
+//攻撃動作を行う
+//引数：const char*, int
+//戻：void
+//*****************************************************************************
 void Player3D::Attack(const char * atkInput, int recursions)
 {
 	if (recursions <= 0)
@@ -1199,6 +1375,12 @@ void Player3D::Attack(const char * atkInput, int recursions)
 	Attack(szAtkInput, recursions - 1);
 }
 
+//*****************************************************************************
+//InitFlowers関数
+//花のオブジェクトの初期化
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::InitFlowers()
 {
 	CreateTextureFromFile(GetDevice(), "data/texture/Flower.tga", &pFlowerTexture);
@@ -1215,6 +1397,12 @@ void Player3D::InitFlowers()
 	}
 }
 
+//*****************************************************************************
+//UpdateFlowers関数
+//花のオブジェクトのアップデート
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::UpdateFlowers()
 {
 	static float ScaleAcceleration[MAX_FLOWERS] = { 0 };
@@ -1230,6 +1418,12 @@ void Player3D::UpdateFlowers()
 	}
 }
 
+//*****************************************************************************
+//UpdateFlowers関数
+//花のオブジェクトのレンダリング
+//引数：void
+//戻：void
+//*****************************************************************************
 void Player3D::DrawFlowers()
 {
 	for (int i = 0; i < MAX_FLOWERS; i++)
@@ -1239,6 +1433,12 @@ void Player3D::DrawFlowers()
 	}
 }
 
+//*****************************************************************************
+//SetFlower関数
+//花を設定する
+//引数：XMFLOAT3
+//戻：void
+//*****************************************************************************
 void Player3D::SetFlower(XMFLOAT3 Pos)
 {
 	for (int i = 0; i < MAX_FLOWERS; i++)
@@ -1254,11 +1454,23 @@ void Player3D::SetFlower(XMFLOAT3 Pos)
 	}
 }
 
+//*****************************************************************************
+//GetYForce関数
+//YForceを戻す
+//引数：void
+//戻：float
+//*****************************************************************************
 float Player3D::GetYForce()
 {
 	return fY_force;
 }
 
+//*****************************************************************************
+//LockModelToObject関数
+//モデルのロックオンを設定する
+//引数：GameObject3D*
+//戻：void
+//*****************************************************************************
 void Player3D::LockModelToObject(GameObject3D * lock)
 {
 	if (!lock)
@@ -1289,6 +1501,12 @@ void Player3D::LockModelToObject(GameObject3D * lock)
 	}
 }
 
+//*****************************************************************************
+//LockPlayerToObject関数
+//プレイヤーのロックオンを設定する
+//引数：GameObject3D*
+//戻：void
+//*****************************************************************************
 void Player3D::LockPlayerToObject(GameObject3D * lock)
 {
 	if (!lock)
@@ -1301,38 +1519,55 @@ void Player3D::LockPlayerToObject(GameObject3D * lock)
 	a.z = 0;
 	XMFLOAT3 b = NormalizeVector(calc);
 	float dot = DotProduct(a, b);
-	//XMVECTOR dot = XMVector3Dot(XMLoadFloat3(&a), XMLoadFloat3(&b));
-
-
 	float rotationAngle = dot;
 	rotationAngle = ceilf(rotationAngle * 10) / 10;
-	//printf("%f\n", -dot);
-
 	if (lock->GetPosition().x < Position.x) {
 		Rotation.y = -rotationAngle;
-		//Rotation = Model->GetRotation();
 	}
 	else {
 		Rotation.y = rotationAngle;
-		//Rotation = Model->GetRotation();
 	}
 }
 
+//*****************************************************************************
+//GetFloor関数
+//プレイヤーの床のアドレスを戻す
+//引数：void
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Player3D::GetFloor()
 {
 	return pFloor;
 }
 
+//*****************************************************************************
+//GetCurrentAttack関数
+//現在の攻撃動作を戻す
+//引数：void
+//戻：PLAYER_ATTACK_MOVE*
+//*****************************************************************************
 PLAYER_ATTACK_MOVE * Player3D::GetCurrentAttack()
 {
 	return pCurrentAttackPlaying;
 }
 
+//*****************************************************************************
+//GetState関数
+//現在の状態を戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int Player3D::GetState()
 {
 	return nState;
 }
 
+//*****************************************************************************
+//SetDamage関数
+//ダメージを設定する
+//引数：int
+//戻：void
+//*****************************************************************************
 void Player3D::SetDamage(int nDamage)
 {
 	if (nState == PLAYER_DAMAGED)
@@ -1347,36 +1582,78 @@ void Player3D::SetDamage(int nDamage)
 	ResetRanks();
 }
 
+//*****************************************************************************
+//IsPlayerDead関数
+//プレイヤーが倒している状態を確認する
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool Player3D::IsPlayerDead()
 {
 	return nFramesDead>120;
 }
 
+//*****************************************************************************
+//GetBullets関数
+//バレットのアドレスを戻す
+//引数：void
+//戻：GameObject3D **
+//*****************************************************************************
 GameObject3D ** Player3D::GetBullets()
 {
 	return goBullets;
 }
 
+//*****************************************************************************
+//GetLockedOnEnemy関数
+//ロックオンされている敵のアドレスを戻す
+//引数：void
+//戻：GameObject3D *
+//*****************************************************************************
 GameObject3D * Player3D::GetLockedOnEnemy()
 {
 	return pLockedOnEnemy;
 }
 
+//*****************************************************************************
+//SetBottom関数
+//ボトムを設定する
+//引数：float
+//戻：void
+//*****************************************************************************
 void Player3D::SetBottom(float bot)
 {
 	fBottom = bot;
 }
 
+//*****************************************************************************
+//GetBottom関数
+//ボトムを戻す
+//引数：void
+//戻：float
+//*****************************************************************************
 float Player3D::GetBottom()
 {
 	return fBottom;
 }
 
+//*****************************************************************************
+//IsLastAttackExecutedASwordAttack関数
+//最後の行った攻撃動作を確認する
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool Player3D::IsLastAttackExecutedASwordAttack()
 {
 	return bIsSwordAttack;
 }
 
+//*****************************************************************************
+//GetPlayer3D関数
+//プレイヤーのアドレスを戻す
+//引数：void
+//戻：Player3D*
+//*****************************************************************************
 Player3D * GetPlayer3D()
 {
 	return pMainPlayer3D;
