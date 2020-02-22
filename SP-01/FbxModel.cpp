@@ -283,7 +283,6 @@ HRESULT CFbxMesh::CreateFromFBX(FbxMesh* pFbxMesh)
 					strcat_s(fname, _countof(fname), ext);
 					hr = CreateTextureFromFile(m_pDevice, fname, &m_pMaterial[i].pTexture);
 					if (FAILED(hr)) {
-						MessageBoxA(0, "テクスチャ読み込み失敗", fname, MB_OK);
 						delete[] pvVB;
 						return hr;
 					}
@@ -700,7 +699,7 @@ HRESULT CFbxModel::LoadRecursive(FbxNode* pNode, CFbxMesh* pFBXMesh)
 			// メッシュ作成
 			hr = pFBXMesh->CreateFromFBX(pNode->GetMesh());
 			if (FAILED(hr)) {
-				MessageBoxW(0, L"メッシュ生成エラー", L"CFbxMesh::CreateFromFBX", MB_OK);
+				//MessageBoxW(0, L"メッシュ生成エラー", L"CFbxMesh::CreateFromFBX", MB_OK);
 				return hr;
 			}
 			break;
@@ -738,7 +737,6 @@ HRESULT CFbxModel::Init(ID3D11Device* pDevice, ID3D11DeviceContext *pContext, LP
 
 	HRESULT hr = InitShader();
 	if (FAILED(hr)) {
-		MessageBoxW(0, L"メッシュ用シェーダ作成失敗", nullptr, MB_OK);
 		return hr;
 	}
 	char* pszFName = nullptr;
@@ -747,7 +745,6 @@ HRESULT CFbxModel::Init(ID3D11Device* pDevice, ID3D11DeviceContext *pContext, LP
 	hr = CreateFromFBX(pszFName);
 	if (pszFName) FbxFree(pszFName);
 	if (FAILED(hr)) {
-		MessageBoxW(0, L"メッシュ作成失敗", nullptr, MB_OK);
 		return hr;
 	}
 	// テクスチャ用サンプラ作成

@@ -44,7 +44,7 @@ HRESULT LoadVertexShader(LPCWSTR pwszVSFName, ID3D11VertexShader** ppVertexShade
 		}
 		if (!pbData) {
 			WCHAR wszMsg[_MAX_PATH * 2];
-			swprintf_s(wszMsg, _countof(wszMsg), L"頂点シェーダ(ID=%d) 読込エラー", (int)(ULONG_PTR)pwszVSFName);
+			//swprintf_s(wszMsg, _countof(wszMsg), L"頂点シェーダ(ID=%d) 読込エラー", (int)(ULONG_PTR)pwszVSFName);
 			MessageBoxW(hWnd, wszMsg, L"error", MB_OK);
 			return E_FAIL;
 		}
@@ -79,7 +79,7 @@ HRESULT LoadVertexShader(LPCWSTR pwszVSFName, ID3D11VertexShader** ppVertexShade
 			lSize = (LONG)pCompiledShader->GetBufferSize();
 #else
 			WCHAR wszMsg[_MAX_PATH * 2];
-			swprintf(wszMsg, _countof(wszMsg), L"頂点シェーダ(%s) 読み込みエラー", pwszVSFName);
+			//swprintf(wszMsg, _countof(wszMsg), L"頂点シェーダ(%s) 読み込みエラー", pwszVSFName);
 			MessageBoxW(hWnd, wszMsg, L"error", MB_OK);
 			return E_FAIL;
 #endif
@@ -118,7 +118,7 @@ HRESULT LoadVertexShader(LPCWSTR pwszVSFName, ID3D11VertexShader** ppVertexShade
 		else
 			delete[] pbData;
 		WCHAR wszMsg[_MAX_PATH * 2];
-		swprintf_s(wszMsg, _countof(wszMsg), L"頂点フォーマット生成失敗(%s)", pwszVSFName);
+		//swprintf_s(wszMsg, _countof(wszMsg), L"頂点フォーマット生成失敗(%s)", pwszVSFName);
 		MessageBoxW(hWnd, wszMsg, L"error", MB_OK);
 		return hr;
 	}
@@ -157,7 +157,7 @@ HRESULT LoadPixelShader(LPCWSTR pwszPSFName, ID3D11PixelShader** ppPixelShader)
 		}
 		if (!pbData) {
 			WCHAR wszMsg[_MAX_PATH * 2];
-			swprintf_s(wszMsg, _countof(wszMsg), L"ピクセルシェーダ(ID=%d) 読込エラー", (int)(ULONG_PTR)pwszPSFName);
+			//swprintf_s(wszMsg, _countof(wszMsg), L"ピクセルシェーダ(ID=%d) 読込エラー", (int)(ULONG_PTR)pwszPSFName);
 			MessageBoxW(hWnd, wszMsg, L"error", MB_OK);
 			return E_FAIL;
 		}
@@ -192,7 +192,7 @@ HRESULT LoadPixelShader(LPCWSTR pwszPSFName, ID3D11PixelShader** ppPixelShader)
 			lSize = (LONG)pCompiledShader->GetBufferSize();
 #else
 			WCHAR wszMsg[_MAX_PATH * 2];
-			swprintf_s(wszMsg, _countof(wszMsg), L"ピクセルシェーダ(%s) 読み込みエラー", pwszPSFName);
+			//swprintf_s(wszMsg, _countof(wszMsg), L"ピクセルシェーダ(%s) 読み込みエラー", pwszPSFName);
 			MessageBoxW(hWnd, wszMsg, L"error", MB_OK);
 			return E_FAIL;
 #endif

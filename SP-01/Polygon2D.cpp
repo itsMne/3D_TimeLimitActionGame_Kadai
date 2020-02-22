@@ -39,8 +39,6 @@ Polygon2D::Polygon2D(const char * TexturePath)
 	g_pVertexShader = nullptr;
 	InitPolygon(GetDevice());
 	HRESULT hr = CreateTextureFromFile(GetDevice(), TexturePath, &gpTexture);
-	if (FAILED(hr))
-		printf("Ž¸”s‚µ‚½\n");
 	SetTexture(gpTexture);
 	InitedPolygons++;
 }

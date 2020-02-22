@@ -1,19 +1,12 @@
+//*****************************************************************************
+// Mesh3D.h
+//*****************************************************************************
 #pragma once
 #include "DXWindow3D.h"
 #include "GameObject3D.h"
 
-//**************************************
-// 構造体定義
-//**************************************
-typedef struct {
-	XMFLOAT4	Diffuse;		// Diffuse color RGBA
-	XMFLOAT4	Ambient;		// Ambient color RGB
-	XMFLOAT4	Specular;		// Specular 'shininess'
-	XMFLOAT4	Emissive;		// Emissive color RGB
-	float		Power;			// Sharpness if specular highlight
-} MATERIAL;
 //*****************************************************************************
-// 定数定義
+// エナム
 //*****************************************************************************
 enum ePrimitiveType {
 	PT_UNDEFINED = 0,
@@ -25,6 +18,17 @@ enum ePrimitiveType {
 
 	MAX_PRIMITIVETYPE
 };
+
+//*****************************************************************************
+// 構造体定義
+//*****************************************************************************
+typedef struct {
+	XMFLOAT4	Diffuse;		// Diffuse color RGBA
+	XMFLOAT4	Ambient;		// Ambient color RGB
+	XMFLOAT4	Specular;		// Specular 'shininess'
+	XMFLOAT4	Emissive;		// Emissive color RGB
+	float		Power;			// Sharpness if specular highlight
+} MATERIAL;
 
 typedef struct {
 	ID3D11Buffer* pVertexBuffer;			// 頂点バッファインターフェースへのポインタ
@@ -44,6 +48,9 @@ typedef struct {
 	MATERIAL* pMaterial = nullptr;					// マテリアル
 } MESH;
 
+//*****************************************************************************
+// クラス
+//*****************************************************************************
 class Mesh3D: public GameObject3D
 {
 protected:

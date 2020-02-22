@@ -1,9 +1,15 @@
+//*****************************************************************************
+// UIManager2D.h
+//*****************************************************************************
 #ifndef	UIMANAGER2D_H
 #define UIMANAGER2D_H
 #define MAX_AURA 5
 #include "Polygon2D.h"
 #include "Player3D.h"
 
+//*****************************************************************************
+// エナム
+//*****************************************************************************
 enum AURA_EFFECTS
 {
 	NORMAL_AURA_TEXTURE,
@@ -11,7 +17,6 @@ enum AURA_EFFECTS
 	HEART_AURA_TEXTURE,
 	MAX_AURA_TEXTURE
 };
-
 enum UI_TYPE
 {
 	UI_HEART,
@@ -30,7 +35,6 @@ enum UI_TYPE
 	UI_PAUSE_BLACK,
 	UI_TYPE_MAX
 };
-
 enum TUTORIAL_MESSAGES
 {
 	TUTM_ATTACK,
@@ -46,6 +50,10 @@ enum TUTORIAL_MESSAGES
 	TUTM_MISC4,
 	TUTM_MAX
 };
+
+//*****************************************************************************
+// クラス
+//*****************************************************************************
 class UIObject2D :
 	public Polygon2D
 {
@@ -86,7 +94,6 @@ public:
 	void SetNum(int num);
 	void SetTutorialMessage(int num);
 };
-
 class InGameUI2D
 {
 private:
