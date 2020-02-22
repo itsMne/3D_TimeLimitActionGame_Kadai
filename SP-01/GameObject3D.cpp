@@ -1,3 +1,8 @@
+//*****************************************************************************
+// GameObject.cpp
+// 一般的なゲームオブジェクトの管理
+// Author : Mane
+//*****************************************************************************
 #include "GameObject3D.h"
 #include "Cube3D.h"
 #include "Enemy3D.h"
@@ -6,11 +11,20 @@
 #include "Player3D.h"
 #include "Sound.h"
 
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 #define BULLET_SPEED 30
 #define PRINT_HITBOX false
 
+//*****************************************************************************
+// 構造体定義
+//*****************************************************************************
 int nInitedGameObjects = 0;
 
+//*****************************************************************************
+// コンストラクタ関数
+//*****************************************************************************
 GameObject3D::GameObject3D()
 {
 	nType = GO_MAX;
@@ -88,6 +102,12 @@ GameObject3D::~GameObject3D()
 	End();
 }
 
+//*****************************************************************************
+//Init関数
+//初期化関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void GameObject3D::Init()
 {
 	Rotation = { 0,0,0 };
@@ -114,6 +134,12 @@ void GameObject3D::Init()
 #endif
 }
 
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void GameObject3D::Update()
 {
 	if (!bUse)
@@ -202,6 +228,12 @@ void GameObject3D::Update()
 	}
 }
 
+//*****************************************************************************
+//TutorialSignControl関数
+//チュートリアルのメッセージの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void GameObject3D::TutorialSignControl()
 {
 	Model->RotateAroundY(fTutorialSignSpeed);
@@ -253,6 +285,12 @@ void GameObject3D::TutorialSignControl()
 	}
 }
 
+//*****************************************************************************
+//Draw関数
+//レンダリング関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void GameObject3D::Draw()
 {
 #if PRINT_HITBOX
@@ -288,7 +326,12 @@ void GameObject3D::Draw()
 
 }
 
-
+//*****************************************************************************
+//End関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void GameObject3D::End()
 {
 	SAFE_DELETE(Model);
@@ -297,26 +340,56 @@ void GameObject3D::End()
 #endif
 }
 
+//*****************************************************************************
+//GetPosition関数
+//拠点を戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetPosition()
 {
 	return Position;
 }
 
+//*****************************************************************************
+//GetRotation関数
+//回転を戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetRotation()
 {
 	return Rotation;
 }
 
+//*****************************************************************************
+//GetScale関数
+//大きさを戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetScale()
 {
 	return Scale;
 }
 
+//*****************************************************************************
+//GetModel関数
+//モデルのアドレスを戻す
+//引数：void
+//戻：Model3D*
+//*****************************************************************************
 Model3D * GameObject3D::GetModel()
 {
 	return Model;
 }
 
+//*****************************************************************************
+//SetScale関数
+//大きさを設定する
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetScale(float fScale)
 {
 	if (fScale < 0) 
@@ -327,16 +400,34 @@ void GameObject3D::SetScale(float fScale)
 	Scale = { fScale, fScale, fScale };
 }
 
+//*****************************************************************************
+//SetScale関数
+//大きさを設定する
+//引数：XMFLOAT3
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetScale(XMFLOAT3 fScale)
 {
 	Scale = fScale;
 }
 
+//*****************************************************************************
+//SetRotation関数
+//回転を設定する
+//引数：XMFLOAT3
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetRotation(XMFLOAT3 fRot)
 {
 	Rotation = fRot;
 }
 
+//*****************************************************************************
+//GetModelWorld関数
+//ワールドマトリックスのアドレスを戻す
+//引数：void
+//戻：XMFLOAT4X4*
+//*****************************************************************************
 XMFLOAT4X4* GameObject3D::GetModelWorld()
 {
 	XMMATRIX mtxWorld, mtxRot, mtxTranslate, mtxScale;
@@ -359,11 +450,23 @@ XMFLOAT4X4* GameObject3D::GetModelWorld()
 
 }
 
+//*****************************************************************************
+//SetPosition関数
+//拠点を設定する
+//引数：XMFLOAT3
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetPosition(XMFLOAT3 newPos)
 {
 	Position = newPos;
 }
 
+//*****************************************************************************
+//SetPosition関数
+//拠点を設定する
+//引数：XMFLOAT3, bool
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetPosition(XMFLOAT3 newPos, bool bInitial)
 {
 	Position = newPos;
@@ -371,12 +474,24 @@ void GameObject3D::SetPosition(XMFLOAT3 newPos, bool bInitial)
 		InitialPosition = Position;
 }
 
+//*****************************************************************************
+//SetRotation関数
+//モデルの回転を設定する
+//引数：XMFLOAT3
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetModelRotation(XMFLOAT3 rot)
 {
 	if(Model)
 		Model->SetRotation(rot);
 }
 
+//*****************************************************************************
+//RotateAroundX関数
+//X座標で回転する
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::RotateAroundX(float x)
 {
 	Rotation.x -= x;
@@ -385,6 +500,12 @@ void GameObject3D::RotateAroundX(float x)
 	}
 }
 
+//*****************************************************************************
+//RotateAroundY関数
+//Y座標で回転する
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::RotateAroundY(float y)
 {
 	Rotation.y -= y;
@@ -393,6 +514,12 @@ void GameObject3D::RotateAroundY(float y)
 	}
 }
 
+//*****************************************************************************
+//RotateAroundZ関数
+//Z座標で回転する
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::RotateAroundZ(float z)
 {
 	Rotation.z -= z;
@@ -401,11 +528,23 @@ void GameObject3D::RotateAroundZ(float z)
 	}
 }
 
+//*****************************************************************************
+//SetUse関数
+//使ってることを設定する
+//引数：bool
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetUse(bool newUse)
 {
 	bUse = newUse;
 }
 
+//*****************************************************************************
+//InitModel関数
+//モデルの初期化
+//引数：const char*
+//戻：void
+//*****************************************************************************
 void GameObject3D::InitModel(const char * szPath)
 {
 	if (Model)
@@ -413,6 +552,12 @@ void GameObject3D::InitModel(const char * szPath)
 	Model = new Model3D(this, szPath);
 }
 
+//*****************************************************************************
+//InitModel関数
+//モデルの初期化
+//引数：int
+//戻：void
+//*****************************************************************************
 void GameObject3D::InitModel(int szPath)
 {
 	if (Model)
@@ -420,46 +565,100 @@ void GameObject3D::InitModel(int szPath)
 	Model = new Model3D(this, szPath);
 }
 
+//*****************************************************************************
+//SetParent関数
+//親オブジェクトを設定する
+//引数：GameObject3D*
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetParent(GameObject3D * pNewParent)
 {
 	p_goParent = pNewParent;
 }
 
+//*****************************************************************************
+//TranslateX関数
+//プレイヤーに動かせる（X座標）
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::TranslateX(float translation)
 {
 	Position.x += translation;
 }
 
+//*****************************************************************************
+//TranslateY関数
+//プレイヤーに動かせる（Y座標）
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::TranslateY(float translation)
 {
 	Position.y += translation;
 }
 
+//*****************************************************************************
+//TranslateZ関数
+//プレイヤーに動かせる（Z座標）
+//引数：float
+//戻：void
+//*****************************************************************************
 void GameObject3D::TranslateZ(float translation)
 {
 	Position.z += translation;
 }
 
+//*****************************************************************************
+//IsInUse関数
+//使っていることを確認する
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool GameObject3D::IsInUse()
 {
 	return bUse;
 }
 
+//*****************************************************************************
+//GetType関数
+//種類を戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int GameObject3D::GetType()
 {
 	return nType;
 }
 
+//*****************************************************************************
+//GetHitBox関数
+//ヒットエフェクトを戻す
+//引数：void
+//戻：Box
+//*****************************************************************************
 Box GameObject3D::GetHitbox()
 {
 	return { Hitbox.PositionX + Position.x,Hitbox.PositionY + Position.y,Hitbox.PositionZ + Position.z, Hitbox.SizeX, Hitbox.SizeY, Hitbox.SizeZ };
 }
 
+//*****************************************************************************
+//SetHitbox関数
+//ヒットエフェクトを設定する
+//引数：Box
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetHitbox(Box newHitbox)
 {
 	Hitbox = newHitbox;
 }
 
+//*****************************************************************************
+//AutomaticMovementControl関数
+//自動で動くことの管理
+//引数：void
+//戻：void
+//*****************************************************************************
 void GameObject3D::AutomaticMovementControl()
 {
 
@@ -549,6 +748,12 @@ void GameObject3D::AutomaticMovementControl()
 
 }
 
+//*****************************************************************************
+//MoveToPos関数
+//自動で動くことです
+//引数：void
+//戻：void
+//*****************************************************************************
 bool GameObject3D::MoveToPos(float f_Speed, XMFLOAT3 vDestination)
 {
 	if (Position.x < vDestination.x)
@@ -589,6 +794,12 @@ bool GameObject3D::MoveToPos(float f_Speed, XMFLOAT3 vDestination)
 	return CompareXmfloat3(Position, vDestination);
 }
 
+//*****************************************************************************
+//SetMovement関数
+//自動の動き方を設定する
+//引数：XMFLOAT3, XMFLOAT3
+//戻：void
+//*****************************************************************************
 void GameObject3D::SetMovement(XMFLOAT3 Start, XMFLOAT3 End, float Speed, int delay)
 {
 	x3MoveStartPos = Start;
@@ -599,26 +810,56 @@ void GameObject3D::SetMovement(XMFLOAT3 Start, XMFLOAT3 End, float Speed, int de
 	bMoveable = true;
 }
 
+//*****************************************************************************
+//IsMoveableObject関数
+//自動に動けるオブジェクトを設定する
+//引数：void
+//戻：bool
+//*****************************************************************************
 bool GameObject3D::IsMoveableObject()
 {
 	return bMoveable;
 }
 
+//*****************************************************************************
+//GetMoveStartPosition関数
+//最初の拠点を戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetMoveStartPosition()
 {
 	return x3MoveStartPos;
 }
 
+//*****************************************************************************
+//GetMoveEndPosition関数
+//自動に動けるオブジェクトの最後の拠点を戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetMoveEndPosition()
 {
 	return x3MoveEndPos;
 }
 
+//*****************************************************************************
+//GetForward関数
+//フォーワードベクトルを戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetForward()
 {
 	return GetForwardVector(Rotation);
 }
 
+//*****************************************************************************
+//GetModelForward関数
+//モデルのフォーワードベクトルを戻す
+//引数：void
+//戻：XMFLOAT3
+//*****************************************************************************
 XMFLOAT3 GameObject3D::GetModelForward()
 {
 	if (!Model)
@@ -626,6 +867,12 @@ XMFLOAT3 GameObject3D::GetModelForward()
 	return GetForwardVector(Model->GetRotation());
 }
 
+//*****************************************************************************
+//MoveTowardPos関数
+//終点に動くこと
+//引数：XMFLOAT3, float
+//戻：bool
+//*****************************************************************************
 bool GameObject3D::MoveTowardPos(XMFLOAT3 Destination, float Speed)
 {
 	if (Position.x < Destination.x)
@@ -672,21 +919,46 @@ bool GameObject3D::MoveTowardPos(XMFLOAT3 Destination, float Speed)
 	return Position.z == Destination.z && Position.y == Destination.y && Position.x == Destination.x;
 }
 
+//*****************************************************************************
+//PauseObject関数
+//オブジェクトをポースする
+//引数：int
+//戻：void
+//*****************************************************************************
 void GameObject3D::PauseObject(int pauseFrames)
 {
 	nPauseFrames = pauseFrames;
 }
 
+//*****************************************************************************
+//GetMoveSpeed関数
+//作れるオブジェクトの速さを戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 float GameObject3D::GetMoveSpeed()
 {
 	return fAutoSpeed;
 }
 
+//*****************************************************************************
+//GetDelayFrames関数
+//作れるオブジェクトのディレイを戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int GameObject3D::GetDelayFrames()
 {
 	return nDelayFramesBetweenStops;
 }
 
+///////////////
+//リスト管理//
+/////////////
+
+//*****************************************************************************
+// コンストラクタ関数
+//*****************************************************************************
 Go_List::Go_List()
 {
 	HeadNode = nullptr;
@@ -698,16 +970,34 @@ Go_List::~Go_List()
 	End();
 }
 
+//*****************************************************************************
+//GetNumberOfObjects関数
+//リストのオブジェクトの数を戻す
+//引数：void
+//戻：int
+//*****************************************************************************
 int Go_List::GetNumberOfObjects()
 {
 	return nObjectCount;
 }
 
+//*****************************************************************************
+//AddField関数
+//リストに床のオブジェクトを入れる
+//引数：XMFLOAT3, XMFLOAT3, const char*
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::AddField(XMFLOAT3 newPosition, XMFLOAT3 newScale, const char * TexturePath)
 {
 	return AddField(newPosition, newScale, TexturePath, false, { 0,0,0 }, { 0,0,0 }, 0,0);
 }
 
+//*****************************************************************************
+//AddField関数
+//リストに床のオブジェクトを入れる
+//引数：XMFLOAT3, XMFLOAT3, const char*, bool, XMFLOAT3, XMFLOAT3
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::AddField(XMFLOAT3 newPosition, XMFLOAT3 newScale, const char * TexturePath, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames)
 {
 	go_node* pPositionList = HeadNode;
@@ -741,11 +1031,23 @@ GameObject3D * Go_List::AddField(XMFLOAT3 newPosition, XMFLOAT3 newScale, const 
 	}
 }
 
+//*****************************************************************************
+//AddWall関数
+//リストに壁のオブジェクトを入れる
+//引数：XMFLOAT3, XMFLOAT
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale)
 {
 	return AddWall(newPosition, newScale, false, { 0,0,0 }, { 0,0,0 },0,0);
 }
 
+//*****************************************************************************
+//AddWall関数
+//リストに壁のオブジェクトを入れる
+//引数：XMFLOAT3, XMFLOAT3,bool, XMFLOAT3, XMFLOAT3, float, int
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames)
 {
 	go_node* pPositionList = HeadNode;
@@ -779,11 +1081,23 @@ GameObject3D * Go_List::AddWall(XMFLOAT3 newPosition, XMFLOAT3 newScale, bool Mo
 	}
 }
 
+//*****************************************************************************
+//AddEnemy関数
+//リストに敵のオブジェクトを入れる
+//引数：XMFLOAT3
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::AddEnemy(XMFLOAT3 newPosition)
 {
 	return AddEnemy(newPosition,false, { 0,0,0 }, { 0,0,0 }, 0, 0);
 }
 
+//*****************************************************************************
+//AddEnemy関数
+//リストに敵のオブジェクトを入れる
+//引数：XMFLOAT3,bool, XMFLOAT3, XMFLOAT3, float, int
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::AddEnemy(XMFLOAT3 newPosition, bool Moveable, XMFLOAT3 Start, XMFLOAT3 End, float Speed, int DelayFrames)
 {
 	go_node* pPositionList = HeadNode;
@@ -815,6 +1129,12 @@ GameObject3D * Go_List::AddEnemy(XMFLOAT3 newPosition, bool Moveable, XMFLOAT3 S
 	}
 }
 
+//*****************************************************************************
+//CheckCollision関数
+//当たり判定を確認して、オブジェクトのアドレスを戻す
+//引数：Box
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::CheckCollision(Box hb)
 {
 	if (HeadNode == nullptr)
@@ -833,6 +1153,12 @@ GameObject3D * Go_List::CheckCollision(Box hb)
 	return nullptr;
 }
 
+//*****************************************************************************
+//CheckCollision関数
+//当たり判定を確認して、オブジェクトのアドレスを戻す
+//引数：Box, bool
+//戻：GameObject3D*
+//*****************************************************************************
 GameObject3D * Go_List::CheckCollision(Box hb, bool bIgnoreUnused)
 {
 	if (HeadNode == nullptr)
@@ -853,6 +1179,12 @@ GameObject3D * Go_List::CheckCollision(Box hb, bool bIgnoreUnused)
 	return nullptr;
 }
 
+//*****************************************************************************
+//DeleteLastPosObject関数
+//最後のオブジェクトを消す
+//引数：void
+//戻：void
+//*****************************************************************************
 void Go_List::DeleteLastPosObject()
 {
 	if (HeadNode == nullptr)
@@ -885,6 +1217,12 @@ void Go_List::DeleteLastPosObject()
 	return;
 }
 
+//*****************************************************************************
+//DeleteObject関数
+//オブジェクトを消す
+//引数：GameObject3D*
+//戻：void
+//*****************************************************************************
 void Go_List::DeleteObject(GameObject3D * pSearch)
 {
 	if (HeadNode == nullptr)
@@ -931,6 +1269,12 @@ void Go_List::DeleteObject(GameObject3D * pSearch)
 	return;
 }
 
+//*****************************************************************************
+//Update関数
+//変更関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Go_List::Update()
 {
 	if (HeadNode == nullptr)
@@ -945,6 +1289,12 @@ void Go_List::Update()
 	}
 }
 
+//*****************************************************************************
+//Draw関数
+//レンダリング関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Go_List::Draw()
 {
 	if (HeadNode == nullptr)
@@ -961,6 +1311,12 @@ void Go_List::Draw()
 	}
 }
 
+//*****************************************************************************
+//End関数
+//終了関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void Go_List::End()
 {
 	if (HeadNode == nullptr)
@@ -988,6 +1344,12 @@ void Go_List::End()
 	HeadNode = nullptr;
 }
 
+//*****************************************************************************
+//SaveFields関数
+//床のリストを保存する
+//引数：const char *
+//戻：void
+//*****************************************************************************
 void Go_List::SaveFields(const char * szFilename)
 {
 	FILE *pFile;
@@ -1030,6 +1392,12 @@ void Go_List::SaveFields(const char * szFilename)
 	fclose(pFile);
 }
 
+//*****************************************************************************
+//SaveWalls関数
+//壁のリストを保存する
+//引数：const char *
+//戻：void
+//*****************************************************************************
 void Go_List::SaveWalls(const char * szFilename)
 {
 	FILE *pFile;
@@ -1072,6 +1440,12 @@ void Go_List::SaveWalls(const char * szFilename)
 	fclose(pFile);
 }
 
+//*****************************************************************************
+//SaveEnemies関数
+//敵のリストを保存する
+//引数：const char *
+//戻：void
+//*****************************************************************************
 void Go_List::SaveEnemies(const char * szFilename)
 {
 	FILE *pFile;
@@ -1114,6 +1488,12 @@ void Go_List::SaveEnemies(const char * szFilename)
 	fclose(pFile);
 }
 
+//*****************************************************************************
+//Load関数
+//ファイルからオブジェクトを読み込んで、リストに入れる
+//引数：const char*, int
+//戻：void
+//*****************************************************************************
 void Go_List::Load(const char * szFilename, int nType)
 {
 	FILE *pFile;

@@ -39,7 +39,7 @@ void S_TitleScreen3D::Init()
 //Update関数
 //変更関数
 //引数：void
-//戻：void
+//戻：eSceneType
 //*****************************************************************************
 eSceneType S_TitleScreen3D::Update()
 {

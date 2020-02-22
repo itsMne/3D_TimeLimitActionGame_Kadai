@@ -1,15 +1,33 @@
+//*****************************************************************************
+// GameInputManager.cpp
+// インプットの管理
+// Author : Mane
+//*****************************************************************************
 #include "InputManager.h"
 #include "stdio.h"
 #include "C_XInput.h"
 #include "DXWindow3D.h"
 
+//*****************************************************************************
+// グローバル変数
+//*****************************************************************************
 C_XInput* Player1 = nullptr;
 bool bInputs[MAX_INPUTS];
 float fAxis[MAX_AXIS];
 bool bHoldingXinput[MAX_INPUTS];
 bool bXinputConnected;
 
+//*****************************************************************************
+//プロトタイプ宣言
+//*****************************************************************************
 void XinputTriggerControl(bool BeforeInputs);
+
+//*****************************************************************************
+//InitInputManager関数
+//初期化の関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void InitInputManager()
 {
 	InitInput();
@@ -18,6 +36,12 @@ void InitInputManager()
 	for (int i = 0; i < MAX_AXIS; fAxis[i] = 0, i++);
 }
 
+//*****************************************************************************
+//UpdateInputManager関数
+//アップデートの関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void UpdateInputManager()
 {
 	UpdateInput();
@@ -121,11 +145,23 @@ void UpdateInputManager()
 	XinputTriggerControl(false);
 }
 
+//*****************************************************************************
+//EndInputManager関数
+//終了の関数
+//引数：void
+//戻：void
+//*****************************************************************************
 void EndInputManager()
 {
 	UninitInput();
 }
 
+//*****************************************************************************
+//GetAxis関数
+//スティックの状態を戻す
+//引数：int
+//戻：bool
+//*****************************************************************************
 float GetAxis(int nAxis)
 {
 	if(fAxis[nAxis] > 0.05f || fAxis[nAxis] < -0.05f)
@@ -133,11 +169,23 @@ float GetAxis(int nAxis)
 	return 0;
 }
 
+//*****************************************************************************
+//GetInput関数
+//インプットの状態を戻す
+//引数：int
+//戻：bool
+//*****************************************************************************
 bool GetInput(int nInput)
 {
 	return bInputs[nInput];
 }
 
+//*****************************************************************************
+//VibrateXinput関数
+//XBOXのコントローラーに揺らせる
+//引数：float, float, int
+//戻：void
+//*****************************************************************************
 void VibrateXinput(float vivbrationL, float VibrationR)
 {
 	if (!bXinputConnected)
@@ -145,6 +193,12 @@ void VibrateXinput(float vivbrationL, float VibrationR)
 	Player1->Vibrate(vivbrationL, VibrationR, 10);
 }
 
+//*****************************************************************************
+//XinputTriggerControl関数
+//トリガーの場合を管理する
+//引数：void
+//戻：bool
+//*****************************************************************************
 void XinputTriggerControl(bool BeforeInputs)
 {
 	if (BeforeInputs) {
